@@ -1,0 +1,4 @@
+/show-face-camera.html
+tmp/docker_test/videos/*
+!/.example.env
+/.env
