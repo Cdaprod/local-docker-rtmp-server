@@ -7,15 +7,5 @@ services:
     container_name: rtmp_server
     network_mode: "host"
     volumes:
-      - type: volume
-        source: stream_recordings
-        target: /data/recordings
+      - ./tmp/docker_test/videos:/data/recordings  # Bind to repo-local directory
     restart: always
-
-volumes:
-  stream_recordings:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /tmp/docker_test/videos
