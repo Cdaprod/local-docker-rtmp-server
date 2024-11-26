@@ -1,13 +1,14 @@
-
 services:
   rtmp-server:
     build:
       context: ./app
-    # image: cdaprod/rtmp-server:latest
     container_name: rtmp_server
-    ports:
-      - "18080"
     network_mode: "host"
     volumes:
-      - ./tmp/docker_test/videos:/data/recordings  # Bind to repo-local directory
+      - ./tmp/docker_test/videos:/data/recordings
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     restart: always
