@@ -14,7 +14,8 @@ services:
 
 volumes:
   stream_recordings:
+    driver: local
     driver_opts:
-      type: "nfs4"
-      o: "addr=cda_ds.local,nolock,soft,rw"
-      device: ":/volume1/videos"
+      o: bind
+      type: none
+      device: /tmp/docker_test/videos
