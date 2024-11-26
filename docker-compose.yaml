@@ -11,3 +11,10 @@ services:
         source: stream_recordings
         target: /data/recordings
     restart: always
+
+volumes:
+  stream_recordings:
+    driver_opts:
+      type: "nfs4"
+      o: "addr=cda_ds.local,nolock,soft,rw"
+      device: ":/volume1/videos"
