@@ -2,8 +2,8 @@
 services:
   rtmp-server:
     build:
-      context: ./rtmp-server
-    image: cdaprod/rtmp-server:latest
+      context: ./app
+    # image: cdaprod/rtmp-server:latest
     container_name: rtmp_server
     network_mode: "host"
     volumes:
