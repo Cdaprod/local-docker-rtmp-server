@@ -8,14 +8,18 @@ services:
     restart: unless-stopped
     ports:
       - "1935:1935"  # RTMP port
-      - "18080:8080"  # HTTP port for health check, stats, and assets
+      - "8080:8080"  # HTTP port for health check, stats, and assets
     volumes:
-      - /mnt/nas:/mnt/nas  # Mount NAS share to container
+      - /path/to/nas/recordings:/mnt/nas/recordings  # Mount NAS share into container
       - ./public/assets:/usr/share/nginx/html/assets  # Serve placeholder assets
+      - /tmp/hls:/tmp/hls  # HLS fragments (if needed)
+      
       - ./recordings:/var/www/recordings  # Local backup for stream recordings
       - /tmp/hls:/tmp/hls  # HLS fragments
     env_file:
       - .env  # Securely load environment variables
+
+  
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
