@@ -2,20 +2,19 @@ version: "3.9"
 
 services:
   rtmp-server:
-    build:
-      context: ./app  # Adjust if your Dockerfile is in a different location
+    build: ./app
     container_name: rtmp_server
     restart: unless-stopped
     ports:
       - "1935:1935"  # RTMP port
-      - "18080:8080"  # HTTP port for health check, stats, and assets
+      - "8080:8080"  # HTTP port for health check, stats, and assets
     volumes:
-      - /mnt/nas:/mnt/nas  # Mount NAS share to container
-      - ./public/assets:/usr/share/nginx/html/assets  # Serve placeholder assets
-      - ./recordings:/var/www/recordings  # Local backup for stream recordings
-      - /tmp/hls:/tmp/hls  # HLS fragments
+      - /volume1/videos/rtmp-service:/var/www/recordings:rw  # Mount NAS directories (read-write)
+      - ./public/assets:/usr/share/nginx/html/assets:ro      # Serve placeholder assets (read-only)
+      - /tmp/hls:/tmp/hls:rw                                 # HLS fragments (read-write)
+      - ./credentials.json:/etc/credentials.json:ro          # Mount Google credentials (read-only)
     env_file:
-      - .env  # Securely load environment variables
+      - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s

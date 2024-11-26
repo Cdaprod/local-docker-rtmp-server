@@ -2,12 +2,13 @@ worker_processes auto;
 rtmp_auto_push on;
 rtmp_auto_push_reconnect 1s;
 
-env YOUR_VIDEO_ID;
-env YOUR_STREAM_KEY;
-env YOUR_TWITCH_URL;
+# Define environment variables for dynamic substitution
+env VIDEO_ID;
+env STREAM_KEY;
+env TWITCH_STREAM_URL;
 
 events {
-    worker_connections 2048;
+    worker_connections 2048;  # Increased for handling more concurrent connections
 }
 
 http {
@@ -17,7 +18,7 @@ http {
     tcp_nopush    on;
 
     server {
-        listen 8080;
+        listen 8080;  # Standard HTTP port
         server_name localhost;
 
         # RTMP Statistics in XML
@@ -157,26 +158,6 @@ rtmp {
             allow play all;
         }
 
-        # HLS for Adaptive Streaming
-        application hls {
-            live on;
-            hls on;
-            hls_path /tmp/hls;
-            hls_fragment 2s;
-            hls_playlist_length 30s;
-
-            # Adaptive Bitrate Streams
-            hls_variant _1080p60 BANDWIDTH=6000000,RESOLUTION=1920x1080,FRAME-RATE=60;
-            hls_variant _1080p30 BANDWIDTH=4500000,RESOLUTION=1920x1080,FRAME-RATE=30;
-            hls_variant _720p   BANDWIDTH=3000000,RESOLUTION=1280x720;
-            hls_variant _480p   BANDWIDTH=1500000,RESOLUTION=854x480;
-            hls_variant _360p   BANDWIDTH=800000,RESOLUTION=640x360;
-
-            allow publish 127.0.0.1;  # Only internal FFmpeg
-            deny publish all;
-            allow play all;
-        }
-
         # Final Composite Scene
         application scene {
             live on;
@@ -186,17 +167,6 @@ rtmp {
             allow publish 127.0.0.1;
             deny publish all;
             allow play all;
-
-            exec_static ffmpeg \
-                -i rtmp://localhost/nikon/$name \
-                -i rtmp://localhost/macbook/$name \
-                -i rtmp://localhost/scene-iphone/$name \
-                -filter_complex "[0:v] scale=1280x720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2 [v0]; \
-                                 [1:v] scale=1280x720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2 [v1]; \
-                                 [2:v] scale=720x1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2 [v2]; \
-                                 [v0][v1][v2] hstack=inputs=3 [out]" \
-                -map "[out]" -c:v libx264 -preset fast -b:v 6000k \
-                -c:a aac -ar 44100 -b:a 128k -f flv rtmp://localhost/stream/$name;
         }
     }
 }

@@ -1,34 +1,37 @@
-# Base image for Nginx with RTMP module
 FROM tiangolo/nginx-rtmp
 
-# Install FFmpeg and additional utilities
-RUN apt-get update && apt-get install -y \
+# Install necessary tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    streamlink \
     curl \
-    cifs-utils \
+    gettext-base \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up directories for recordings and assets
-RUN mkdir -p /var/www/recordings \
+# Set up directories
+RUN mkdir -p \
+    /var/www/recordings \
     /usr/share/nginx/html/assets \
-    /mnt/nas \
-    /tmp/hls && \
-    chmod -R 755 /var/www/recordings /usr/share/nginx/html/assets /tmp/hls
+    /tmp/hls \
+    && chmod -R 755 /var/www/recordings /usr/share/nginx/html/assets /tmp/hls
 
-# Mount network storage during container runtime
-COPY mount-nas.sh /usr/local/bin/mount-nas.sh
-RUN chmod +x /usr/local/bin/mount-nas.sh
+# Copy configuration templates and assets
+COPY ../credentials.json /etc/credentials.json       # Copy credentials.json
+COPY ../.env /app/.env                               # Copy .env file (if needed by the container)
+COPY ./nginx.conf.template /etc/nginx/nginx.conf.template
+COPY ../public/assets/ /usr/share/nginx/html/assets/ # Copy public assets
+COPY ./entrypoint.sh /entrypoint.sh
 
-# Copy Nginx configuration and assets
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY public/assets/ /usr/share/nginx/html/assets/
+# Set permissions for entrypoint script
+RUN chmod +x /entrypoint.sh
 
-# Expose RTMP and HTTP ports
+# Expose necessary ports
 EXPOSE 1935 8080
 
-# Health check
+# Health check for Nginx
 HEALTHCHECK --interval=30s --timeout=5s \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Default command with NAS mounting
-CMD ["/bin/bash", "-c", "/usr/local/bin/mount-nas.sh && nginx -g 'daemon off;'"]
+# Run the entrypoint script as the default command
+CMD ["/entrypoint.sh"]
