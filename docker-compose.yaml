@@ -1,14 +1,23 @@
+version: "3.9"
+
 services:
   rtmp-server:
     build:
-      context: ./app
+      context: ./app  # Adjust if your Dockerfile is in a different location
     container_name: rtmp_server
-    network_mode: "host"
+    restart: unless-stopped
+    ports:
+      - "1935:1935"  # RTMP port
+      - "18080:8080"  # HTTP port for health check, stats, and assets
     volumes:
-      - ./tmp/docker_test/videos:/data/recordings
+      - /mnt/nas:/mnt/nas  # Mount NAS share to container
+      - ./public/assets:/usr/share/nginx/html/assets  # Serve placeholder assets
+      - ./recordings:/var/www/recordings  # Local backup for stream recordings
+      - /tmp/hls:/tmp/hls  # HLS fragments
+    env_file:
+      - .env  # Securely load environment variables
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:18080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
-    restart: always
