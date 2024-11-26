@@ -5,6 +5,8 @@ services:
       context: ./app
     # image: cdaprod/rtmp-server:latest
     container_name: rtmp_server
+    ports:
+      - "18080"
     network_mode: "host"
     volumes:
       - ./tmp/docker_test/videos:/data/recordings  # Bind to repo-local directory
