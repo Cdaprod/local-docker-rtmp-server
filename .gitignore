@@ -4,5 +4,5 @@
 !/tmp/docker_test/videos/.gitkeep
 
 !/.example.env
-/.env
-/credentials.json
+.env
+credentials.json

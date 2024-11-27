@@ -20,3 +20,28 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "4g"
+        reservations:
+          cpus: "1.0"
+          memory: "2g"
+    networks:
+      - rtmp_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    labels:
+      com.cdaprod.project: "RTMP Streaming Server"
+      com.cdaprod.version: "1.0.0"
+      com.cdaprod.env: "production"
+      com.cdaprod.description: "Local RTMP server for impromptu content capture and archiving."
+      com.cdaprod.maintainer: "Cdaprod Cdaprod@Cdaprod.dev"
+
+networks:
+  rtmp_network:
+    driver: bridge
