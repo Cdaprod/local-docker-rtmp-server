@@ -71,6 +71,10 @@ rtmp {
             # Pull Twitch Live Stream
             exec_pull ffmpeg -i "${TWITCH_STREAM_URL}" \
                 -c copy -f flv rtmp://localhost/social/twitch;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
         }
 
         # iPhone Application
@@ -92,6 +96,10 @@ rtmp {
                 -vf "scale=1080x2336:force_original_aspect_ratio=decrease,pad=1080:2336:(ow-iw)/2:(oh-ih)/2" \
                 -c:v libx264 -preset veryfast -tune stillimage -b:v 600k \
                 -c:a aac -ar 44100 -b:a 128k -f flv rtmp://localhost/scene-iphone/placeholder;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
         }
 
         # Scene for iPhone
@@ -111,6 +119,10 @@ rtmp {
             record off;
             allow publish 192.168.0.187;  # Nikon IP
             allow play all;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
         }
 
         # MacBook Application
@@ -119,6 +131,10 @@ rtmp {
             record off;
             allow publish 192.168.0.9;  # MacBook IP
             allow play all;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
         }
 
         # Scene-Multi (Nikon + iPhone Composite)
@@ -151,9 +167,9 @@ rtmp {
             record_suffix _%Y-%m-%d_%H-%M.flv;
             record_max_size 500M;
 
-            # Notify external services
-            on_publish http://127.0.0.1:5000/on_publish;
-            on_publish_done http://127.0.0.1:5000/on_publish_done;
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
 
             allow play all;
         }
