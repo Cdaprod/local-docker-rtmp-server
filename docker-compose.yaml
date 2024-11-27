@@ -6,15 +6,20 @@ services:
     container_name: rtmp_server
     restart: unless-stopped
     ports:
-      - "1935:1935"  # RTMP port
-      - "8080:8080"  # HTTP port for health check, stats, and assets
+      - "1935:1935"  # RTMP
+      - "8080:8080"  # HTTP
     volumes:
-      - /volume1/videos/rtmp-service:/var/www/recordings:rw  # Mount NAS directories (read-write)
-      - ./public/assets:/usr/share/nginx/html/assets:ro      # Serve placeholder assets (read-only)
-      - /tmp/hls:/tmp/hls:rw                                 # HLS fragments (read-write)
-      - ./credentials.json:/etc/credentials.json:ro          # Mount Google credentials (read-only)
+      - /volume1/videos/rtmp-service:/var/www/recordings:rw  # NAS recordings
+      - ./public/assets:/usr/share/nginx/html/assets:ro
+      - ./credentials.json:/etc/credentials.json:ro
+      - ./app/scripts:/app/scripts:ro
     env_file:
       - .env
+    environment:
+      - TZ=UTC
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=2048
+      - MAX_SEGMENT_DURATION=6
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -28,20 +33,18 @@ services:
         reservations:
           cpus: "1.0"
           memory: "2g"
-    networks:
-      - rtmp_network
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
+        max-size: "20m"
         max-file: "5"
     labels:
       com.cdaprod.project: "RTMP Streaming Server"
-      com.cdaprod.version: "1.0.0"
-      com.cdaprod.env: "production"
-      com.cdaprod.description: "Local RTMP server for impromptu content capture and archiving."
-      com.cdaprod.maintainer: "Cdaprod Cdaprod@Cdaprod.dev"
+      com.cdaprod.version: "1.1.0"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
+      com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
+      com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
 
 networks:
-  rtmp_network:
+  default:
     driver: bridge
