@@ -51,7 +51,15 @@ services:
     networks:
       - rtmp_network
 
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rtmp_network
+
 networks:
   rtmp_network:
     external: true
-    name: shared_network
+    name: rtmp_network
