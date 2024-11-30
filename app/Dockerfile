@@ -7,12 +7,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gettext-base \
     jq \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the specific asset file to the target directory
-COPY /public/assets/*.jpeg /usr/share/nginx/html/assets/
-
-# Set up directories
+# Create directories for assets, recordings, and HLS
 RUN mkdir -p \
     /var/www/recordings \
     /usr/share/nginx/html/assets \
@@ -20,10 +18,18 @@ RUN mkdir -p \
     /app/scripts \
     && chmod -R 755 /var/www/recordings /usr/share/nginx/html/assets /tmp/hls
 
-# Copy configuration files and scripts
+# Copy specific asset files (ensure this path is correct)
+COPY ./public/assets/*.jpeg /usr/share/nginx/html/assets/
+
+# Copy configuration and scripts
 COPY ./nginx.conf.template /etc/nginx/nginx.conf.template
 COPY ./entrypoint.sh /entrypoint.sh
 COPY ./scripts/ /app/scripts/
+
+# Install Python dependencies (ensure requirements.txt exists)
+RUN pip install -r /app/scripts/requirements.txt
+
+# Set proper permissions for scripts
 RUN chmod +x /entrypoint.sh /app/scripts/*
 
 # Expose ports

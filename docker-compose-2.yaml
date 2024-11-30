@@ -1,0 +1,143 @@
+version: "3.9"
+
+services:
+  rtmp-server:
+    build: ./app
+    container_name: rtmp_server
+    restart: unless-stopped
+    ports:
+      - "1935:1935"  # RTMP
+      - "8080:8080"  # HTTP
+    volumes:
+      - /volume1/videos/rtmp-service:/var/www/recordings:rw  # NAS recordings
+      - ./public/assets:/usr/share/nginx/html/assets:ro
+      - ./credentials.json:/etc/credentials.json:ro
+      - ./app/scripts:/app/scripts:ro
+    env_file:
+      - .env
+    environment:
+      - TZ=UTC
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=2048
+      - MAX_SEGMENT_DURATION=6
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "4g"
+    labels:
+      com.cdaprod.project: "RTMP Streaming Server"
+      com.cdaprod.version: "1.1.0"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
+      com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
+      com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+    networks:
+      - rtmp_network
+
+networks:
+  rtmp_network:
+    external:
+      name: shared_network
+
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - '5672:5672'    # AMQP port
+      - '15672:15672'  # Management UI port
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./app/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1g"
+    labels:
+      com.cdaprod.project: "Video Event Broker"
+      com.cdaprod.version: "1.0.0"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
+      com.cdaprod.description: "RabbitMQ message broker for video events"
+      com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+    networks:
+      - broker_network
+
+  metadata-enricher:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: metadata_enricher
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "512m"
+    labels:
+      com.cdaprod.project: "Video Event Broker"
+      com.cdaprod.version: "1.0.0"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
+      com.cdaprod.description: "Metadata enricher service for video events"
+      com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+    networks:
+      - broker_network
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  broker_network:
+    external:
+      name: shared_network
