@@ -120,5 +120,6 @@ volumes:
 
 networks:
   rtmp_network:
+    external: true
     name: rtmp_network
     driver: bridge
