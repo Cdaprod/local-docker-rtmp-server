@@ -93,11 +93,13 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    networks:
+      rtmp_network:
+        aliases:
+          - metadata-service
     depends_on:
       rabbitmq:
         condition: service_healthy
-    networks:
-      - rtmp_network
 
   # rtmp-processor:
   #   build:
