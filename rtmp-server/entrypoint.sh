@@ -20,48 +20,41 @@ check_ssl_certificates() {
     fi
 }
 
-# Function to verify directories and permissions
+# Function to verify and set up directories
 setup_directories() {
-    local dirs=("/var/www/recordings" "/tmp/hls")
+    local dirs=("/var/www/recordings" "/tmp/hls" "/usr/share/nginx/html/assets")
     for dir in "${dirs[@]}"; do
         mkdir -p "$dir"
-        chmod -R 755 "$dir"
     done
-
-    # Ensure the /usr/share/nginx/html/assets directory exists without changing permissions
-    mkdir -p /usr/share/nginx/html/assets
+    echo "Directories are set up."
 }
 
 # Mount NAS function
 mount_nas() {
+    echo "Checking NAS mount at ${NAS_MOUNT_PATH}..."
+    if mountpoint -q "${NAS_MOUNT_PATH}"; then
+        echo "NAS is already mounted at ${NAS_MOUNT_PATH}"
+        return 0
+    fi
+
     echo "Attempting to mount NAS at ${NAS_MOUNT_PATH}..."
     mkdir -p "${NAS_MOUNT_PATH}"
 
-    # Mount command for SMB/CIFS
+    local mount_options="rw,vers=3.0,uid=1000,gid=1000"
     if [ -n "${NAS_USERNAME}" ] && [ -n "${NAS_PASSWORD}" ]; then
         mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" \
-            -o username="${NAS_USERNAME}",password="${NAS_PASSWORD}",rw,vers=3.0,uid=1000,gid=1000
+            -o username="${NAS_USERNAME}",password="${NAS_PASSWORD},${mount_options}"
     else
-        mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" \
-            -o rw,vers=3.0,uid=1000,gid=1000
+        mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" -o "${mount_options}"
     fi
 
-    if [ $? -ne 0 ]; then
+    if mountpoint -q "${NAS_MOUNT_PATH}"; then
+        echo "NAS mounted successfully at ${NAS_MOUNT_PATH}"
+    else
         echo "Error: Failed to mount NAS at ${NAS_MOUNT_PATH}"
         exit 1
     fi
-
-    echo "NAS mounted successfully at ${NAS_MOUNT_PATH}"
 }
-
-# Check if the mount point is already mounted
-if ! mountpoint -q "${NAS_MOUNT_PATH}"; then
-    mount_nas
-else
-    echo "NAS is already mounted at ${NAS_MOUNT_PATH}"
-fi
-
-
 
 # Function to generate nginx configuration
 generate_nginx_conf() {
@@ -80,10 +73,10 @@ generate_nginx_conf() {
         < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
     # Validate nginx configuration
-    nginx -t -c /etc/nginx/nginx.conf || {
+    if ! nginx -t -c /etc/nginx/nginx.conf; then
         echo "Error: Nginx configuration validation failed!"
         exit 1
-    }
+    fi
 }
 
 # Main execution
