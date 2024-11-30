@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy the specific asset file to the target directory
+COPY /public/assets/*.jpeg /usr/share/nginx/html/assets/
+
 # Set up directories
 RUN mkdir -p \
     /var/www/recordings \
