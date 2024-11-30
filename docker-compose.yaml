@@ -53,5 +53,5 @@ services:
 
 networks:
   rtmp_network:
-    external:
-      name: shared_network
+    external: true
+    name: shared_network
