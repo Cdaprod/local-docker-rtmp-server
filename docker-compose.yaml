@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - "1935:1935"  # RTMP
-      - "8080:8080"  # HTTP
+      - "18080:8080"  # HTTP
     volumes:
       - ./public/assets:/usr/share/nginx/html/assets:ro  # Static assets
       - ./credentials.json:/etc/credentials.json:ro  # Credentials for other services
