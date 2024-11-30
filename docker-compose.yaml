@@ -83,20 +83,18 @@ services:
     networks:
       - rtmp_network
 
-  metadata-enricher:
+  metadata-service:
     build:
       context: ./event-broker
       dockerfile: Dockerfile
-    container_name: metadata_enricher
+    container_name: metadata-service
     restart: unless-stopped
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     networks:
-      rtmp_network:
-        aliases:
-          - metadata-service
+      - rtmp_network
     depends_on:
       rabbitmq:
         condition: service_healthy
