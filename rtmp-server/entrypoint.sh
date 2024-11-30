@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# NAS mount details
+NAS_IP_OR_HOSTNAME=${NAS_IP_OR_HOSTNAME:-"192.168.0.19"}
+NAS_SHARE_NAME=${NAS_SHARE_NAME:-"volume1/videos"}
+NAS_USERNAME=${NAS_USERNAME:-""}
+NAS_PASSWORD=${NAS_PASSWORD:-""}
+NAS_MOUNT_PATH=${NAS_MOUNT_PATH:-"/var/www/recordings"}
+
 # Function to verify SSL certificates
 check_ssl_certificates() {
     if [ ! -f "/etc/nginx/ssl/cert.pem" ] || [ ! -f "/etc/nginx/ssl/key.pem" ]; then
@@ -25,28 +32,36 @@ setup_directories() {
     mkdir -p /usr/share/nginx/html/assets
 }
 
-# Function to mount NAS
+# Mount NAS function
 mount_nas() {
-    echo "Attempting to mount NAS..."
+    echo "Attempting to mount NAS at ${NAS_MOUNT_PATH}..."
+    mkdir -p "${NAS_MOUNT_PATH}"
 
-    if [ -z "${NAS_IP_OR_HOSTNAME:-}" ] || [ -z "${NAS_SHARE_NAME:-}" ]; then
-        echo "Error: NAS_IP_OR_HOSTNAME and NAS_SHARE_NAME must be set!"
+    # Mount command for SMB/CIFS
+    if [ -n "${NAS_USERNAME}" ] && [ -n "${NAS_PASSWORD}" ]; then
+        mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" \
+            -o username="${NAS_USERNAME}",password="${NAS_PASSWORD}",rw,vers=3.0,uid=1000,gid=1000
+    else
+        mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" \
+            -o rw,vers=3.0,uid=1000,gid=1000
+    fi
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to mount NAS at ${NAS_MOUNT_PATH}"
         exit 1
     fi
 
-    NAS_MOUNT_POINT="/var/www/recordings"
-
-    mkdir -p "$NAS_MOUNT_POINT"
-    mount -t cifs \
-        //"$NAS_IP_OR_HOSTNAME"/"$NAS_SHARE_NAME" \
-        "$NAS_MOUNT_POINT" \
-        -o username="${NAS_USERNAME:-},password=${NAS_PASSWORD:-},rw" || {
-            echo "Error: Failed to mount NAS at $NAS_MOUNT_POINT"
-            exit 1
-        }
-
-    echo "NAS successfully mounted at $NAS_MOUNT_POINT"
+    echo "NAS mounted successfully at ${NAS_MOUNT_PATH}"
 }
+
+# Check if the mount point is already mounted
+if ! mountpoint -q "${NAS_MOUNT_PATH}"; then
+    mount_nas
+else
+    echo "NAS is already mounted at ${NAS_MOUNT_PATH}"
+fi
+
+
 
 # Function to generate nginx configuration
 generate_nginx_conf() {
