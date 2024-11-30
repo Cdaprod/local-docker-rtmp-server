@@ -2,17 +2,16 @@ version: "3.9"
 
 services:
   rtmp-server:
-    build: ./app
+    build: ./rtmp-server
     container_name: rtmp_server
     restart: unless-stopped
     ports:
       - "1935:1935"  # RTMP
       - "8080:8080"  # HTTP
     volumes:
-      - /volume1/videos/rtmp-service:/var/www/recordings:rw  # NAS recordings
-      - ./public/assets:/usr/share/nginx/html/assets:ro
-      - ./credentials.json:/etc/credentials.json:ro
-      - ./app/scripts:/app/scripts:ro
+      - ./public/assets:/usr/share/nginx/html/assets:ro  # Static assets
+      - ./credentials.json:/etc/credentials.json:ro  # Credentials for other services
+      - /tmp/rtmp-recordings:/tmp/hls:rw  # Local HLS temp files (optional, mapped to host)
     env_file:
       - .env
     environment:
@@ -20,6 +19,10 @@ services:
       - NGINX_WORKER_PROCESSES=auto
       - NGINX_WORKER_CONNECTIONS=2048
       - MAX_SEGMENT_DURATION=6
+      - NAS_IP_OR_HOSTNAME=${NAS_IP_OR_HOSTNAME}    # NAS IP or Hostname
+      - NAS_SHARE_NAME=${NAS_SHARE_NAME}           # NAS Share Path
+      - NAS_USERNAME=${NAS_USERNAME}              # NAS Username
+      - NAS_PASSWORD=${NAS_PASSWORD}              # NAS Password
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
@@ -52,12 +55,55 @@ services:
       - rtmp_network
 
   rabbitmq:
-    image: rabbitmq:management
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./event-broker/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     networks:
       - rtmp_network
+
+  metadata-enricher:
+    build:
+      context: ./event-broker
+      dockerfile: Dockerfile
+    container_name: metadata_enricher
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rtmp_network
+
+  rtmp-processor:
+    build:
+      context: ./rtmp-processor
+      dockerfile: Dockerfile
+    container_name: rtmp_processor
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - rtmp_network
+
+volumes:
+  rabbitmq_data:
 
 networks:
   rtmp_network:

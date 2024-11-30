@@ -3,6 +3,7 @@ FROM tiangolo/nginx-rtmp
 # Install necessary tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    cifs-utils \  # Add CIFS utilities for NAS mounting
     streamlink \
     curl \
     gettext-base \

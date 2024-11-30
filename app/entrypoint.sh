@@ -17,9 +17,33 @@ check_ssl_certificates() {
 setup_directories() {
     local dirs=("/var/www/recordings" "/tmp/hls" "/usr/share/nginx/html/assets")
     for dir in "${dirs[@]}"; do
+        echo "Setting up directory: $dir"
         mkdir -p "$dir"
         chmod -R 755 "$dir"
     done
+}
+
+# Function to mount NAS
+mount_nas() {
+    echo "Attempting to mount NAS..."
+
+    if [ -z "${NAS_IP_OR_HOSTNAME:-}" ] || [ -z "${NAS_SHARE_NAME:-}" ]; then
+        echo "Error: NAS_IP_OR_HOSTNAME and NAS_SHARE_NAME must be set!"
+        exit 1
+    fi
+
+    NAS_MOUNT_POINT="/var/www/recordings"
+
+    mkdir -p "$NAS_MOUNT_POINT"
+    mount -t cifs \
+        //"$NAS_IP_OR_HOSTNAME"/"$NAS_SHARE_NAME" \
+        "$NAS_MOUNT_POINT" \
+        -o username="${NAS_USERNAME:-},password=${NAS_PASSWORD:-},rw" || {
+            echo "Error: Failed to mount NAS at $NAS_MOUNT_POINT"
+            exit 1
+        }
+
+    echo "NAS successfully mounted at $NAS_MOUNT_POINT"
 }
 
 # Function to generate nginx configuration
@@ -34,21 +58,25 @@ generate_nginx_conf() {
     export NGINX_WORKER_PROCESSES=${NGINX_WORKER_PROCESSES:-auto}
     export NGINX_WORKER_CONNECTIONS=${NGINX_WORKER_CONNECTIONS:-2048}
     export MAX_SEGMENT_DURATION=${MAX_SEGMENT_DURATION:-6}
-    
+
     envsubst '${NGINX_WORKER_PROCESSES} ${NGINX_WORKER_CONNECTIONS} ${MAX_SEGMENT_DURATION}' \
         < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
     # Validate nginx configuration
-    nginx -t -c /etc/nginx/nginx.conf
+    nginx -t -c /etc/nginx/nginx.conf || {
+        echo "Error: Nginx configuration validation failed!"
+        exit 1
+    }
 }
 
 # Main execution
 main() {
     echo "Starting RTMP server initialization..."
-    
+
     # Run setup functions
     check_ssl_certificates
     setup_directories
+    mount_nas
     generate_nginx_conf
 
     # Start nginx
