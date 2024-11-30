@@ -15,12 +15,14 @@ check_ssl_certificates() {
 
 # Function to verify directories and permissions
 setup_directories() {
-    local dirs=("/var/www/recordings" "/tmp/hls" "/usr/share/nginx/html/assets")
+    local dirs=("/var/www/recordings" "/tmp/hls")
     for dir in "${dirs[@]}"; do
-        echo "Setting up directory: $dir"
         mkdir -p "$dir"
         chmod -R 755 "$dir"
     done
+
+    # Ensure the /usr/share/nginx/html/assets directory exists without changing permissions
+    mkdir -p /usr/share/nginx/html/assets
 }
 
 # Function to mount NAS
