@@ -86,21 +86,21 @@ services:
     networks:
       - rtmp_network
 
-  rtmp-processor:
-    build:
-      context: ./rtmp-processor
-      dockerfile: Dockerfile
-    container_name: rtmp_processor
-    restart: unless-stopped
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - rtmp_network
+  # rtmp-processor:
+  #   build:
+  #     context: ./rtmp-processor
+  #     dockerfile: Dockerfile
+  #   container_name: rtmp_processor
+  #   restart: unless-stopped
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - rtmp_network
 
 volumes:
   rabbitmq_data:
