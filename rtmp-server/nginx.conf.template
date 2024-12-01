@@ -67,18 +67,17 @@ rtmp {
         
         application live {
             live on; # Enable live streaming
-
-            # Event hooks (call metadata-service)
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name;
-
-
+            allow publish 192.168.0.10;  # iPhone IP
+            allow play all;
+            
             # Record streams (optional, for NAS integration)
             record all;
             record_path /var/www/recordings; # NAS-mounted directory
             record_unique on;
-            
-            allow play all;
+
+            # Event hooks (call metadata-service)
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name;
         }
 
         # Social Media Application
