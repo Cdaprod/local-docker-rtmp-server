@@ -66,18 +66,35 @@ rtmp {
         ping_timeout 15s;
         
         application live {
-            live on; # Enable live streaming
-            allow publish 192.168.0.10;  # iPhone IP
-            allow play all;
-            
-            # Record streams (optional, for NAS integration)
-            record all;
-            record_path /var/www/recordings; # NAS-mounted directory
-            record_unique on;
+            live on;
 
+            hls on;
+            hls_path /tmp/hls;
+            hls_fragment ${MAX_SEGMENT_DURATION:-6}s;
+            hls_playlist_length 30s;
+
+            allow publish 192.168.0.10;
+            deny publish all;
+            
             # Event hooks (call metadata-service)
             on_publish http://metadata-service:5000/on_publish?app=$app&name=$name;
             on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name;
+
+
+            exec_push ffmpeg -i rtmp://localhost/live/$name \
+                -vf "scale=1080x1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+                -c:v libx264 -preset fast -b:v 4500k \
+                -c:a aac -b:a 128k -f flv rtmps://a.rtmp.youtube.com/live2/${YOUTUBE_STREAM_KEY};
+
+            exec_push ffmpeg -i rtmp://localhost/live/$name \
+                -vf "scale=1080x1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+                -c:v libx264 -preset fast -b:v 4500k \
+                -c:a aac -b:a 128k -f flv rtmps://live-api-s.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
+
+            exec_push ffmpeg -i rtmp://localhost/live/$name \
+                -c:v libx264 -preset fast -b:v 4500k \
+                -c:a aac -b:a 128k -f flv rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+
         }
 
         # Social Media Application
