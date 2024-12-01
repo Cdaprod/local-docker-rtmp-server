@@ -73,6 +73,8 @@ rtmp {
             record all;
             record_path /var/www/recordings; # NAS-mounted directory
             record_unique on;
+            
+            allow play all;
         }
 
         # Social Media Application
