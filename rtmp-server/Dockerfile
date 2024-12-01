@@ -21,6 +21,7 @@ RUN mkdir -p \
 
 # Copy specific asset files (ensure this path is correct)
 COPY ./public/assets/*.jpeg /usr/share/nginx/html/assets/
+COPY ./public/assets/stream-viewer.html /usr/share/nginx/html/assets/
 
 # Copy configuration and scripts
 COPY ./nginx.conf.template /etc/nginx/nginx.conf.template

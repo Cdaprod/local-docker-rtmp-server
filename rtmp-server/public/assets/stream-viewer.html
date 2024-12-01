@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTMP and HLS Stream Viewer</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    video {
+      display: block;
+      margin: 20px auto;
+      width: 80%;
+      max-width: 800px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      background: #000;
+    }
+    input, button {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #controls {
+      text-align: center;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>RTMP and HLS Stream Viewer</h1>
+  
+  <div id="controls">
+    <input type="text" id="hlsUrl" placeholder="Enter HLS URL (e.g., http://192.168.0.21:8080/hls/test_stream.m3u8)">
+    <button onclick="loadHlsStream()">Play HLS Stream</button>
+  </div>
+  
+  <video id="videoPlayer" controls autoplay></video>
+  
+  <div id="rtmpInfo">
+    <h2>RTMP Stream Instructions</h2>
+    <p>To test RTMP, use a broadcasting tool (e.g., OBS) to publish to the following URL:</p>
+    <pre>rtmp://192.168.0.21:1935/live/{stream_key}</pre>
+    <p>Replace <code>{stream_key}</code> with your desired stream name.</p>
+    <p>Check your RTMP logs to verify the stream is being processed.</p>
+  </div>
+  
+  <div id="error" class="error"></div>
+
+  <script>
+    function loadHlsStream() {
+      const video = document.getElementById('videoPlayer');
+      const hlsUrl = document.getElementById('hlsUrl').value;
+      const errorDiv = document.getElementById('error');
+
+      if (!hlsUrl) {
+        errorDiv.textContent = "Please enter a valid HLS URL.";
+        return;
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play();
+        });
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          errorDiv.textContent = "Error loading HLS stream: " + data.details;
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = hlsUrl;
+        video.addEventListener('loadedmetadata', function () {
+          video.play();
+        });
+        video.onerror = function () {
+          errorDiv.textContent = "Error loading HLS stream. Please check the URL.";
+        };
+      } else {
+        errorDiv.textContent = "Your browser does not support HLS playback.";
+      }
+    }
+  </script>
+</body>
+</html>

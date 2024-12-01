@@ -29,7 +29,10 @@ http {
             }
             root /tmp/hls; # Temp storage for HLS segments
         }
-
+        location /viewer {
+            root /usr/share/nginx/html/assets;
+            index stream-viewer.html;
+        }
 
         # RTMP Statistics in XML
         location /stat {
