@@ -66,8 +66,9 @@ rtmp {
             live on; # Enable live streaming
 
             # Event hooks (call metadata-service)
-            on_publish http://metadata-service:5000/on_publish;
-            on_publish_done http://metadata-service:5000/on_publish_done;
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name;
+
 
             # Record streams (optional, for NAS integration)
             record all;
