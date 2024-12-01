@@ -51,6 +51,13 @@ rtmp {
         timeout 60s;
         ping 30s;
         ping_timeout 15s;
+        
+        application live {
+            live on;
+
+            # Publish events to RabbitMQ via metadata-service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
 
         # Social Media Application
         application social {

@@ -19,6 +19,9 @@ services:
     env_file:
       - .env
     environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - TZ=UTC
       - NGINX_WORKER_PROCESSES=auto
       - NGINX_WORKER_CONNECTIONS=2048
@@ -93,6 +96,7 @@ services:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - METADATA_QUEUE=metadata_queue  # The queue to listen to
     networks:
       - rtmp_network
     depends_on:
