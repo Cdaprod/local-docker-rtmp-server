@@ -85,7 +85,7 @@ services:
 
   metadata-service:
     build:
-      context: ./event-broker
+      context: ./metadata-service
       dockerfile: Dockerfile
     container_name: metadata-service
     restart: unless-stopped
