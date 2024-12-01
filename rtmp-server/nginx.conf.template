@@ -1,14 +1,24 @@
-worker_processes auto;
+worker_processes ${NGINX_WORKER_PROCESSES};
 rtmp_auto_push on;
 rtmp_auto_push_reconnect 1s;
 
 # Define environment variables for dynamic substitution
-env VIDEO_ID;
-env STREAM_KEY;
-env TWITCH_STREAM_URL;
+env NAS_IP_OR_HOSTNAME;
+env NAS_SHARE_NAME;
+env NAS_USERNAME;
+env NAS_PASSWORD;
+env YOUTUBE_VIDEO_ID;
+env YOUTUBE_STREAM_KEY;
+env FACEBOOK_STREAM_KEY;
+env TWITCH_STREAM_KEY;
+env TWITCH_CHANNEL_NAME;
+env DEVICE1_STREAM_KEY;
+env DEVICE2_STREAM_KEY;
+env DEVICE3_STREAM_KEY;
+env NAS_SHARE_NAME;
 
 events {
-    worker_connections 2048;  # Increased for handling more concurrent connections
+    worker_connections ${NGINX_WORKER_CONNECTIONS};
 }
 
 http {
@@ -17,24 +27,31 @@ http {
     sendfile      on;
     tcp_nopush    on;
 
+    # Add logging for debugging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log debug;
+
     server {
-        listen 8080;  # Standard HTTP port
+        listen 8080;
         server_name localhost;
 
-        # HTTP server for HLS
+        # Enhanced CORS support
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+
+        # HLS config
         location /hls {
             types {
                 application/vnd.apple.mpegurl m3u8;
                 video/mp2t ts;
             }
-            root /tmp/hls; # Temp storage for HLS segments
-        }
-        location /viewer {
-            root /usr/share/nginx/html/assets;
-            index stream-viewer.html;
+            root /tmp/hls;
+            add_header Cache-Control no-cache;
+            add_header Access-Control-Allow-Origin *;
         }
 
-        # RTMP Statistics in XML
+        # Stats and monitoring
         location /stat {
             rtmp_stat all;
             rtmp_stat_stylesheet stat.xsl;
@@ -44,13 +61,7 @@ http {
             root /usr/share/nginx/html;
         }
 
-        # Serve placeholder or additional assets
-        location / {
-            root /usr/share/nginx/html;
-            index index.html;
-        }
-
-        # Health check endpoint
+        # Health check
         location /health {
             return 200 "healthy\n";
         }
@@ -60,175 +71,35 @@ http {
 rtmp {
     server {
         listen 1935;
-        chunk_size 16384;
-        timeout 60s;
-        ping 30s;
-        ping_timeout 15s;
+        chunk_size 4096;  # Optimized for mobile
         
-        application live {
+        # Main ingest point for all devices
+        application ingest {
             live on;
-
+            allow publish all;
+            allow play all;
+            
+            # HLS settings
             hls on;
             hls_path /tmp/hls;
-            hls_fragment ${MAX_SEGMENT_DURATION:-6}s;
-            hls_playlist_length 30s;
-
-            allow publish 192.168.0.10;
-            deny publish all;
+            hls_fragment 2s;
+            hls_playlist_length 16s;
+            hls_flags delete_segments;
             
-            # Event hooks (call metadata-service)
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name;
-
-
-            exec_push ffmpeg -i rtmp://localhost/live/$name \
-                -vf "scale=1080x1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
-                -c:v libx264 -preset fast -b:v 4500k \
-                -c:a aac -b:a 128k -f flv rtmps://a.rtmp.youtube.com/live2/${YOUTUBE_STREAM_KEY};
-
-            exec_push ffmpeg -i rtmp://localhost/live/$name \
-                -vf "scale=1080x1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
-                -c:v libx264 -preset fast -b:v 4500k \
-                -c:a aac -b:a 128k -f flv rtmps://live-api-s.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
-
-            exec_push ffmpeg -i rtmp://localhost/live/$name \
-                -c:v libx264 -preset fast -b:v 4500k \
-                -c:a aac -b:a 128k -f flv rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
-
-        }
-
-        # Social Media Application
-        application social {
-            live on;
+            # Push to social platforms
+            push rtmp://localhost/youtube;
+            push rtmp://localhost/facebook;
+            push rtmp://localhost/twitch;
+            
+            # Record everything
             record all;
-            record_path /var/www/recordings/social;
-            record_unique on;
-            allow play all;
-
-            # Pull YouTube Live Stream
-            exec_pull ffmpeg -i "https://www.youtube.com/watch?v=${VIDEO_ID}" \
-                -c copy -f flv rtmp://localhost/social/youtube;
-
-            # Pull Facebook Live Stream
-            exec_pull ffmpeg -i "rtmps://live-api-s.facebook.com:443/rtmp/${STREAM_KEY}" \
-                -c copy -f flv rtmp://localhost/social/facebook;
-
-            # Pull Twitch Live Stream
-            exec_pull ffmpeg -i "${TWITCH_STREAM_URL}" \
-                -c copy -f flv rtmp://localhost/social/twitch;
-
-            # Notify metadata service
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
-        }
-
-        # iPhone Application
-        application iphone {
-            live on;
-            record off;
-            allow publish 192.168.0.10;  # iPhone IP
-            allow play all;
-
-            # Transcode and forward to scene-iphone
-            exec_push ffmpeg -i rtmp://localhost/iphone/$name \
-                -c:v libx264 -preset fast -b:v 4500k -maxrate 4500k -bufsize 9000k \
-                -vf "scale=1080x2336:force_original_aspect_ratio=decrease,pad=1080:2336:(ow-iw)/2:(oh-ih)/2" \
-                -c:a aac -b:a 128k -f flv rtmp://localhost/scene-iphone/$name;
-
-            # Idle streams show placeholder
-            idle_streams on;
-            exec_static ffmpeg -loop 1 -re -i /usr/share/nginx/html/assets/cdaprod-be-right-back.jpeg \
-                -vf "scale=1080x2336:force_original_aspect_ratio=decrease,pad=1080:2336:(ow-iw)/2:(oh-ih)/2" \
-                -c:v libx264 -preset veryfast -tune stillimage -b:v 600k \
-                -c:a aac -ar 44100 -b:a 128k -f flv rtmp://localhost/scene-iphone/placeholder;
-
-            # Notify metadata service
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
-        }
-
-        # Scene for iPhone
-        application scene-iphone {
-            live on;
-            record all;
-            record_path /var/www/recordings/scene-iphone;
-            record_unique on;
-            allow publish 127.0.0.1;  # Only internal publishers
-            deny publish all;
-            allow play all;
-        }
-
-        # Nikon Application
-        application nikon {
-            live on;
-            record off;
-            allow publish 192.168.0.187;  # Nikon IP
-            allow play all;
-
-            # Notify metadata service
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
-        }
-
-        # MacBook Application
-        application macbook {
-            live on;
-            record off;
-            allow publish 192.168.0.9;  # MacBook IP
-            allow play all;
-
-            # Notify metadata service
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
-        }
-
-        # Scene-Multi (Nikon + iPhone Composite)
-        application scene-multi {
-            live on;
-            record all;
-            record_path /var/www/recordings/scene-multi;
-            record_unique on;
-            allow publish 127.0.0.1;  # Only FFmpeg
-            deny publish all;
-            allow play all;
-
-            exec_static ffmpeg \
-                -i rtmp://localhost/nikon/$name \
-                -i rtmp://localhost/scene-iphone/$name \
-                -filter_complex "\
-                    [0:v]scale=1280x720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v0]; \
-                    [1:v]scale=720x1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2[v1]; \
-                    [v0][v1]overlay=10:10[outv]" \
-                -map "[outv]" -c:v libx264 -preset fast -b:v 6000k \
-                -c:a aac -ar 44100 -b:a 128k -f flv rtmp://localhost/stream-multi/$name;
-        }
-
-        # Final Stream-Multi
-        application stream-multi {
-            live on;
-            record all;
-            record_path /var/www/recordings/stream-multi;
+            record_path ${NAS_SHARE_NAME}/recordings/ingest;
             record_unique on;
             record_suffix _%Y-%m-%d_%H-%M.flv;
-            record_max_size 500M;
-
-            # Notify metadata service
+            
+            # Metadata hooks
             on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
             on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
-
-            allow play all;
-        }
-
-        # Final Composite Scene
-        application scene {
-            live on;
-            record all;
-            record_path /data/recordings/scene;
-            record_unique on;
-            allow publish 127.0.0.1;
-            deny publish all;
-            allow play all;
         }
     }
 }
-

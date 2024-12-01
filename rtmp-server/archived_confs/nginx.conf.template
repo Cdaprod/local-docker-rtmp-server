@@ -1,0 +1,272 @@
+worker_processes auto;
+rtmp_auto_push on;
+rtmp_auto_push_reconnect 1s;
+
+# Define environment variables for dynamic substitution
+env VIDEO_ID;
+env STREAM_KEY;
+env TWITCH_STREAM_URL;
+
+events {
+    worker_connections 2048;  # Increased for handling more concurrent connections
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    tcp_nopush    on;
+
+    server {
+        listen 8080;  # Standard HTTP port
+        server_name localhost;
+
+        # HTTP server for HLS
+        location /hls {
+            types {
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            }
+            root /tmp/hls; # Temp storage for HLS segments
+        }
+        location /viewer {
+            root /usr/share/nginx/html/assets;
+            index stream-viewer.html;
+        }
+
+        # RTMP Statistics in XML
+        location /stat {
+            rtmp_stat all;
+            rtmp_stat_stylesheet stat.xsl;
+        }
+
+        location /stat.xsl {
+            root /usr/share/nginx/html;
+        }
+
+        # Serve placeholder or additional assets
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+
+        # Health check endpoint
+        location /health {
+            return 200 "healthy\n";
+        }
+    }
+}
+
+rtmp {
+    server {
+        listen 1935;
+        chunk_size 4096;
+        
+        # Main live application for receiving streams
+        application live {
+            live on;
+            allow publish all;
+            allow play all;
+            
+            # Enhanced HLS settings
+            hls on;
+            hls_path /tmp/hls;
+            hls_fragment 2s;
+            hls_playlist_length 16s;
+            hls_flags delete_segments;
+            
+            # Push to separate applications for each platform
+            push rtmp://localhost/youtube;
+            push rtmp://localhost/facebook;
+            push rtmp://localhost/twitch;
+            
+            # Event hooks
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid&device=mobile;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        # Separate application for YouTube
+        application youtube {
+            live on;
+            allow publish 127.0.0.1;  # Only allow local pushes
+            deny publish all;
+            allow play all;
+            
+            # YouTube-specific encoding
+            exec_push ffmpeg -i rtmp://localhost/youtube/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -b:v 2500k -maxrate 2500k -bufsize 5000k \
+                -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+                -c:a aac -b:a 128k -ar 44100 \
+                -f flv rtmps://a.rtmp.youtube.com/live2/${YOUTUBE_STREAM_KEY};
+                
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&platform=youtube;
+        }
+
+        # Separate application for Facebook
+        application facebook {
+            live on;
+            allow publish 127.0.0.1;
+            deny publish all;
+            allow play all;
+            
+            # Facebook-specific encoding
+            exec_push ffmpeg -i rtmp://localhost/facebook/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -b:v 2500k -maxrate 2500k -bufsize 5000k \
+                -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" \
+                -c:a aac -b:a 128k -ar 44100 \
+                -f flv rtmps://live-api-s.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
+                
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&platform=facebook;
+        }
+
+        # Separate application for Twitch
+        application twitch {
+            live on;
+            allow publish 127.0.0.1;
+            deny publish all;
+            allow play all;
+            
+            # Twitch-specific encoding
+            exec_push ffmpeg -i rtmp://localhost/twitch/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -b:v 2500k -maxrate 2500k -bufsize 5000k \
+                -c:a aac -b:a 128k -ar 44100 \
+                -f flv rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+                
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&platform=twitch;
+        }
+
+        # Social media pull streams
+        application social {
+            live on;
+            record all;
+            record_path /var/www/recordings/social;
+            record_unique on;
+            allow play all;
+
+            # Pull streams from various platforms
+            exec_pull ffmpeg -i "https://www.youtube.com/watch?v=${VIDEO_ID}" \
+                -c copy -f flv rtmp://localhost/social/youtube;
+
+            exec_pull ffmpeg -i "rtmps://live-api-s.facebook.com:443/rtmp/${STREAM_KEY}" \
+                -c copy -f flv rtmp://localhost/social/facebook;
+
+            exec_pull ffmpeg -i "${TWITCH_STREAM_URL}" \
+                -c copy -f flv rtmp://localhost/social/twitch;
+
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        # iPhone Application
+        application iphone {
+            live on;
+            record off;
+            allow publish 192.168.0.10;  # iPhone IP
+            allow play all;
+
+            # Transcode and forward to scene-iphone
+            exec_push ffmpeg -i rtmp://localhost/iphone/$name \
+                -c:v libx264 -preset fast -b:v 4500k -maxrate 4500k -bufsize 9000k \
+                -vf "scale=1080x2336:force_original_aspect_ratio=decrease,pad=1080:2336:(ow-iw)/2:(oh-ih)/2" \
+                -c:a aac -b:a 128k -f flv rtmp://localhost/scene-iphone/$name;
+
+            # Idle streams show placeholder
+            idle_streams on;
+            exec_static ffmpeg -loop 1 -re -i /usr/share/nginx/html/assets/cdaprod-be-right-back.jpeg \
+                -vf "scale=1080x2336:force_original_aspect_ratio=decrease,pad=1080:2336:(ow-iw)/2:(oh-ih)/2" \
+                -c:v libx264 -preset veryfast -tune stillimage -b:v 600k \
+                -c:a aac -ar 44100 -b:a 128k -f flv rtmp://localhost/scene-iphone/placeholder;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        # Scene for iPhone
+        application scene-iphone {
+            live on;
+            record all;
+            record_path /var/www/recordings/scene-iphone;
+            record_unique on;
+            allow publish 127.0.0.1;  # Only internal publishers
+            deny publish all;
+            allow play all;
+        }
+
+        # Nikon Application
+        application nikon {
+            live on;
+            record off;
+            allow publish 192.168.0.187;  # Nikon IP
+            allow play all;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        # MacBook Application
+        application macbook {
+            live on;
+            record off;
+            allow publish 192.168.0.9;  # MacBook IP
+            allow play all;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        # Scene-Multi (Nikon + iPhone Composite)
+        application scene-multi {
+            live on;
+            record all;
+            record_path /var/www/recordings/scene-multi;
+            record_unique on;
+            allow publish 127.0.0.1;  # Only FFmpeg
+            deny publish all;
+            allow play all;
+
+            exec_static ffmpeg \
+                -i rtmp://localhost/nikon/$name \
+                -i rtmp://localhost/scene-iphone/$name \
+                -filter_complex "\
+                    [0:v]scale=1280x720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2[v0]; \
+                    [1:v]scale=720x1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2[v1]; \
+                    [v0][v1]overlay=10:10[outv]" \
+                -map "[outv]" -c:v libx264 -preset fast -b:v 6000k \
+                -c:a aac -ar 44100 -b:a 128k -f flv rtmp://localhost/stream-multi/$name;
+        }
+
+        # Final Stream-Multi
+        application stream-multi {
+            live on;
+            record all;
+            record_path /var/www/recordings/stream-multi;
+            record_unique on;
+            record_suffix _%Y-%m-%d_%H-%M.flv;
+            record_max_size 500M;
+
+            # Notify metadata service
+            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+
+            allow play all;
+        }
+
+        # Final Composite Scene
+        application scene {
+            live on;
+            record all;
+            record_path /data/recordings/scene;
+            record_unique on;
+            allow publish 127.0.0.1;
+            deny publish all;
+            allow play all;
+        }
+    }
+}
+
