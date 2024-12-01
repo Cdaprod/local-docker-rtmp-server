@@ -85,7 +85,7 @@ rtmp {
             allow play all;
 
             # Transcode and forward to scene-iphone
-            on_publish_exec ffmpeg -i rtmp://localhost/iphone/$name \
+            exec_push ffmpeg -i rtmp://localhost/iphone/$name \
                 -c:v libx264 -preset fast -b:v 4500k -maxrate 4500k -bufsize 9000k \
                 -vf "scale=1080x2336:force_original_aspect_ratio=decrease,pad=1080:2336:(ow-iw)/2:(oh-ih)/2" \
                 -c:a aac -b:a 128k -f flv rtmp://localhost/scene-iphone/$name;
