@@ -21,6 +21,16 @@ http {
         listen 8080;  # Standard HTTP port
         server_name localhost;
 
+        # HTTP server for HLS
+        location /hls {
+            types {
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            }
+            root /tmp/hls; # Temp storage for HLS segments
+        }
+
+
         # RTMP Statistics in XML
         location /stat {
             rtmp_stat all;
@@ -53,10 +63,16 @@ rtmp {
         ping_timeout 15s;
         
         application live {
-            live on;
+            live on; # Enable live streaming
 
-            # Publish events to RabbitMQ via metadata-service
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            # Event hooks (call metadata-service)
+            on_publish http://metadata-service:5000/on_publish;
+            on_publish_done http://metadata-service:5000/on_publish_done;
+
+            # Record streams (optional, for NAS integration)
+            record all;
+            record_path /var/www/recordings; # NAS-mounted directory
+            record_unique on;
         }
 
         # Social Media Application
@@ -193,3 +209,4 @@ rtmp {
         }
     }
 }
+
