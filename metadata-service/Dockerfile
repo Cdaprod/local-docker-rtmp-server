@@ -28,4 +28,11 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Run the application
-CMD ["python", "app.py"]
+# CMD ["python", "app.py"]
+
+# Run the application in development mode
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
+
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]

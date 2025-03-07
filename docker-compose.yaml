@@ -92,6 +92,8 @@ services:
       dockerfile: Dockerfile
     container_name: metadata-service
     restart: unless-stopped
+    volumes:
+     - ./metadata-service:/app
     ports:
       - "5000:5000"
     environment:

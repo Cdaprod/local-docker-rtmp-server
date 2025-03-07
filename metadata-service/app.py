@@ -128,4 +128,4 @@ if __name__ == '__main__':
     logger.info(f"Initial device status: {device_status}")
 
     # Ensure it binds to all interfaces (0.0.0.0)
-    app.run(host='0.0.0.0', port=5000)  # This allows external access
+    app.run(host='0.0.0.0', port=5000, debug=True)  # This allows external access
