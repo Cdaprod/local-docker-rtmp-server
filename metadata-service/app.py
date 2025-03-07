@@ -121,4 +121,6 @@ if __name__ == '__main__':
     logger.info(f"Starting Video Event Broker with device monitoring for IP: {device_ip}")
     device_status = monitor_device(device_ip)
     logger.info(f"Initial device status: {device_status}")
-    app.run(host='0.0.0.0', port=5000)
+
+    # Ensure it binds to all interfaces (0.0.0.0)
+    app.run(host='0.0.0.0', port=5000)  # This allows external access
