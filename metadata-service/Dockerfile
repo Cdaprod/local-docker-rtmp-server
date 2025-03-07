@@ -21,7 +21,7 @@ COPY healthcheck.sh .
 RUN chmod +x healthcheck.sh
 
 # Expose port if needed (optional)
-# EXPOSE 5000
+EXPOSE 5000
 
 # Define environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
