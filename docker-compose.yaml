@@ -92,6 +92,8 @@ services:
       dockerfile: Dockerfile
     container_name: metadata-service
     restart: unless-stopped
+    ports:
+      - "5000:5000"
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
