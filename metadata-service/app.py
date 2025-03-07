@@ -54,6 +54,11 @@ def publish_message(queue, message):
     except Exception as e:
         logger.error(f"Failed to publish message to queue '{queue}': {e}")
 
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
 @app.route('/on_publish', methods=['GET'])
 def on_publish():
     """
