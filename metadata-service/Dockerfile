@@ -36,4 +36,5 @@ ENV FLASK_ENV=development
 ENV FLASK_DEBUG=1
 
 # CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"] # Flask
-CMD ["gunicorn", "app:app", "-w", "4", "-b", "0.0.0.0:5000"]
+#CMD ["gunicorn", "app:app", "-w", "4", "-b", "0.0.0.0:5000"]
+CMD gunicorn app:app -w 4 -b 0.0.0.0:5000
