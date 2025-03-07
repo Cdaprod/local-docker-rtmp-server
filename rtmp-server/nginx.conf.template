@@ -84,7 +84,8 @@ rtmp {
             hls_path /tmp/hls;
             hls_fragment 2s;
             hls_playlist_length 16s;
-            hls_flags delete_segments;
+            # hls_flags delete_segments; # (Caused issue)
+            hls_cleanup on;
             
             # Push to social platforms
             push rtmp://a.rtmp.youtube.com/live/${YOUTUBE_STREAM_KEY};
