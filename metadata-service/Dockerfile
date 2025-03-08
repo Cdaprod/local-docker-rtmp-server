@@ -20,21 +20,14 @@ COPY healthcheck.sh .
 # Ensure healthcheck script is executable
 RUN chmod +x healthcheck.sh
 
-# Expose port if needed (optional)
+# Expose FastAPI port
 EXPOSE 5000
 
 # Define environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Run the application
-# CMD ["python", "app.py"]
-
-# Run the application in development mode
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=development
-ENV FLASK_DEBUG=1
-
-# CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"] # Flask
-#CMD ["gunicorn", "app:app", "-w", "4", "-b", "0.0.0.0:5000"]
-CMD gunicorn app:app -w 4 -b 0.0.0.0:5000
+# Run the application using Uvicorn (Development Mode)
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "4"]
+# Run the application using Uvicorn (Production Mode)
+#CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "4"]

@@ -1,14 +1,13 @@
+from flask import Flask, request, jsonify
+import pika
 import os
 import json
-import logging
-import requests
-import pika
 from datetime import datetime
-from fastapi import FastAPI, Query
-from typing import Dict, Optional
+import requests
+import logging
 
-# Initialize FastAPI app
-app = FastAPI()
+# Initialize Flask app
+app = Flask(__name__)
 
 # Configure logging
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
@@ -34,7 +33,7 @@ def get_rabbitmq_connection():
         logger.error(f"Failed to connect to RabbitMQ: {e}")
         raise
 
-def publish_message(queue: str, message: Dict):
+def publish_message(queue, message):
     """
     Publish a message to the specified RabbitMQ queue.
     """
@@ -55,60 +54,60 @@ def publish_message(queue: str, message: Dict):
     except Exception as e:
         logger.error(f"Failed to publish message to queue '{queue}': {e}")
 
-@app.get("/health")
-async def health_check():
-    """ Metadata-Service: Health check endpoint. """
-    return {"status": "healthy"}
 
-@app.get("/on_publish")
-async def on_publish(user: Optional[str] = Query(None), stream: Optional[str] = Query(None)):
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
+@app.route('/on_publish', methods=['GET'])
+def on_publish():
     """
     Handle the 'on_publish' event.
     """
     try:
-        data = {"user": user, "stream": stream}
+        data = request.args.to_dict()
         enriched_data = {
-            "event_type": "on_publish",
-            "timestamp": datetime.utcnow().isoformat(),
-            "data": data,
-            "provenance": {
-                "processed_by": "metadata_enricher",
-                "processed_at": datetime.utcnow().isoformat(),
-                "version": "1.0.0",
+            'event_type': 'on_publish',
+            'timestamp': datetime.utcnow().isoformat(),
+            'data': data,
+            'provenance': {
+                'processed_by': 'metadata_enricher',
+                'processed_at': datetime.utcnow().isoformat(),
+                'version': '1.0.0'
             }
         }
-        publish_message("stream_events", enriched_data)
+        publish_message('stream_events', enriched_data)
         logger.info(f"Processed 'on_publish' event with data: {data}")
-        return {"status": "success"}
+        return jsonify({'status': 'success'}), 200
     except Exception as e:
         logger.error(f"Error processing 'on_publish' event: {e}")
-        return {"status": "error", "message": str(e)}
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@app.get("/on_publish_done")
-async def on_publish_done(user: Optional[str] = Query(None), stream: Optional[str] = Query(None)):
+@app.route('/on_publish_done', methods=['GET'])
+def on_publish_done():
     """
     Handle the 'on_publish_done' event.
     """
     try:
-        data = {"user": user, "stream": stream}
+        data = request.args.to_dict()
         enriched_data = {
-            "event_type": "on_publish_done",
-            "timestamp": datetime.utcnow().isoformat(),
-            "data": data,
-            "provenance": {
-                "processed_by": "metadata_enricher",
-                "processed_at": datetime.utcnow().isoformat(),
-                "version": "1.0.0",
+            'event_type': 'on_publish_done',
+            'timestamp': datetime.utcnow().isoformat(),
+            'data': data,
+            'provenance': {
+                'processed_by': 'metadata_enricher',
+                'processed_at': datetime.utcnow().isoformat(),
+                'version': '1.0.0'
             }
         }
-        publish_message("stream_events", enriched_data)
+        publish_message('stream_events', enriched_data)
         logger.info(f"Processed 'on_publish_done' event with data: {data}")
-        return {"status": "success"}
+        return jsonify({'status': 'success'}), 200
     except Exception as e:
         logger.error(f"Error processing 'on_publish_done' event: {e}")
-        return {"status": "error", "message": str(e)}
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
-def monitor_device(ip: str):
+def monitor_device(ip):
     """
     Monitor the status of a device via its IP address.
     """
@@ -118,13 +117,16 @@ def monitor_device(ip: str):
         logger.info(f"Device at {ip} is reachable: {status}")
         return status
     except Exception as e:
-        logger.error(f"Error monitoring device at {ip}: {e}")
-        return {"status": "error", "message": str(e)}
+        error_message = {"status": "error", "message": str(e)}
+        logger.error(f"Error monitoring device at {ip}: {error_message}")
+        return error_message
 
-@app.on_event("startup")
-def startup_event():
-    """ Run this function when the FastAPI app starts. """
-    device_ip = "192.168.0.10"
-    logger.info(f"Starting Video Event Broker with device monitoring for IP: {device_ip}")
-    device_status = monitor_device(device_ip)
-    logger.info(f"Initial device status: {device_status}")
+# # Removed in favor of FastAPI
+# if __name__ == '__main__':
+#     device_ip = "192.168.0.10"
+#     logger.info(f"Starting Video Event Broker with device monitoring for IP: {device_ip}")
+#     device_status = monitor_device(device_ip)
+#     logger.info(f"Initial device status: {device_status}")
+
+#     # Ensure it binds to all interfaces (0.0.0.0)
+#     app.run(host='0.0.0.0', port=5000, debug=True)  # This allows external access

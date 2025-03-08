@@ -7,4 +7,5 @@ moviepy
 python-dotenv
 autogen
 openai
-gunicorn
+fastapi
+uvicorn
