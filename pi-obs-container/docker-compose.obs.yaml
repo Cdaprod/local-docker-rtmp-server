@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  obs-pi:
+    build: ./pi-obs-container
+    container_name: obs_pi
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /dev:/dev
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    network_mode: host
