@@ -10,12 +10,12 @@ RUN git clone https://github.com/muesli/obs-cli.git && \
 # ===== Stage 2: Final runtime image =====
 FROM ubuntu:22.04
 LABEL maintainer="Your Name <your.email@example.com>"
-LABEL version="1.0"
-LABEL description="pi-obs-container for OBS Studio streaming with integrated CDAProd profiles and scenes."
+LABEL version="1.1"
+LABEL description="pi-obs-container with VNC and OBS Studio access via a browser."
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install runtime dependencies and OBS Studio
+# Install essential dependencies, OBS Studio, XFCE, VNC, and noVNC
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     v4l-utils \
@@ -33,6 +33,11 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     vlc \
     obs-studio \
+    xfce4 \
+    x11vnc \
+    novnc \
+    websockify \
+    supervisor \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install OBS NDI Plugin and runtime
@@ -44,13 +49,18 @@ RUN curl -LO https://github.com/Palakis/obs-ndi/releases/download/4.9.1/obs-ndi-
 # Copy obs-cli binary from builder stage
 COPY --from=builder /obs-cli /usr/local/bin/obs-cli
 
-# Copy our helper scripts
+# Copy helper scripts
 COPY detect-devices.sh /usr/local/bin/detect-devices.sh
 COPY entrypoint.sh /entrypoint.sh
+COPY supervisord.conf /etc/supervisor/supervisord.conf
 RUN chmod +x /usr/local/bin/detect-devices.sh /entrypoint.sh
 
-# Expose OBS WebSocket port (if used)
-EXPOSE 4455
+# Create noVNC web directory
+RUN mkdir -p /usr/share/novnc/utils/websockify && \
+    ln -s /usr/share/novnc/vnc.html /usr/share/novnc/index.html
 
-# Set entrypoint to our custom script
+# Expose VNC, WebSockets, and OBS WebSocket ports
+EXPOSE 5900 6080 4455
+
+# Set entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
