@@ -11,4 +11,7 @@ services:
     volumes:
       - /dev:/dev
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./config:/config
+      - ./background.mp4:/root/background.mp4
+      - ./frame_overlay.png:/root/frame_overlay.png
     network_mode: host

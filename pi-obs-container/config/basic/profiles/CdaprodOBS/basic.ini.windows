@@ -1,4 +1,4 @@
-[General]
+﻿[General]
 Name=CdaprodOBS
 
 [Output]
@@ -10,7 +10,7 @@ DelayPreserve=true
 Reconnect=true
 RetryDelay=1
 MaxRetries=25
-BindIP=0.0.0.0  # Use any available IP
+BindIP=192.168.0.187
 IPFamily=IPv4+IPv6
 NewSocketLoopEnable=true
 LowLatencyEnable=false
@@ -23,7 +23,7 @@ MultitrackVideoMaximumVideoTracksAuto=true
 EnableMultitrackVideo=false
 
 [SimpleOutput]
-FilePath=/mnt/smb/CapCut_Video_Share/OBSBot_Tiny_2
+FilePath=//cda-desktop/b/CapCut Video Share/OBSBot Tiny 2
 RecFormat2=fragmented_mp4
 VBitrate=6000
 ABitrate=160
@@ -37,8 +37,8 @@ RecRBPrefix=Replay
 StreamAudioEncoder=aac
 RecAudioEncoder=aac
 RecTracks=1
-StreamEncoder=h264_v4l2m2m  # Use hardware encoder on Linux
-RecEncoder=h264_v4l2m2m
+StreamEncoder=qsv
+RecEncoder=x264
 UseAdvanced=false
 QSVPreset=balanced
 FileNameWithoutSpace=true
@@ -50,7 +50,7 @@ TrackIndex=1
 VodTrackIndex=2
 Encoder=obs_x264
 RecType=FFmpeg
-RecFilePath=/mnt/smb/CapCut_Video_Share/OBSBot_Tiny_2
+RecFilePath=C:\\Users\\david\\Videos
 RecFormat2=mkv
 RecUseRescale=false
 RecTracks=1
@@ -58,13 +58,34 @@ RecEncoder=none
 FLVTrack=1
 StreamMultiTrackAudioMixes=1
 FFOutputToFile=true
-FFFilePath=/mnt/smb/CapCut_Video_Share/OBSBot_Tiny_2
+FFFilePath=C:/Users/david/Pictures/iCloud Photos/Photos
 FFVBitrate=2500
 FFVGOPSize=250
 FFUseRescale=false
 FFIgnoreCompat=false
 FFABitrate=160
 FFAudioMixes=1
+Track1Bitrate=160
+Track2Bitrate=160
+Track3Bitrate=160
+Track4Bitrate=160
+Track5Bitrate=160
+Track6Bitrate=160
+RecSplitFileTime=15
+RecSplitFileSize=2048
+RecRB=false
+RecRBTime=20
+RecRBSize=512
+AudioEncoder=ffmpeg_aac
+RecAudioEncoder=ffmpeg_aac
+RecSplitFileType=Time
+FFFormat=
+FFFormatMimeType=
+FFVEncoderId=0
+FFVEncoder=
+FFAEncoderId=0
+FFAEncoder=
+FFExtension=mp4
 
 [Video]
 BaseCX=1920
