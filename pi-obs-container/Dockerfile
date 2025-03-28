@@ -1,8 +1,21 @@
+# ===== Stage 1: Build obs-cli =====
+FROM ubuntu:22.04 AS builder
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y golang-go git && rm -rf /var/lib/apt/lists/*
+RUN git clone https://github.com/muesli/obs-cli.git && \
+    cd obs-cli && \
+    go build && \
+    mv obs-cli /obs-cli
+
+# ===== Stage 2: Final runtime image =====
 FROM ubuntu:22.04
+LABEL maintainer="Your Name <your.email@example.com>"
+LABEL version="1.0"
+LABEL description="pi-obs-container for OBS Studio streaming with integrated CDAProd profiles and scenes."
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install Dependencies and OBS Studio
+# Install runtime dependencies and OBS Studio
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     v4l-utils \
@@ -15,34 +28,29 @@ RUN apt-get update && apt-get install -y \
     libwayland-dev \
     libpulse-dev \
     curl \
-    git \
     cmake \
     build-essential \
     ca-certificates \
     vlc \
-    golang-go \
     obs-studio \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install OBS NDI Plugin and Runtime
+# Install OBS NDI Plugin and runtime
 RUN curl -LO https://github.com/Palakis/obs-ndi/releases/download/4.9.1/obs-ndi-4.9.1-Ubuntu20.04.deb && \
     dpkg -i obs-ndi-4.9.1-Ubuntu20.04.deb && rm obs-ndi-4.9.1-Ubuntu20.04.deb && \
     curl -LO https://github.com/obsproject/obs-studio/releases/download/27.2.4/NDI-runtime-4.5.1-Linux-x86_64.deb && \
     dpkg -i NDI-runtime-4.5.1-Linux-x86_64.deb && rm NDI-runtime-4.5.1-Linux-x86_64.deb
 
-# Install obs-cli
-RUN git clone https://github.com/muesli/obs-cli.git && \
-    cd obs-cli && \
-    go build && \
-    mv obs-cli /usr/local/bin/obs-cli && \
-    cd .. && rm -rf obs-cli
+# Copy obs-cli binary from builder stage
+COPY --from=builder /obs-cli /usr/local/bin/obs-cli
 
-# Copy necessary scripts
+# Copy our helper scripts
 COPY detect-devices.sh /usr/local/bin/detect-devices.sh
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /usr/local/bin/detect-devices.sh /entrypoint.sh
 
-# Expose OBS WebSocket port
+# Expose OBS WebSocket port (if used)
 EXPOSE 4455
 
+# Set entrypoint to our custom script
 ENTRYPOINT ["/entrypoint.sh"]
