@@ -6,3 +6,4 @@
 !/.example.env
 .env
 credentials.json
+/pi-obs-container/config/*
