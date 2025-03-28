@@ -14,4 +14,8 @@ services:
       - ./config:/config
       - ./background.mp4:/root/background.mp4
       - ./frame_overlay.png:/root/frame_overlay.png
+    ports:
+      - "6080:6080" # noVNC port
+      - "5900:5900" # VNC port
+      - "4455:4455" # OBS WebSockets
     network_mode: host
