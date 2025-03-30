@@ -36,18 +36,13 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     vlc \
     obs-studio \
+    obs-websocket \
     xfce4 \
     x11vnc \
     novnc \
     websockify \
     supervisor \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install OBS NDI Plugin and runtime
-RUN curl -LO https://github.com/Palakis/obs-ndi/releases/download/4.9.1/obs-ndi-4.9.1-Ubuntu20.04.deb && \
-    dpkg -i obs-ndi-4.9.1-Ubuntu20.04.deb && rm obs-ndi-4.9.1-Ubuntu20.04.deb && \
-    curl -LO https://github.com/obsproject/obs-studio/releases/download/27.2.4/NDI-runtime-4.5.1-Linux-x86_64.deb && \
-    dpkg -i NDI-runtime-4.5.1-Linux-x86_64.deb && rm NDI-runtime-4.5.1-Linux-x86_64.deb
 
 # Copy obs-cli binary from builder stage
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
