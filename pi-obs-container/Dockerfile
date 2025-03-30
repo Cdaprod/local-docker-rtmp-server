@@ -1,15 +1,18 @@
 # ===== Stage 1: Build obs-cli =====
 FROM ubuntu:22.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Install required dependencies
 RUN apt-get update && apt-get install -y golang-go git && rm -rf /var/lib/apt/lists/*
+
+# Clone obs-cli and build it
 RUN git clone https://github.com/muesli/obs-cli.git && \
     cd obs-cli && \
-    go build && \
-    mv obs-cli /obs-cli
+    go build -o /obs-cli-binary  # <-- Rename the output binary explicitly
 
 # ===== Stage 2: Final runtime image =====
 FROM ubuntu:22.04
-LABEL maintainer="Your Name <your.email@example.com>"
+LABEL maintainer="David Cannan - Cdaprod@Cdaprod.dev"
 LABEL version="1.1"
 LABEL description="pi-obs-container with VNC and OBS Studio access via a browser."
 
@@ -47,7 +50,7 @@ RUN curl -LO https://github.com/Palakis/obs-ndi/releases/download/4.9.1/obs-ndi-
     dpkg -i NDI-runtime-4.5.1-Linux-x86_64.deb && rm NDI-runtime-4.5.1-Linux-x86_64.deb
 
 # Copy obs-cli binary from builder stage
-COPY --from=builder /obs-cli /usr/local/bin/obs-cli
+COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 
 # Copy helper scripts
 COPY detect-devices.sh /usr/local/bin/detect-devices.sh
