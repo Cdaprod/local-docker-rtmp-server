@@ -18,4 +18,7 @@ services:
       - "6080:6080" # noVNC port
       - "5900:5900" # VNC port
       - "4455:4455" # OBS WebSockets
-    network_mode: host
+    # network_mode: host
+    # network_mode: bridge  # Or specify a network like rtmp_network
+    networks:
+      - rtmp_network
