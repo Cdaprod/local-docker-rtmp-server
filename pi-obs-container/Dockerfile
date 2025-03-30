@@ -49,6 +49,20 @@ RUN apt-get update && apt-get install -y \
 # Copy obs-cli binary from builder stage
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 
+# ===== Copy OBS Config Files Correctly ====
+# Copy profiles and scenes
+COPY ./config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS
+COPY ./config/basic/scenes /root/.config/obs-studio/basic/scenes
+
+# Copy global settings and user configs
+COPY ./config/global.ini /root/.config/obs-studio/global.ini
+COPY ./config/user.ini /root/.config/obs-studio/user.ini
+
+# Copy plugin configurations
+COPY ./config/plugin_config/obs-websocket /root/.config/obs-studio/plugin_config/obs-websocket
+COPY ./config/plugin_config/rtmp-services /root/.config/obs-studio/plugin_config/rtmp-services
+COPY ./config/plugin_config/win-capture /root/.config/obs-studio/plugin_config/win-capture
+
 # Copy helper scripts
 COPY detect-devices.sh /usr/local/bin/detect-devices.sh
 COPY entrypoint.sh /entrypoint.sh
