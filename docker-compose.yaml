@@ -62,8 +62,8 @@ services:
       com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
       com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
     network_mode: "host"
-    networks:
-      - rtmp_network
+    # networks:
+      # - rtmp_network
  
  
   rabbitmq:
