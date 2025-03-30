@@ -2,6 +2,12 @@
 
 A containerized OBS Studio setup optimized for Raspberry Pi and headless environments.
 
+## Manually run virtual headless OBS with this command:
+
+```bash
+xvfb-run --server-num=99 --server-args="-screen 0 1920x1080x24" obs --startstreaming --profile 'CdaprodOBS' --collection 'Laptop OBS Scenes'
+``` 
+
 ## 🎯 Overview
 
 This project provides a Docker container running OBS Studio with:

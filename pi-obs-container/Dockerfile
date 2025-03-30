@@ -35,10 +35,12 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     ca-certificates \
     vlc \
+    xserver-xorg-video-dummy \
+    x11vnc \
+    xvfb \
     obs-studio \
     obs-websocket \
     xfce4 \
-    x11vnc \
     novnc \
     websockify \
     supervisor \

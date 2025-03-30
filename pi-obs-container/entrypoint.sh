@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+# Start Xvfb in the background on DISPLAY :99
+Xvfb :99 -screen 0 1920x1080x24 &
+
+# Set DISPLAY variable for OBS
+export DISPLAY=:99
+
+
+
 # Detect connected video devices
 /usr/local/bin/detect-devices.sh
 
@@ -19,7 +27,7 @@ fi
 echo "Starting XFCE4 and VNC..."
 /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 
-# Launch OBS based on GUI availability
+# Start OBS with GUI or headless based on environment
 if [ -n "$DISPLAY" ]; then
   echo "Starting OBS with GUI..."
   exec obs --startstreaming --profile 'CdaprodOBS' --collection 'Laptop OBS Scenes'
