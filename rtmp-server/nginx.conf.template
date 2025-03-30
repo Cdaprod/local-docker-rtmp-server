@@ -99,8 +99,8 @@ rtmp {
             #record_suffix _%Y-%m-%d_%H-%M.flv;
             
             # Metadata hooks
-            on_publish http://metadata-service:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
-            on_publish_done http://metadata-service:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish http://localhost:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://localhost:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
         }
     }
 }
