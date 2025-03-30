@@ -94,7 +94,7 @@
     },
     "current_scene": "4-OBSBot",
     "current_program_scene": "4-OBSBot",
-    "scene_order": [
+    "scene_order": [ 
         {
             "name": "0-Browser"
         },
