@@ -21,11 +21,6 @@ LABEL description="pi-obs-container with VNC and OBS Studio access via a browser
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Disable policy and init-related services to avoid errors
-RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d && \
-    mkdir -p /var/run/dbus && \
-    echo 'exit 0' > /usr/sbin/invoke-rc.d && chmod +x /usr/sbin/invoke-rc.d
-
 # ===== System and OBS Dependencies =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core system utilities and build tools
@@ -72,10 +67,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ===== Install OBS Studio for Raspberry Pi OS (Manual Method) =====
-RUN curl -fsSL https://cdn-fastly.obsproject.com/downloads/obs-studio-arm64.deb -o /tmp/obs-studio-arm64.deb && \
-    dpkg -i /tmp/obs-studio-arm64.deb || apt-get -f install -y && \
-    rm -f /tmp/obs-studio-arm64.deb
+# ===== Install OBS Studio with Modern GPG Keyring Method =====
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    curl \
+    gnupg \
+    ca-certificates && \
+    # Disable init-related services to avoid D-Bus and policy-rc.d errors
+    echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d && \
+    mkdir -p /var/run/dbus && \
+    echo 'exit 0' > /usr/sbin/invoke-rc.d && chmod +x /usr/sbin/invoke-rc.d && \
+    # Create directory for keyrings
+    mkdir -p /etc/apt/keyrings && \
+    # Correct GPG Key for OBS Studio (updated source)
+    curl -fsSL https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBC7345F522079769F5BBE987EFC71127F425E228 | \
+    gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg || { echo "GPG Key download failed"; exit 1; } && \
+    # Add OBS Studio PPA with signed-by key
+    echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu jammy main" | \
+    tee /etc/apt/sources.list.d/obs-studio.list && \
+    apt-get update && \
+    apt-get install -y obs-studio && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===== Ensure Supervisor Log Directory Exists =====
 RUN mkdir -p /var/log/supervisor
