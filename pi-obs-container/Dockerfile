@@ -22,7 +22,6 @@ LABEL description="pi-obs-container with VNC and OBS Studio access via a browser
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ===== System and OBS Dependencies =====
-# ===== System and OBS Dependencies =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core system utilities and build tools
     build-essential \
@@ -92,6 +91,9 @@ COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 # ===== Set Working Directory =====
 WORKDIR /root
 
+# ===== Create OBS Profile Directory If Missing =====
+RUN [ -d /root/.config/obs-studio/basic/profiles/CdaprodOBS ] || mkdir -p /root/.config/obs-studio/basic/profiles/CdaprodOBS
+
 # ===== Copy OBS profiles and scenes =====
 COPY config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS/
 COPY config/basic/scenes /root/.config/obs-studio/basic/scenes/
@@ -120,6 +122,9 @@ RUN mkdir -p /usr/share/novnc/utils/websockify && \
 
 # ===== Fix noVNC Proxy Path if Missing =====
 RUN [ -f /usr/share/novnc/utils/novnc_proxy ] || ln -s /usr/share/novnc/utils/novnc_proxy /usr/bin/novnc_proxy
+
+# ===== Healthcheck to Ensure NoVNC and OBS Services Are Up =====
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 CMD curl -f http://localhost:6080 || exit 1
 
 # ===== Expose VNC, WebSockets, and OBS WebSocket ports =====
 EXPOSE 5900 6080 4455
