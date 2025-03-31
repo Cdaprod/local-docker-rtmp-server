@@ -38,7 +38,7 @@ echo "[INFO] Starting XFCE4 and VNC services..."
 # ====== Start OBS with Appropriate Mode ======
 if [ -n "$DISPLAY" ]; then
   echo "[INFO] Starting OBS with GUI and VNC enabled..."
-  exec obs --profile 'CdaprodOBS' --collection 'Laptop OBS Scenes' &
+  exec obs --profile 'CdaprodOBS' --collection 'Laptop OBS Scenes' --verbose --log-file /root/.config/obs-studio/logs/obs_log.txt &
 else
   echo "[INFO] Starting OBS in headless mode..."
   exec obs --startstreaming --minimize-to-tray --profile 'CdaprodOBS' --collection 'Laptop OBS Scenes' &
