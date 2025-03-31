@@ -67,14 +67,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===== Install OBS Studio with Modern GPG Keyring Method =====
+# ===== System and OBS Dependencies =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     curl \
     gnupg \
     ca-certificates && \
+    # Disable systemd and init-related warnings
+    echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d && \
+    mkdir -p /var/run/dbus && \
+    echo 'exit 0' > /usr/sbin/invoke-rc.d && chmod +x /usr/sbin/invoke-rc.d && \
     # Create directory for keyrings
     mkdir -p /etc/apt/keyrings && \
-    # Correct GPG Key URL for OBS
+    # Correct OBS Studio GPG Key URL
     curl -fsSL https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu/KEY.gpg | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
     # Add OBS Studio PPA with signed-by key
     echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list > /dev/null && \
