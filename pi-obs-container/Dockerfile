@@ -2,13 +2,16 @@
 FROM ubuntu:22.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install required dependencies
-RUN apt-get update && apt-get install -y golang-go git && rm -rf /var/lib/apt/lists/*
+# Install required dependencies for building obs-cli
+RUN apt-get update && apt-get install -y \
+    golang-go \
+    git \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Clone obs-cli and build it
 RUN git clone https://github.com/muesli/obs-cli.git && \
     cd obs-cli && \
-    go build -o /obs-cli-binary  # <-- Rename the output binary explicitly
+    go build -o /obs-cli-binary
 
 # ===== Stage 2: Final runtime image =====
 FROM ubuntu:22.04
@@ -18,63 +21,87 @@ LABEL description="pi-obs-container with VNC and OBS Studio access via a browser
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install essential dependencies, OBS Studio, XFCE, VNC, and noVNC
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    v4l-utils \
-    libv4l-dev \
-    qtbase5-dev \
-    libxcb-xinerama0 \
-    libxcomposite-dev \
-    libx11-dev \
-    libgl1-mesa-glx \
-    libwayland-dev \
-    libpulse-dev \
+# ===== System and OBS Dependencies =====
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Core system utilities and build tools
     curl \
-    cmake \
-    build-essential \
     ca-certificates \
-    vlc \
-    xserver-xorg-video-dummy \
-    x11vnc \
-    xvfb \
+    build-essential \
+    cmake \
+    supervisor \
+    \
+    # OBS and multimedia utilities
     obs-studio \
     obs-websocket \
+    ffmpeg \
+    vlc \
+    \
+    # VNC, X11, and GUI utilities
     xfce4 \
+    x11vnc \
+    xvfb \
     novnc \
     websockify \
-    supervisor \
+    xserver-xorg-video-dummy \
+    \
+    # X11 and GUI-related dependencies
+    libx11-dev \
+    libxcb1 \
+    libxcb-xinerama0 \
+    libxext6 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libxrender1 \
+    libxi6 \
+    libxtst6 \
+    \
+    # OpenGL and EGL support for graphics
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    libegl1-mesa \
+    mesa-utils \
+    \
+    # Audio and multimedia
+    libasound2 \
+    libpulse-dev \
+    \
+    # Video4Linux utilities and drivers
+    v4l-utils \
+    libv4l-dev \
+    \
+    # Wayland support
+    libwayland-dev \
+    \
+    # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy obs-cli binary from builder stage
+# ===== Copy obs-cli binary from builder stage =====
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 
-# ===== Copy OBS Config Files Correctly ====
-# Copy profiles and scenes
-COPY ./config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS
-COPY ./config/basic/scenes /root/.config/obs-studio/basic/scenes
+# ===== Copy OBS Config Files Correctly =====
+COPY config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS/
+COPY config/basic/scenes /root/.config/obs-studio/basic/scenes/
+COPY config/global.ini /root/.config/obs-studio/global.ini
+COPY config/user.ini /root/.config/obs-studio/user.ini
 
-# Copy global settings and user configs
-COPY ./config/global.ini /root/.config/obs-studio/global.ini
-COPY ./config/user.ini /root/.config/obs-studio/user.ini
+# Copy plugin configurations in one go
+COPY config/plugin_config /root/.config/obs-studio/plugin_config/
 
-# Copy plugin configurations
-COPY ./config/plugin_config/obs-websocket /root/.config/obs-studio/plugin_config/obs-websocket
-COPY ./config/plugin_config/rtmp-services /root/.config/obs-studio/plugin_config/rtmp-services
-COPY ./config/plugin_config/win-capture /root/.config/obs-studio/plugin_config/win-capture
-
-# Copy helper scripts
+# ===== Copy helper scripts =====
 COPY detect-devices.sh /usr/local/bin/detect-devices.sh
 COPY entrypoint.sh /entrypoint.sh
 COPY supervisord.conf /etc/supervisor/supervisord.conf
+
+# Make sure all scripts are executable
 RUN chmod +x /usr/local/bin/detect-devices.sh /entrypoint.sh
 
-# Create noVNC web directory
+# ===== Create noVNC web directory =====
 RUN mkdir -p /usr/share/novnc/utils/websockify && \
     ln -s /usr/share/novnc/vnc.html /usr/share/novnc/index.html
 
-# Expose VNC, WebSockets, and OBS WebSocket ports
+# ===== Expose VNC, WebSockets, and OBS WebSocket ports =====
 EXPOSE 5900 6080 4455
 
-# Set entrypoint
+# ===== Set entrypoint =====
 ENTRYPOINT ["/entrypoint.sh"]

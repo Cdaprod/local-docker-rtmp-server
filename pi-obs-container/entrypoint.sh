@@ -1,8 +1,13 @@
 #!/bin/bash
 set -e
 
+export XDG_RUNTIME_DIR=/tmp/runtime-root
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 0700 "$XDG_RUNTIME_DIR"
+
 # Start Xvfb in the background on DISPLAY :99
 Xvfb :99 -screen 0 1920x1080x24 -ac &
+sleep 1
 export DISPLAY=:99
 
 # Merge external OBS configuration if available
