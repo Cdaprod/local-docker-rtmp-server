@@ -29,11 +29,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     supervisor \
-    # Add OBS Studio official PPA and install v28+ with WebSocket v5+
-    software-properties-common && \
-    add-apt-repository ppa:obsproject/obs-studio && \
-    apt-get update && apt-get install -y \
-    obs-studio \
+    # Install OBS Studio from official DEB package (v29+)
+    && curl -L -o obs-studio.deb https://cdn-fastly.obsproject.com/downloads/obs-studio-29.1.3-linux-x86_64.deb && \
+    apt-get install -y ./obs-studio.deb && \
+    rm obs-studio.deb && \
     # OBS WebSocket v5+ is built-in from v28+, no plugin needed
     ffmpeg \
     vlc \
