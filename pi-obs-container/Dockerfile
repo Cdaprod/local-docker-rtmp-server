@@ -30,7 +30,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gpg \
     dirmngr \
     # OBS WebSocket v5+ is built-in from v28+, no plugin needed
-    ffmpeg \
     vlc \
     # VNC, X11, and GUI utilities
     xfce4 \
@@ -69,8 +68,38 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mesa-common-dev \
     qt5-qmake \
     pkg-config \
+    yasm \
+    nasm \
+    libx265-dev \
+    libvpx-dev \
+    libopus-dev \
+    libvorbis-dev \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ===== Build FFmpeg from Source =====
+RUN cd /usr/src && \
+    git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/5.1 && \
+    cd FFmpeg && \
+    ./configure \
+      --prefix=/usr \
+      --pkg-config-flags="--static" \
+      --extra-cflags="-I/usr/local/include" \
+      --extra-ldflags="-L/usr/local/lib" \
+      --enable-gpl \
+      --enable-libx264 \
+      --enable-libx265 \
+      --enable-libvpx \
+      --enable-libfdk-aac \
+      --enable-libopus \
+      --enable-libvorbis \
+      --enable-nonfree && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
+
+# ===== Verify FFmpeg Version =====
+RUN ffmpeg -version
 
 # ===== Install Latest CMake (v3.28+) =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -96,7 +125,7 @@ RUN cd /usr/src && \
     git clone --recursive https://github.com/obsproject/obs-studio.git && \
     cd obs-studio && \
     mkdir build && cd build && \
-    cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_PIPEWIRE=OFF -DCMAKE_BUILD_TYPE=Release .. && \
+    /usr/local/bin/cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_PIPEWIRE=OFF -DCMAKE_BUILD_TYPE=Release .. && \
     make -j$(nproc) && \
     make install
 
@@ -110,7 +139,7 @@ COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 WORKDIR /root
 
 # ===== Create OBS Profile Directory If Missing =====
-RUN [ -d /root/.config/obs-studio/basic/profiles/CdaprodOBS ] || mkdir -p /root/.config/obs-studio/basic/profiles/CdaprodOBS
+RUN mkdir -p /root/.config/obs-studio/basic/profiles/CdaprodOBS
 
 # ===== Copy OBS profiles and scenes =====
 COPY config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS/
