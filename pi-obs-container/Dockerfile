@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     supervisor \
+    websocat \
     \
     # OBS and multimedia utilities
     obs-studio \
