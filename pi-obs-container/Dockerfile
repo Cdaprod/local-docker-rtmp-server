@@ -70,30 +70,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir -p /var/log/supervisor
 
 # ===== Install OBS Studio Separately to Optimize Caching =====
-RUN curl -L -o obs-studio.deb https://cdn-fastly.obsproject.com/downloads/obs-studio-latest-linux-arm64.deb && \
-    dpkg -i obs-studio.deb || apt-get -f install -y && \
-    rm obs-studio.deb 
-
-## Alternate OBS Studio via apt to avoid architecture mismatch
-#RUN apt-get update && apt-get install -y --no-install-recommends \
-#    software-properties-common && \
-#    add-apt-repository ppa:obsproject/obs-studio && \
-#    apt-get update && \
-#    apt-get install -y obs-studio && \
-#    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common && \
+    add-apt-repository ppa:obsproject/obs-studio -y && \
+    apt-get update && \
+    apt-get install -y obs-studio && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===== Copy obs-cli binary from builder stage =====
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 
-# Copy OBS profiles and scenes
+# ===== Copy OBS profiles and scenes =====
 COPY config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS/
 COPY config/basic/scenes /root/.config/obs-studio/basic/scenes/
 
-# Copy global and user settings
+# ===== Copy global and user settings =====
 COPY config/global.ini /root/.config/obs-studio/global.ini
 COPY config/user.ini /root/.config/obs-studio/user.ini
 
-# Copy plugin configurations
+# ===== Copy plugin configurations =====
 COPY config/plugin_config /root/.config/obs-studio/plugin_config/
 
 # ===== Copy helper scripts =====
@@ -107,6 +102,9 @@ RUN chmod +x /usr/local/bin/detect-devices.sh /entrypoint.sh
 # ===== Create noVNC web directory =====
 RUN mkdir -p /usr/share/novnc/utils/websockify && \
     ln -s /usr/share/novnc/vnc.html /usr/share/novnc/index.html
+
+# ===== Fix noVNC Proxy Path if Missing =====
+RUN ln -s /usr/share/novnc/utils/novnc_proxy /usr/bin/novnc_proxy || true
 
 # ===== Expose VNC, WebSockets, and OBS WebSocket ports =====
 EXPOSE 5900 6080 4455
