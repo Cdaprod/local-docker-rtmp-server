@@ -66,11 +66,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BC7345F522079769F5BBE987EFC71127F425E228 && \
-    echo "deb http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list && \
+# ===== Install OBS Studio with Modern GPG Keyring Method =====
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    curl \
+    gnupg \
+    ca-certificates && \
+    # Disable init-related services to avoid D-Bus and policy-rc.d errors
+    echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d && \
+    mkdir -p /var/run/dbus && \
+    echo 'exit 0' > /usr/sbin/invoke-rc.d && chmod +x /usr/sbin/invoke-rc.d && \
+    # Create directory for keyrings
+    mkdir -p /etc/apt/keyrings && \
+    # Correct OBS Studio GPG Key for Docker
+    curl -fsSL https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBC7345F522079769F5BBE987EFC71127F425E228 | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
+    # Add OBS Studio PPA with signed-by key
+    echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list > /dev/null && \
     apt-get update && \
     apt-get install -y obs-studio && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* 
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===== Ensure Supervisor Log Directory Exists =====
 RUN mkdir -p /var/log/supervisor
