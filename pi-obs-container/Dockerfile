@@ -71,8 +71,10 @@ RUN mkdir -p /var/log/supervisor
 
 # ===== Install OBS Studio Separately to Optimize Caching =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common && \
-    add-apt-repository ppa:obsproject/obs-studio -y && \
+    software-properties-common curl gnupg ca-certificates && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu/KEY.gpg | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list > /dev/null && \
     apt-get update && \
     apt-get install -y obs-studio && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
