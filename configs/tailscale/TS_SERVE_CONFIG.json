@@ -1,0 +1,43 @@
+{
+  “TCP”: {
+    “443”: {
+      “HTTPS”: true
+    }
+  },
+  “Web”: {
+    “obs.${TS_CERT_DOMAIN}:443”: {
+      “Handlers”: {
+        “/“: {
+          “Proxy”: “http://127.0.0.1:6080”
+        }
+      }
+    },
+    “vnc.${TS_CERT_DOMAIN}:443”: {
+      “Handlers”: {
+        “/“: {
+          “Proxy”: “http://127.0.0.1:5900”
+        }
+      }
+    },
+    “rtmp.${TS_CERT_DOMAIN}:443”: {
+      “Handlers”: {
+        “/“: {
+          “Proxy”: “http://127.0.0.1:1935”
+        }
+      }
+    },
+    “ws.${TS_CERT_DOMAIN}:80”: {
+      “Handlers”: {
+        “/“: {
+          “Proxy”: “http://127.0.0.1:4455”
+        }
+      }
+    }
+  },
+  “AllowFunnel”: {
+    “obs.${TS_CERT_DOMAIN}:443”: false,
+    “vnc.${TS_CERT_DOMAIN}:443”: false,
+    “rtmp.${TS_CERT_DOMAIN}:443”: false,
+    “ws.${TS_CERT_DOMAIN}:80”: false
+  }
+}
