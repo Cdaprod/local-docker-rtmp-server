@@ -70,11 +70,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN mkdir -p /var/log/supervisor
 
 # ===== Install OBS Studio Separately to Optimize Caching =====
-RUN apt-get update && \
-    curl -L -o obs-studio.deb https://cdn-fastly.obsproject.com/downloads/obs-studio-latest-linux-x86_64.deb && \
-    apt-get install -f -y && \
-    dpkg -i obs-studio.deb && \
-    rm obs-studio.deb
+RUN curl -L -o obs-studio.deb https://cdn-fastly.obsproject.com/downloads/obs-studio-latest-linux-arm64.deb && \
+    dpkg -i obs-studio.deb || apt-get -f install -y && \
+    rm obs-studio.deb 
+
+## Alternate OBS Studio via apt to avoid architecture mismatch
+#RUN apt-get update && apt-get install -y --no-install-recommends \
+#    software-properties-common && \
+#    add-apt-repository ppa:obsproject/obs-studio && \
+#    apt-get update && \
+#    apt-get install -y obs-studio && \
+#    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # ===== Copy obs-cli binary from builder stage =====
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
