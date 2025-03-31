@@ -67,7 +67,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ===== Install OBS Studio with Modern GPG Keyring Method =====
+# ===== Install OBS Studio with Correct GPG Keyring =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     curl \
@@ -80,9 +80,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Create directory for keyrings
     mkdir -p /etc/apt/keyrings && \
     # Download correct GPG key from Launchpad and dearmor
-    curl -fsSL https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu/KEY.gpg | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg || { echo "GPG Key download failed"; exit 1; } && \
+    curl -fsSL https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBC7345F522079769F5BBE987EFC71127F425E228 | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg || { echo "GPG Key download failed"; exit 1; } && \
     # Add OBS Studio PPA with signed-by key
-    echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list && \
+    echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list > /dev/null && \
     apt-get update && \
     apt-get install -y obs-studio && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
