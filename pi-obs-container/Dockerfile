@@ -29,10 +29,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     supervisor \
-    # Install OBS Studio from official DEB package (latest)
-    && curl -L -o obs-studio.deb https://cdn-fastly.obsproject.com/downloads/obs-studio-latest-linux-x86_64.deb && \
-    apt-get install -y ./obs-studio.deb && \
-    rm obs-studio.deb && \
     # OBS WebSocket v5+ is built-in from v28+, no plugin needed
     ffmpeg \
     vlc \
@@ -70,16 +66,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# ===== Ensure Supervisor Log Directory Exists =====
+RUN mkdir -p /var/log/supervisor
+
+# ===== Install OBS Studio Separately to Optimize Caching =====
+RUN apt-get update && \
+    curl -L -o obs-studio.deb https://cdn-fastly.obsproject.com/downloads/obs-studio-latest-linux-x86_64.deb && \
+    apt-get install -f -y && \
+    dpkg -i obs-studio.deb && \
+    rm obs-studio.deb
+
 # ===== Copy obs-cli binary from builder stage =====
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
 
-# ===== Copy OBS Config Files Correctly =====
+# Copy OBS profiles and scenes
 COPY config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS/
 COPY config/basic/scenes /root/.config/obs-studio/basic/scenes/
+
+# Copy global and user settings
 COPY config/global.ini /root/.config/obs-studio/global.ini
 COPY config/user.ini /root/.config/obs-studio/user.ini
 
-# Copy plugin configurations in one go
+# Copy plugin configurations
 COPY config/plugin_config /root/.config/obs-studio/plugin_config/
 
 # ===== Copy helper scripts =====
