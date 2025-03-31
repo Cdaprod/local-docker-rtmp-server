@@ -29,13 +29,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     supervisor \
-    \
-    # OBS and multimedia utilities
+    # Add OBS Studio official PPA and install v28+ with WebSocket v5+
+    software-properties-common && \
+    add-apt-repository ppa:obsproject/obs-studio && \
+    apt-get update && apt-get install -y \
     obs-studio \
-    obs-websocket \
+    # OBS WebSocket v5+ is built-in from v28+, no plugin needed
     ffmpeg \
     vlc \
-    \
     # VNC, X11, and GUI utilities
     xfce4 \
     x11vnc \
@@ -43,7 +44,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     novnc \
     websockify \
     xserver-xorg-video-dummy \
-    \
     # X11 and GUI-related dependencies
     libx11-dev \
     libxcb1 \
@@ -55,24 +55,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxrender1 \
     libxi6 \
     libxtst6 \
-    \
     # OpenGL and EGL support for graphics
     libgl1-mesa-glx \
     libgl1-mesa-dri \
     libegl1-mesa \
     mesa-utils \
-    \
     # Audio and multimedia
     libasound2 \
     libpulse-dev \
-    \
     # Video4Linux utilities and drivers
     v4l-utils \
     libv4l-dev \
-    \
     # Wayland support
     libwayland-dev \
-    \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
