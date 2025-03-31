@@ -74,8 +74,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates && \
     # Create directory for keyrings
     mkdir -p /etc/apt/keyrings && \
-    # Download and dearmor OBS Studio GPG key
-    curl -fsSL https://keys.openpgp.org/vks/v1/by-fingerprint/BC7345F522079769F5BBE987EFC71127F425E228 | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
+    # Correct GPG Key URL for OBS
+    curl -fsSL https://ppa.launchpadcontent.net/obsproject/obs-studio/ubuntu/KEY.gpg | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
     # Add OBS Studio PPA with signed-by key
     echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list > /dev/null && \
     apt-get update && \
