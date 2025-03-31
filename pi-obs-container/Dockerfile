@@ -22,13 +22,14 @@ LABEL description="pi-obs-container with VNC and OBS Studio access via a browser
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ===== System and OBS Dependencies =====
+# ===== System and OBS Dependencies =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core system utilities and build tools
-    curl \
-    ca-certificates \
     build-essential \
     cmake \
     supervisor \
+    gpg \
+    dirmngr \
     # OBS WebSocket v5+ is built-in from v28+, no plugin needed
     ffmpeg \
     vlc \
@@ -66,21 +67,30 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ===== Ensure Supervisor Log Directory Exists =====
-RUN mkdir -p /var/log/supervisor
-
-# ===== Install OBS Studio Separately to Optimize Caching =====
+# ===== Install OBS Studio with Modern GPG Keyring Method =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common curl gnupg ca-certificates && \
+    software-properties-common \
+    curl \
+    gnupg \
+    ca-certificates && \
+    # Create directory for keyrings
     mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xBC7345F522079769F5BBE987EFC71127F425E228 | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
+    # Download and dearmor OBS Studio GPG key
+    curl -fsSL https://keys.openpgp.org/vks/v1/by-fingerprint/BC7345F522079769F5BBE987EFC71127F425E228 | gpg --dearmor -o /etc/apt/keyrings/obs-studio.gpg && \
+    # Add OBS Studio PPA with signed-by key
     echo "deb [signed-by=/etc/apt/keyrings/obs-studio.gpg] http://ppa.launchpad.net/obsproject/obs-studio/ubuntu jammy main" | tee /etc/apt/sources.list.d/obs-studio.list > /dev/null && \
     apt-get update && \
     apt-get install -y obs-studio && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# ===== Ensure Supervisor Log Directory Exists =====
+RUN mkdir -p /var/log/supervisor
+
 # ===== Copy obs-cli binary from builder stage =====
 COPY --from=builder /obs-cli-binary /usr/local/bin/obs-cli
+
+# ===== Set Working Directory =====
+WORKDIR /root
 
 # ===== Copy OBS profiles and scenes =====
 COPY config/basic/profiles/CdaprodOBS /root/.config/obs-studio/basic/profiles/CdaprodOBS/
@@ -101,12 +111,15 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 # Make sure all scripts are executable
 RUN chmod +x /usr/local/bin/detect-devices.sh /entrypoint.sh
 
+# ===== Set Correct Permissions for OBS Configuration =====
+RUN chown -R root:root /root/.config/obs-studio
+
 # ===== Create noVNC web directory =====
 RUN mkdir -p /usr/share/novnc/utils/websockify && \
     ln -s /usr/share/novnc/vnc.html /usr/share/novnc/index.html
 
 # ===== Fix noVNC Proxy Path if Missing =====
-RUN ln -s /usr/share/novnc/utils/novnc_proxy /usr/bin/novnc_proxy || true
+RUN [ -f /usr/share/novnc/utils/novnc_proxy ] || ln -s /usr/share/novnc/utils/novnc_proxy /usr/bin/novnc_proxy
 
 # ===== Expose VNC, WebSockets, and OBS WebSocket ports =====
 EXPOSE 5900 6080 4455
