@@ -21,17 +21,11 @@ LABEL description="pi-obs-container with VNC and OBS Studio access via a browser
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Disable policy and init-related services to avoid errors
-RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d && \
-    mkdir -p /var/run/dbus && \
-    echo 'exit 0' > /usr/sbin/invoke-rc.d && chmod +x /usr/sbin/invoke-rc.d
-
 # ===== System and OBS Dependencies =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core system utilities and build tools
     curl \
     build-essential \
-    cmake \
     supervisor \
     gpg \
     dirmngr \
@@ -49,33 +43,62 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx11-dev \
     libxcb1 \
     libxcb-xinerama0 \
-    libxext6 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libxrender1 \
-    libxi6 \
-    libxtst6 \
-    # OpenGL and EGL support for graphics
-    libgl1-mesa-glx \
-    libgl1-mesa-dri \
-    libegl1-mesa \
-    mesa-utils \
-    # Audio and multimedia
-    libasound2 \
-    libpulse-dev \
-    # Video4Linux utilities and drivers
-    v4l-utils \
-    libv4l-dev \
-    # Wayland support
+    libxcb-randr0 \
+    libxcb-composite0 \
+    libxcomposite-dev \
+    libxinerama-dev \
+    libxkbcommon-dev \
+    libxcb-icccm4-dev \
+    libxcb-keysyms1-dev \
+    libxcb-shape0-dev \
+    libavutil-dev \
+    libx264-dev \
+    libcurl4-openssl-dev \
+    libfdk-aac-dev \
+    libfontconfig1-dev \
+    libluajit-5.1-dev \
+    libpipewire-0.3-dev \
     libwayland-dev \
+    qtbase5-dev \
+    qtdeclarative5-dev \
+    libqt5x11extras5-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libgl1-mesa-dev \
+    mesa-common-dev \
+    qt5-qmake \
+    pkg-config \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ===== Install OBS Studio for Raspberry Pi OS (Manual Method) =====
-RUN curl -fsSL https://cdn-fastly.obsproject.com/downloads/obs-studio-arm64.deb -o /tmp/obs-studio-arm64.deb && \
-    dpkg -i /tmp/obs-studio-arm64.deb || apt-get -f install -y && \
-    rm -f /tmp/obs-studio-arm64.deb
+# ===== Install Latest CMake (v3.28+) =====
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libexpat1-dev \
+    libz-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    # Download and extract CMake 3.28+
+    cd /usr/src && \
+    curl -LO https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz && \
+    tar -xvzf cmake-3.28.1.tar.gz && \
+    cd cmake-3.28.1 && \
+    ./bootstrap --prefix=/usr/local && \
+    make -j$(nproc) && \
+    make install && \
+    cmake --version
+
+ENV PATH="/usr/local/bin:${PATH}"
+
+# ===== Clone and Build OBS Studio from Source =====
+RUN cd /usr/src && \
+    git clone --recursive https://github.com/obsproject/obs-studio.git && \
+    cd obs-studio && \
+    mkdir build && cd build && \
+    cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_PIPEWIRE=OFF -DCMAKE_BUILD_TYPE=Release .. && \
+    make -j$(nproc) && \
+    make install
 
 # ===== Ensure Supervisor Log Directory Exists =====
 RUN mkdir -p /var/log/supervisor
