@@ -18,8 +18,8 @@ services:
       - /dev/video0
     volumes:
       - ./config:/root/.config/obs-studio
-      - ./assets:/root/assets
-      - ./recordings:/recordings
+      - ../assets:/root/assets
+      #- ./recordings:/recordings
       - ./scripts:/root/scripts
     networks:
       - rtmp_network
