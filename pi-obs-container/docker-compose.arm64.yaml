@@ -18,7 +18,7 @@ services:
       - /dev/video0
     volumes:
       - ./config:/root/.config/obs-studio
-      - ./../assets:/root/assets
+      - ./assets:/root/assets
       #- ./recordings:/recordings
       - ./scripts:/root/scripts
     networks:

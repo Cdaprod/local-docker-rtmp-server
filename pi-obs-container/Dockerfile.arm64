@@ -33,7 +33,7 @@ COPY --from=builder /usr/local/bin/obs /usr/local/bin/obs
 
 # OBS config (scenes, overlays, user settings)
 COPY config/ /root/.config/obs-studio/
-COPY ./../assets/ /root/assets/
+COPY ./assets/ /root/assets/
 COPY scripts/ /root/scripts/
 COPY entrypoint.sh /entrypoint.sh
 COPY supervisord.conf /etc/supervisor/supervisord.conf
