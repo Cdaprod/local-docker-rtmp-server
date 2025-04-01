@@ -1,0 +1,44 @@
+FROM debian:bullseye as builder
+
+# Build deps
+RUN apt-get update && apt-get install -y \
+    build-essential cmake git curl unzip \
+    libx11-dev libxrandr-dev libxss-dev libgl1-mesa-dev \
+    libv4l-dev libpulse-dev libasound2-dev libwayland-dev \
+    qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
+    qttools5-dev qttools5-dev-tools \
+    ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
+    libobs-dev obs-plugins obs-websocket \
+    ca-certificates gpg
+
+# Build OBS manually (if needed)
+# RUN git clone --recursive https://github.com/obsproject/obs-studio.git && \
+#     cd obs-studio && mkdir build && cd build && \
+#     cmake -DUNIX_STRUCTURE=1 -DBUILD_BROWSER=ON -DENABLE_WAYLAND=ON .. && \
+#     make -j4 && make install
+
+FROM debian:bullseye
+
+LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Runtime deps
+RUN apt-get update && apt-get install -y \
+    obs-studio ffmpeg curl x11vnc xvfb novnc websockify \
+    libwayland-client0 libasound2 pulseaudio && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy obs-cli
+COPY --from=builder /usr/local/bin/obs /usr/local/bin/obs
+
+# OBS config (scenes, overlays, user settings)
+COPY config/ /root/.config/obs-studio/
+COPY assets/ /root/assets/
+COPY scripts/ /root/scripts/
+COPY entrypoint.sh /entrypoint.sh
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 5800 5900 4455
+ENTRYPOINT ["/entrypoint-arm64.sh"]
