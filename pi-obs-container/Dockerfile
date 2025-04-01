@@ -56,6 +56,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfdk-aac-dev \
     libfontconfig1-dev \
     libluajit-5.1-dev \
+    libopus-dev \
     libpipewire-0.3-dev \
     libwayland-dev \
     qtbase5-dev \
@@ -77,29 +78,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Clean up APT cache to reduce image size
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ===== Build FFmpeg from Source =====
-RUN cd /usr/src && \
-    git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/5.1 && \
-    cd FFmpeg && \
-    ./configure \
-      --prefix=/usr \
-      --pkg-config-flags="--static" \
-      --extra-cflags="-I/usr/local/include" \
-      --extra-ldflags="-L/usr/local/lib" \
-      --enable-gpl \
-      --enable-libx264 \
-      --enable-libx265 \
-      --enable-libvpx \
-      --enable-libfdk-aac \
-      --enable-libopus \
-      --enable-libvorbis \
-      --enable-nonfree && \
-    make -j$(nproc) && \
-    make install && \
-    ldconfig
-
-# ===== Verify FFmpeg Version =====
-RUN ffmpeg -version
+# ===== Install FFmpeg Pre-Built Binary =====
+RUN cd /usr/local/bin && \
+    curl -LO https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz && \
+    tar -xvf ffmpeg-release-arm64-static.tar.xz && \
+    cp ffmpeg-7.0.2-arm64-static/ffmpeg /usr/local/bin/ffmpeg && \
+    cp ffmpeg-7.0.2-arm64-static/ffprobe /usr/local/bin/ffprobe && \
+    chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe && \
+    rm -rf ffmpeg-release-arm64-static.tar.xz ffmpeg-7.0.2-arm64-static && \
+    ffmpeg -version
 
 # ===== Install Latest CMake (v3.28+) =====
 RUN apt-get update && apt-get install -y --no-install-recommends \
