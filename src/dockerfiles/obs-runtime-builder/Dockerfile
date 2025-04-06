@@ -25,4 +25,5 @@ WORKDIR /root
 
 EXPOSE 5800 5900 4455
 
-CMD ["x11vnc", "-display", ":99", "-forever", "-nopw", "-shared"] 
+ENTRYPOINT ["xvfb-run", "--auto-servernum", "obs"]
+CMD ["x11vnc", "-display", ":99", "-forever", "-nopw", "-shared"]
