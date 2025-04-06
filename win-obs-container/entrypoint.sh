@@ -1,20 +1,13 @@
 #!/bin/bash
-set -e
 
-echo "[win-obs-container] Starting OBS config sync..."
+timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+backup_dir="/workspace/data/obs-backup/$timestamp"
 
-# Sync from mounted Windows OBS path into container (expect user to mount via -v)
-if [ -d "/obs/config" ]; then
-  echo "[sync] Pulling configs from host into workspace..."
-  rsync -a /obs/config/ /workspace/config/
-fi
+echo "[INFO] Backing up OBS config and assets to: $backup_dir"
+mkdir -p "$backup_dir"
 
-# Run custom tooling for JSON transformations (patch overlays, scenes, etc.)
-echo "[sync] Applying automated patches or overlays..."
-/usr/local/bin/obs-tools/apply-patches.sh
+rsync -av /workspace/config/ "$backup_dir/config/"
+rsync -av /workspace/assets/ "$backup_dir/assets/"
 
-# Stage changes
-echo "[git] Staging changes..."
-cd /workspace && git add config/ assets/ || true
-
-exec "$@"
+echo "[INFO] Backup complete."
+exec bash

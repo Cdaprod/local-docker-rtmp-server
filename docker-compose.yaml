@@ -121,12 +121,12 @@ services:
         limits:
           cpus: "2.0"
           memory: "4g"
-    labels:
-      com.cdaprod.project: "RTMP Streaming Server"
-      com.cdaprod.version: "1.1.0"
-      com.cdaprod.env: "${ENVIRONMENT:-production}"
-      com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
-      com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+    # labels:
+    #   com.cdaprod.project: "RTMP Streaming Server"
+    #   com.cdaprod.version: "1.1.0"
+    #   com.cdaprod.env: "${ENVIRONMENT:-production}"
+    #   com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
+    #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
     networks:
       - rtmp_network
  

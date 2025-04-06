@@ -1,12 +1,33 @@
 Example docker run Command for Local Dev
 
-This would be run from PowerShell or a script on your Windows machine:
+Setup
 
 ``` 
+local-docker-rtmp-server/
+└── win-obs-container/
+    ├── Dockerfile
+    ├── entrypoint.sh
+    ├── config/                  # Staged configs from OBS
+    ├── assets/                  # Local overlay/image assets
+    ├── data/                    # Backups & extracted configs
+    └── backup.sh                # (Optional) CLI tool inside container
+``` 
+
+Build & Tag 
+
+``` 
+docker build -t cdaprod/win-obs-container .
+docker run --rm -it cdaprod/win-obs-container
+``` 
+
+This would be run from PowerShell or a script on your Windows machine:
+
+```powershell
 docker run --rm -it `
   -v "${env:APPDATA}\obs-studio\basic:/obs/config" `
-  -v "${PWD}/win-obs-container/config:/workspace/config" `
-  -v "${PWD}/obs-assets:/workspace/assets" `
+  -v "${PWD}\win-obs-container\config:/workspace/config" `
+  -v "${PWD}\obs-assets:/workspace/assets" `
+  -v "${PWD}\data:/data" `
   cdaprod/win-obs-container
 ``` 
 

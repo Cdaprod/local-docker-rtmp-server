@@ -1,23 +1,24 @@
+# win-obs-container/Dockerfile
 FROM debian:bullseye
 
-LABEL maintainer="Cdaprod <cdaprod@cdaprod.dev>"
+LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install base tools
+# Basic utilities
 RUN apt-get update && apt-get install -y \
-    rsync jq git curl python3 python3-pip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    curl git jq unzip bash rsync && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Add script tooling
-COPY scripts/ /usr/local/bin/obs-tools/
+# Working directories inside the container
+WORKDIR /workspace
+
+# Copy everything from this context only
+COPY config/ /workspace/config/
+COPY assets/ /workspace/assets/
+COPY data/ /workspace/data/
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh /usr/local/bin/obs-tools/*
 
-# Create expected directory structure
-RUN mkdir -p /obs/config /obs/assets /obs/scenes
+RUN chmod +x /entrypoint.sh
 
-VOLUME ["/obs/config", "/obs/assets"]
-
-WORKDIR /obs
-
+VOLUME ["/workspace/config", "/workspace/assets", "/workspace/data"]
 ENTRYPOINT ["/entrypoint.sh"]
