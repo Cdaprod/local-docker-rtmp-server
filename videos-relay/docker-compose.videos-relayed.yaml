@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  videos-relayed:
+    build:
+      context: ./videos-relayed
+    container_name: videos-relayed
+    restart: unless-stopped
+    # Bind the Wayland/pipewire socket if necessary for screen capture.
+    # Uncomment and adjust if your host’s PipeWire or Wayland socket is needed:
+    # volumes:
+    #   - /run/user/1000/pipewire-0:/run/user/1000/pipewire-0:ro
+    environment:
+      - CAPTURE_MODE=desktop
+      - STREAM_KEY=cam01
+      - RTMP_URL=rtmp://rtmp-service/live
+    networks:
+      - media_net
+      - tailscale
+
+networks:
+  media_net:
+    external: true
+  tailscale:
+    external: true

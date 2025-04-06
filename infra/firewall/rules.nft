@@ -1,0 +1,25 @@
+table inet filter {
+  chain input {
+    type filter hook input priority 0;
+    policy drop;
+
+    # Allow loopback and established connections
+    iif lo accept
+    ct state established,related accept
+
+    # Allow SSH
+    tcp dport 22 accept
+
+    # Allow HTTP/HTTPS
+    tcp dport { 80, 443 } accept
+
+    # RTMP, WebSocket, OBS WebSocket
+    tcp dport { 1935, 4455 } accept
+
+    # Allow RabbitMQ & internal docker
+    tcp dport { 5672, 15672, 5000 } accept
+
+    # ICMP
+    ip protocol icmp accept
+  }
+}

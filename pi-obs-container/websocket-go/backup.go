@@ -5,65 +5,77 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 )
 
-// Paths for backup and source volumes
+// Core directories
 const (
-	obsAssetsDir   = "/root/obs-assets"
-	obsConfigDir   = "/root/.config/obs-studio/basic"
-	backupDir      = "/data/obs-backup"
-	timestampFormat = "2006-01-02_15-04-05"
+	obsAssetsDir     = "/root/obs-assets"
+	obsConfigDir     = "/root/.config/obs-studio/basic"
+	backupBaseDir    = "/root/obs-assets/backups"
+	timestampFormat  = "2006-01-02_15-04-05"
+	defaultStreamTag = "unnamed-stream"
 )
 
-// Backup OBS Config and Assets
-func backupOBS() {
-	timestamp := time.Now().Format(timestampFormat)
-	backupPath := fmt.Sprintf("%s/%s", backupDir, timestamp)
+// Backup OBS config and assets into obs-assets/backups/<stream-tag>
+func backupOBS(streamTag string) {
+	if streamTag == "" {
+		streamTag = defaultStreamTag
+	}
 
-	// Create backup directory
-	err := os.MkdirAll(backupPath, 0755)
-	if err != nil {
+	timestamp := time.Now().Format(timestampFormat)
+	backupPath := filepath.Join(backupBaseDir, fmt.Sprintf("%s_%s", streamTag, timestamp))
+
+	log.Println("[obs-assets] Creating backup directory:", backupPath)
+	if err := os.MkdirAll(backupPath, 0755); err != nil {
 		log.Fatalf("Error creating backup directory: %v", err)
 	}
 
-	// Backup Config
-	err = exec.Command("cp", "-r", obsConfigDir, fmt.Sprintf("%s/config", backupPath)).Run()
+	configBackup := filepath.Join(backupPath, "config")
+	assetsBackup := filepath.Join(backupPath, "assets")
+
+	// Copy OBS config
+	err := exec.Command("cp", "-r", obsConfigDir, configBackup).Run()
 	if err != nil {
 		log.Fatalf("Failed to backup OBS config: %v", err)
 	}
 
-	// Backup Assets
-	err = exec.Command("cp", "-r", obsAssetsDir, fmt.Sprintf("%s/assets", backupPath)).Run()
+	// Copy all obs-assets (optional: skip node_modules or archive folders)
+	err = exec.Command("cp", "-r", obsAssetsDir, assetsBackup).Run()
 	if err != nil {
-		log.Fatalf("Failed to backup OBS assets: %v", err)
+		log.Fatalf("Failed to backup obs-assets: %v", err)
 	}
 
-	log.Printf("OBS Config and Assets backed up to %s\n", backupPath)
+	log.Printf("[obs-assets] OBS configuration and overlays backed up to %s\n", backupPath)
 }
 
-// Push to GitHub or Git Repo (Optional)
-func pushToGitRepo() {
+// Optionally push backup to Git
+func pushBackupToGitRepo() {
 	cmd := exec.Command("sh", "-c", `
-    cd /data/obs-backup &&
-    git init &&
-    git add . &&
-    git commit -m "Backup $(date +'%Y-%m-%d %H:%M:%S')" &&
-    git remote add origin https://github.com/yourusername/obs-backup.git &&
-    git push -u origin main
+    cd /root/obs-assets &&
+    git add backups &&
+    git commit -m "Backup: $(date +'%Y-%m-%d %H:%M:%S')" &&
+    git push origin main
   `)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		log.Printf("Error pushing to GitHub: %v", err)
+		log.Printf("Git push failed: %v", err)
 	}
 }
 
 func main() {
-	// Backup OBS Configs and Assets
-	backupOBS()
+	// Optional: accept stream name as argument
+	streamTag := ""
+	if len(os.Args) > 1 {
+		streamTag = os.Args[1]
+	}
 
-	// Push to GitHub if needed
-	pushToGitRepo()
+	// Step 1: Backup
+	backupOBS(streamTag)
+
+	// Step 2: Push to Git (optional)
+	pushBackupToGitRepo()
 }

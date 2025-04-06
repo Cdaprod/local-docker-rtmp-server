@@ -1,0 +1,32 @@
+services:
+  traefik:
+    container_name: tailscale-traefik
+    image: traefik:v2.10
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.rtmp.address=:1935"
+      - "--entrypoints.ws.address=:4455"  # for obs-websocket
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--certificatesresolvers.tsresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.tsresolver.acme.email=admin@cdaprod.dev"
+      - "--certificatesresolvers.tsresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "1935:1935"     # Optional: for RTMP
+      - "4455:4455"     # Optional: for OBS WebSocket
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - tailscale
+
+networks:
+  tailscale:
+    external: true
