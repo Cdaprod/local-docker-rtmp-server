@@ -1,45 +1,54 @@
-# Stage 1: Build OBS Studio from source (libobs)
+# Stage 1: Build OBS Studio + RTSP Plugin
 FROM debian:bullseye AS builder
 
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential cmake git curl unzip \
-    libx11-dev libxrandr-dev libxss-dev libgl1-mesa-dev \
-    libv4l-dev libpulse-dev libasound2-dev libwayland-dev \
-    qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
-    qttools5-dev qttools5-dev-tools \
-    ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
-    ca-certificates gpg
+  build-essential cmake git curl unzip \
+  libx11-dev libxrandr-dev libxss-dev libgl1-mesa-dev \
+  libv4l-dev libpulse-dev libasound2-dev libwayland-dev \
+  qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
+  qttools5-dev qttools5-dev-tools \
+  ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
+  ca-certificates gpg
 
-# Clone and build OBS Studio (for libobs)
 WORKDIR /build
+
+# Clone OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git && \
     cd obs-studio && mkdir build && cd build && \
-    cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/opt/obs .. && \
     make -j$(nproc) && make install
 
-# Clone and build the RTSP plugin
+# Clone and build RTSP plugin
 RUN git clone --recursive https://github.com/iamscottxu/obs-rtspserver.git && \
     cd obs-rtspserver && mkdir build && cd build && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    cmake -DCMAKE_INSTALL_PREFIX=/opt/obs .. && \
     make -j$(nproc) && make install
 
-# Stage 2: Runtime image
+---
+
+# Stage 2: Runtime container
 FROM debian:bullseye
 
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install only runtime deps
+# Install runtime-only deps
 RUN apt-get update && apt-get install -y \
-    ffmpeg curl obs-studio x11vnc xvfb novnc websockify \
+    ffmpeg curl x11vnc xvfb novnc websockify \
     libwayland-client0 libasound2 pulseaudio && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy OBS and RTSP plugin
-COPY --from=builder /usr/lib/obs-plugins/ /usr/lib/obs-plugins/
-COPY --from=builder /usr/share/obs/obs-plugins/ /usr/share/obs/obs-plugins/
+# Copy built OBS from builder stage
+COPY --from=builder /opt/obs /opt/obs
 
-# OBS configuration and entrypoint
+# Add symlink for obs binary
+RUN ln -s /opt/obs/bin/obs /usr/bin/obs
+
+# Set LD_LIBRARY_PATH to include OBS lib dir
+ENV LD_LIBRARY_PATH=/opt/obs/lib/obs:/opt/obs/lib:/usr/lib
+
+# OBS Configuration and scripts
 COPY config/ /root/.config/obs-studio/
 COPY ./assets/ /root/assets/
 COPY scripts/ /root/scripts/
@@ -49,4 +58,5 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 5800 5900 4455
+
 ENTRYPOINT ["/entrypoint.sh"]
