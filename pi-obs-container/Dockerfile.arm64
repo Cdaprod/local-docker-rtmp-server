@@ -1,4 +1,4 @@
-# Stage 1: OBS build tools and plugin compilation
+# Stage 1: Build OBS Studio from source (libobs)
 FROM debian:bullseye AS builder
 
 RUN apt-get update && apt-get install -y \
@@ -8,33 +8,38 @@ RUN apt-get update && apt-get install -y \
     qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
     qttools5-dev qttools5-dev-tools \
     ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
-    libobs-dev obs-plugins \
     ca-certificates gpg
 
-# Clone and build the RTSP plugin
+# Clone and build OBS Studio (for libobs)
 WORKDIR /build
+RUN git clone --recursive https://github.com/obsproject/obs-studio.git && \
+    cd obs-studio && mkdir build && cd build && \
+    cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    make -j$(nproc) && make install
+
+# Clone and build the RTSP plugin
 RUN git clone --recursive https://github.com/iamscottxu/obs-rtspserver.git && \
     cd obs-rtspserver && mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
     make -j$(nproc) && make install
 
-# Stage 2: Runtime container
+# Stage 2: Runtime image
 FROM debian:bullseye
 
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Runtime dependencies
+# Install only runtime deps
 RUN apt-get update && apt-get install -y \
-    obs-studio ffmpeg curl x11vnc xvfb novnc websockify \
+    ffmpeg curl obs-studio x11vnc xvfb novnc websockify \
     libwayland-client0 libasound2 pulseaudio && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy RTSP plugin from builder
+# Copy OBS and RTSP plugin
 COPY --from=builder /usr/lib/obs-plugins/ /usr/lib/obs-plugins/
 COPY --from=builder /usr/share/obs/obs-plugins/ /usr/share/obs/obs-plugins/
 
-# OBS configs and startup
+# OBS configuration and entrypoint
 COPY config/ /root/.config/obs-studio/
 COPY ./assets/ /root/assets/
 COPY scripts/ /root/scripts/
@@ -44,4 +49,4 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 5800 5900 4455
-ENTRYPOINT ["/entrypoint-arm64.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
