@@ -1,0 +1,24 @@
+# Use prebuilt OBS runtime image from DockerHub or GHCR
+FROM cdaprod/obs-runtime-build:latest
+
+LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Create runtime folders if not bind-mounted
+RUN mkdir -p \
+  /root/.config/obs-studio \
+  /root/assets \
+  /root/scripts
+
+# Copy your runtime plugins (optional until overlays are mounted)
+COPY config/ /root/.config/obs-studio/
+COPY plugin_config/ /root/.config/obs-studio/plugin_config/
+COPY scripts/ /root/scripts/
+COPY assets/ /root/assets/
+COPY entrypoint.sh /entrypoint.sh
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 5800 5900 4455
+ENTRYPOINT ["/entrypoint.sh"]

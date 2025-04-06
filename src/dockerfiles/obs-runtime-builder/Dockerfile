@@ -24,4 +24,4 @@ WORKDIR /root
 
 EXPOSE 5800 5900 4455
 
-ENTRYPOINT ["obs"]
+ENTRYPOINT ["xvfb-run", "--auto-servernum", "obs"]
