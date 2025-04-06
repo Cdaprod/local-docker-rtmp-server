@@ -1,9 +1,16 @@
 # Stage 1: Build OBS Studio + RTSP Plugin
 FROM debian:bullseye AS builder
 
-# Install build dependencies
+# Upgrade to modern CMake via Kitware APT
 RUN apt-get update && apt-get install -y \
-  build-essential cmake git curl unzip \
+  apt-transport-https ca-certificates curl gnupg software-properties-common && \
+  curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg && \
+  echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/debian/ bullseye main" > /etc/apt/sources.list.d/kitware.list && \
+  apt-get update && apt-get install -y cmake
+
+# Install build dependencies
+RUN apt-get install -y \
+  build-essential git unzip \
   libx11-dev libxrandr-dev libxss-dev libgl1-mesa-dev \
   libv4l-dev libpulse-dev libasound2-dev libwayland-dev \
   qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
@@ -13,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /build
 
-# Clone OBS Studio
+# Clone and build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git && \
     cd obs-studio && mkdir build && cd build && \
     cmake -DUNIX_STRUCTURE=1 -DCMAKE_INSTALL_PREFIX=/opt/obs .. && \
@@ -31,22 +38,22 @@ FROM debian:bullseye
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install runtime-only deps
+# Runtime dependencies only
 RUN apt-get update && apt-get install -y \
-    ffmpeg curl x11vnc xvfb novnc websockify \
-    libwayland-client0 libasound2 pulseaudio && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+  ffmpeg curl x11vnc xvfb novnc websockify \
+  libwayland-client0 libasound2 pulseaudio && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy built OBS from builder stage
+# Copy built OBS from builder
 COPY --from=builder /opt/obs /opt/obs
 
-# Add symlink for obs binary
+# Add OBS binary to path
 RUN ln -s /opt/obs/bin/obs /usr/bin/obs
 
-# Set LD_LIBRARY_PATH to include OBS lib dir
+# Runtime linking
 ENV LD_LIBRARY_PATH=/opt/obs/lib/obs:/opt/obs/lib:/usr/lib
 
-# OBS Configuration and scripts
+# OBS Config and scripts
 COPY config/ /root/.config/obs-studio/
 COPY ./assets/ /root/assets/
 COPY scripts/ /root/scripts/
@@ -56,5 +63,4 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 5800 5900 4455
-
 ENTRYPOINT ["/entrypoint.sh"]
