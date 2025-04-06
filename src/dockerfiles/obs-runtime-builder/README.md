@@ -13,7 +13,7 @@ This Dockerfile builds a minimal runtime image with:
 ```bash
 docker buildx build --platform linux/arm64 \
   -t cdaprod/obs-runtime:latest \
-  -f src/dockerfiles/obs-runtime-builder/Dockerfile \
+  -f ./Dockerfile \
   --push .
 ```
 
