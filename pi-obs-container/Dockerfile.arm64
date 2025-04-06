@@ -1,22 +1,23 @@
 # Stage 1: Build OBS Studio + RTSP Plugin
 FROM debian:bullseye AS builder
 
-# Upgrade to modern CMake via Kitware APT
-RUN apt-get update && apt-get install -y \
-  apt-transport-https ca-certificates curl gnupg software-properties-common && \
-  curl -fsSL https://apt.kitware.com/keys/kitware-archive-latest.asc | gpg --dearmor -o /usr/share/keyrings/kitware-archive-keyring.gpg && \
-  echo "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/debian/ bullseye main" > /etc/apt/sources.list.d/kitware.list && \
-  apt-get update && apt-get install -y cmake
-
 # Install build dependencies
-RUN apt-get install -y \
-  build-essential git unzip \
+RUN apt-get update && apt-get install -y \
+  build-essential curl git unzip \
   libx11-dev libxrandr-dev libxss-dev libgl1-mesa-dev \
   libv4l-dev libpulse-dev libasound2-dev libwayland-dev \
   qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
   qttools5-dev qttools5-dev-tools \
   ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
-  ca-certificates gpg
+  ca-certificates gpg wget
+
+# Install CMake 3.27.9 from source
+ARG CMAKE_VERSION=3.27.9
+RUN cd /tmp && \
+    curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz && \
+    tar -zxvf cmake-${CMAKE_VERSION}.tar.gz && cd cmake-${CMAKE_VERSION} && \
+    ./bootstrap && make -j$(nproc) && make install && \
+    cmake --version
 
 WORKDIR /build
 
@@ -38,22 +39,20 @@ FROM debian:bullseye
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Runtime dependencies only
+# Install runtime deps only
 RUN apt-get update && apt-get install -y \
   ffmpeg curl x11vnc xvfb novnc websockify \
   libwayland-client0 libasound2 pulseaudio && \
   apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy built OBS from builder
+# Copy built OBS and plugins
 COPY --from=builder /opt/obs /opt/obs
-
-# Add OBS binary to path
 RUN ln -s /opt/obs/bin/obs /usr/bin/obs
 
-# Runtime linking
+# Link libraries
 ENV LD_LIBRARY_PATH=/opt/obs/lib/obs:/opt/obs/lib:/usr/lib
 
-# OBS Config and scripts
+# Copy config, assets, entrypoint
 COPY config/ /root/.config/obs-studio/
 COPY ./assets/ /root/assets/
 COPY scripts/ /root/scripts/
