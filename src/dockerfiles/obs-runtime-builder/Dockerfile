@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     obs-studio ffmpeg curl \
     libgl1 libasound2 libv4l-0 libx11-xcb1 \
     x11vnc xvfb novnc websockify \
+    openbox fluxbox \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create runtime dirs but don’t copy your personal configs yet
@@ -24,4 +25,4 @@ WORKDIR /root
 
 EXPOSE 5800 5900 4455
 
-ENTRYPOINT ["xvfb-run", "--auto-servernum", "obs"]
+CMD ["x11vnc", "-display", ":99", "-forever", "-nopw", "-shared"] 
