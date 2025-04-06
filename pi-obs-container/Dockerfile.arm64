@@ -9,7 +9,18 @@ RUN apt-get update && apt-get install -y \
   qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
   qttools5-dev qttools5-dev-tools \
   ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
-  ca-certificates gpg wget
+  ca-certificates gpg wget \
+  libssl-dev
+
+RUN apt-get update && apt-get install -y \
+  build-essential curl git unzip \
+  libx11-dev libxrandr-dev libxss-dev libgl1-mesa-dev \
+  libv4l-dev libpulse-dev libasound2-dev libwayland-dev \
+  qtbase5-dev qtwayland5 libqt5waylandclient5 libqt5waylandcompositor5 \
+  qttools5-dev qttools5-dev-tools \
+  ffmpeg libavdevice-dev libavfilter-dev libavformat-dev libavcodec-dev \
+  ca-certificates gpg \
+  **libssl-dev**  # <== Add this line
 
 # Install CMake 3.27.9 from source
 ARG CMAKE_VERSION=3.27.9
