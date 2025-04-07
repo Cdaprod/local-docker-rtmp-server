@@ -10,6 +10,11 @@ RUN apt-get update && apt-get install -y \
     x11vnc xvfb novnc websockify supervisor \
     openbox fluxbox \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
+ 
+# Install real noVNC proxy from GitHub
+RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
+    ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
+    git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
 # Setup directory structure
 RUN mkdir -p \
