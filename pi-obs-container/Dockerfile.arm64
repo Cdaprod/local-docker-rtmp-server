@@ -11,9 +11,8 @@ RUN mkdir -p \
   /root/scripts \
   /opt/novnc/utils/websockify
 
-# Optional: If novnc was not installed by apt, clone the real repo
-RUN git clone https://github.com/novnc/noVNC /opt/novnc && \
-    ln -s /opt/novnc/vnc_lite.html /opt/novnc/index.html
+RUN [ ! -d /opt/novnc ] && git clone https://github.com/novnc/noVNC /opt/novnc || true && \
+    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html
 
 # Copy overlays, profiles, scripts
 COPY config/ /root/.config/obs-studio/

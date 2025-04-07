@@ -2,6 +2,20 @@
 
 A containerized OBS Studio setup optimized for Raspberry Pi and headless environments.
 
+## Docker run command for build testing `osb-pi` container with `cdaprod/obs-runtime-build:v1.1.0` aka `:latest`.
+
+``` 
+docker run --rm -it \
+  --name obs-pi \
+  --privileged \
+  -v $(pwd)/config:/root/.config/obs-studio \
+  -v $(pwd)/assets:/root/assets \
+  -v $(pwd)/scripts:/root/scripts \
+  -p 5800:5800 -p 5900:5900 -p 6080:6080 -p 4455:4455 \
+  --device /dev/video0 \
+  obs-pi:latest
+``` 
+
 ## Manually run virtual headless OBS with this command:
 
 ```bash
