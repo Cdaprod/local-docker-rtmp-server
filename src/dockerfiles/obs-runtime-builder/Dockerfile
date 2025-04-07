@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     obs-studio ffmpeg curl \
     libgl1 libasound2 libv4l-0 libx11-xcb1 \
     x11vnc xvfb novnc websockify supervisor \
-    openbox fluxbox \
+    openbox fluxbox git \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
  
 # Install real noVNC proxy from GitHub
