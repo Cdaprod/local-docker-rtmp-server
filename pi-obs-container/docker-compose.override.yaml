@@ -12,6 +12,7 @@ services:
       - "5800:5800"  # noVNC
       - "5900:5900"  # native VNC
       - "4455:4455"  # OBS WebSocket
+      - "6080:6080"  # web-browser VNC
     devices:
       - /dev/video0       # your real camera
       - /dev/video10      # virtual GUI loopback
@@ -53,6 +54,7 @@ services:
 #     - "5800:5800"     # noVNC
 #     - "5900:5900"     # native VNC
 #     - "4455:4455"     # OBS WebSocket
+#     - "6080:6080"  # web-browser VNC
 #   volumes:
 #     - ./config:/root/.config/obs-studio
 #     - ./assets:/root/assets
