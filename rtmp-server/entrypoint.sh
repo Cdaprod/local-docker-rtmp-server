@@ -43,7 +43,7 @@ mount_nas() {
     local mount_options="rw,vers=3.0,uid=1000,gid=1000"
     if [ -n "${NAS_USERNAME}" ] && [ -n "${NAS_PASSWORD}" ]; then
         mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" \
-            -o username="${NAS_USERNAME}",password="${NAS_PASSWORD},${mount_options}"
+            -o username="${NAS_USERNAME}",password="${NAS_PASSWORD}",${mount_options}
     else
         mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" -o "${mount_options}"
     fi
