@@ -2,6 +2,10 @@
 
 A containerized OBS Studio setup optimized for Raspberry Pi and headless environments.
 
+## noVNC Browser URL
+
+`http://192.168.0.21:6080/vnc.html?autoconnect=true&resize=scale&reconnect=true`
+
 ## Docker run command for build testing `osb-pi` container with `cdaprod/obs-runtime-build:v1.1.0` aka `:latest`.
 
 ``` 

@@ -12,7 +12,8 @@ RUN mkdir -p \
   /opt/novnc/utils/websockify
 
 RUN [ ! -d /opt/novnc ] && git clone https://github.com/novnc/noVNC /opt/novnc || true && \
-    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html
+    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html 
+# RUN ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html
 
 # Copy overlays, profiles, scripts
 COPY config/ /root/.config/obs-studio/

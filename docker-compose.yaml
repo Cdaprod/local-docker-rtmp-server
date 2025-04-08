@@ -30,12 +30,6 @@ services:
       - tailscale
 
   obs:
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
-      - "traefik.tcp.routers.obsws.entrypoints=obsws"
-      - "traefik.tcp.routers.obsws.service=obsws"
-      - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
     build:
       context: ./pi-obs-container
       dockerfile: Dockerfile.arm64
@@ -48,6 +42,7 @@ services:
       - "5800:5800"  # noVNC
       - "5900:5900"  # native VNC
       - "4455:4455"  # OBS WebSocket
+      - "6080:6080"
     devices:
       - /dev/video0
     volumes:
@@ -57,17 +52,20 @@ services:
       - ./scripts:/root/scripts
     networks:
       - rtmp_network
-      
-  rtmp-server:
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
-      - "traefik.http.routers.rtmp.entrypoints=websecure"
-      - "traefik.http.routers.rtmp.tls.certresolver=tsresolver"
-      - "traefik.tcp.routers.rtmp-tcp.rule=HostSNI(`*`)"
-      - "traefik.tcp.routers.rtmp-tcp.entrypoints=rtmp"
-      - "traefik.tcp.routers.rtmp-tcp.service=rtmp-service"
-      - "traefik.tcp.services.rtmp-service.loadbalancer.server.port=1935"
+      - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.obsws.entrypoints=obsws"
+      - "traefik.tcp.routers.obsws.service=obsws"
+      - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+    command: >
+      bash -c "
+        echo '[INIT] Ensuring v4l2loopback is loaded...' &&
+        modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 2>/dev/null || echo '[WARN] Failed to modprobe v4l2loopback' &&
+        /entrypoint.sh
+      "
+      
+  rtmp-server:
     build: ./rtmp-server
     container_name: rtmp_server
     restart: unless-stopped
@@ -121,14 +119,23 @@ services:
         limits:
           cpus: "2.0"
           memory: "4g"
+    networks:
+      - rtmp_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
+      - "traefik.http.routers.rtmp.entrypoints=websecure"
+      - "traefik.http.routers.rtmp.tls.certresolver=tsresolver"
+      - "traefik.tcp.routers.rtmp-tcp.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.rtmp-tcp.entrypoints=rtmp"
+      - "traefik.tcp.routers.rtmp-tcp.service=rtmp-service"
+      - "traefik.tcp.services.rtmp-service.loadbalancer.server.port=1935"
     # labels:
     #   com.cdaprod.project: "RTMP Streaming Server"
     #   com.cdaprod.version: "1.1.0"
     #   com.cdaprod.env: "${ENVIRONMENT:-production}"
     #   com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
     #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
-    networks:
-      - rtmp_network
  
   rabbitmq:
     image: rabbitmq:3-management
@@ -153,12 +160,6 @@ services:
       - rtmp_network
 
   metadata-service:
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
-      - "traefik.http.routers.metadata.entrypoints=websecure"
-      - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
-      - "traefik.http.services.metadata.loadbalancer.server.port=5000"
     build:
       context: ./metadata-service
       dockerfile: Dockerfile
@@ -178,6 +179,12 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
+      - "traefik.http.routers.metadata.entrypoints=websecure"
+      - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
+      - "traefik.http.services.metadata.loadbalancer.server.port=5000"
 
   # rtmp-processor:
   #   build:

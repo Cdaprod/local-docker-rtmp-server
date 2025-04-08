@@ -1,0 +1,14 @@
+  nikon-control:
+    build:
+      context: ./nikon-control
+    container_name: nikon-control
+    privileged: true
+    restart: unless-stopped
+    devices:
+      - /dev/bus/usb
+    environment:
+      - TZ=America/New_York
+    networks:
+      - rtmp_network
+    labels:
+      - "traefik.enable=false"
