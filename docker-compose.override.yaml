@@ -6,35 +6,46 @@ services:
       replicas: 0
 
   obs:
+    build:
+      context: ./pi-obs-container
+      dockerfile: Dockerfile.arm64
+    networks:
+      - rtmp_network
     ports:
-      - "5800:5800"  # noVNC
-      - "5900:5900"  # native VNC
-      - "4455:4455"  # OBS WebSocket
+      - "5800:5800"
+      - "5900:5900"
+      - "4455:4455"
       - "6080:6080"
     labels: []
-    networks:
-      - rtmp_network
-    command: >
-      bash -c "
-        echo '[INIT] Ensuring v4l2loopback is loaded...' &&
-        modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 2>/dev/null || echo '[WARN] Failed to modprobe v4l2loopback' &&
-        /entrypoint.sh
-      "
 
   rtmp-server:
-    ports:
-      - "1935:1935"  # RTMP
-      - "18080:8080"  # HTTP
-    labels: []
+    build:
+      context: ./rtmp-server
     networks:
       - rtmp_network
+    ports:
+      - "1935:1935"
+      - "18080:8080"
+    labels: []
 
   metadata-service:
-    labels: []
+    build:
+      context: ./metadata-service
     networks:
       - rtmp_network
+    ports:
+      - "5000:5000"
+    labels: []
+
+  rabbitmq:
+    networks:
+      - rtmp_network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    labels: []
 
 networks:
-  rtmp_network:
-    external: true
-    name: rtmp_network
+  tailscale:
+    external: false
+    name: disable_tailscale  # prevents compose errors
