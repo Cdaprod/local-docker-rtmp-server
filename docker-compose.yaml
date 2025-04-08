@@ -73,10 +73,10 @@ services:
       - "1935:1935"  # RTMP
       - "18080:8080"  # HTTP
     volumes:
-      - type: bind
-        source: /mnt/nas  # Host path where NAS is mounted
-        target: /var/www/recordings  # Path in the container
-        read_only: false
+      # - type: bind
+      #   source: /mnt/nas  # Host path where NAS is mounted
+      #   target: /var/www/recordings  # Path in the container
+      #   read_only: false
       - ./public/assets:/usr/share/nginx/html/assets:ro  # Static assets
       - ./credentials.json:/etc/credentials.json:ro  # Credentials for other services
       - /tmp/rtmp-recordings:/tmp/hls:rw  # Local HLS temp files (optional, mapped to host)
