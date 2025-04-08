@@ -1,33 +1,33 @@
 version: "3.9"
 
 services:
-  # traefik:
-  #   container_name: tailscale-traefik
-  #   image: traefik:v2.10
-  #   restart: always
-  #   command:
-  #     - "--providers.docker=true"
-  #     - "--providers.docker.exposedbydefault=false"
-  #     - "--entrypoints.web.address=:80"
-  #     - "--entrypoints.websecure.address=:443"
-  #     - "--entrypoints.rtmp.address=:1935"
-  #     - "--entrypoints.ws.address=:4455"  # for obs-websocket
-  #     - "--api.dashboard=true"
-  #     - "--log.level=INFO"
-  #     - "--accesslog=true"
-  #     - "--certificatesresolvers.tsresolver.acme.tlschallenge=true"
-  #     - "--certificatesresolvers.tsresolver.acme.email=admin@cdaprod.dev"
-  #     - "--certificatesresolvers.tsresolver.acme.storage=/letsencrypt/acme.json"
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #     - "1935:1935"     # Optional: for RTMP
-  #     - "4455:4455"     # Optional: for OBS WebSocket
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - ./letsencrypt:/letsencrypt
-  #   networks:
-  #     - tailscale
+  traefik:
+    container_name: tailscale-traefik
+    image: traefik:v2.10
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.rtmp.address=:1935"
+      - "--entrypoints.ws.address=:4455"  # for obs-websocket
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--certificatesresolvers.tsresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.tsresolver.acme.email=admin@cdaprod.dev"
+      - "--certificatesresolvers.tsresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "1935:1935"     # Optional: for RTMP
+      - "4455:4455"     # Optional: for OBS WebSocket
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - tailscale
 
   obs:
     build:
@@ -39,10 +39,10 @@ services:
     environment:
       - TZ=America/New_York
     ports:
-      - "15800:5800"  # noVNC
-      - "15900:5900"  # native VNC
-      - "14455:4455"  # OBS WebSocket
-      - "16080:6080"
+      - "5800:5800"  # noVNC
+      - "5900:5900"  # native VNC
+      - "4455:4455"  # OBS WebSocket
+      - "6080:6080"
     devices:
       - /dev/video0
     volumes:
@@ -52,12 +52,12 @@ services:
       - ./scripts:/root/scripts
     networks:
       - rtmp_network
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
-    #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
-    #   - "traefik.tcp.routers.obsws.service=obsws"
-    #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.obsws.entrypoints=obsws"
+      - "traefik.tcp.routers.obsws.service=obsws"
+      - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
     command: >
       bash -c "
         echo '[INIT] Ensuring v4l2loopback is loaded...' &&
@@ -121,15 +121,15 @@ services:
           memory: "4g"
     networks:
       - rtmp_network
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
-    #   - "traefik.http.routers.rtmp.entrypoints=websecure"
-    #   - "traefik.http.routers.rtmp.tls.certresolver=tsresolver"
-    #   - "traefik.tcp.routers.rtmp-tcp.rule=HostSNI(`*`)"
-    #   - "traefik.tcp.routers.rtmp-tcp.entrypoints=rtmp"
-    #   - "traefik.tcp.routers.rtmp-tcp.service=rtmp-service"
-    #   - "traefik.tcp.services.rtmp-service.loadbalancer.server.port=1935"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
+      - "traefik.http.routers.rtmp.entrypoints=websecure"
+      - "traefik.http.routers.rtmp.tls.certresolver=tsresolver"
+      - "traefik.tcp.routers.rtmp-tcp.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.rtmp-tcp.entrypoints=rtmp"
+      - "traefik.tcp.routers.rtmp-tcp.service=rtmp-service"
+      - "traefik.tcp.services.rtmp-service.loadbalancer.server.port=1935"
     # labels:
     #   com.cdaprod.project: "RTMP Streaming Server"
     #   com.cdaprod.version: "1.1.0"
@@ -179,12 +179,12 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
-    #   - "traefik.http.routers.metadata.entrypoints=websecure"
-    #   - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
-    #   - "traefik.http.services.metadata.loadbalancer.server.port=5000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
+      - "traefik.http.routers.metadata.entrypoints=websecure"
+      - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
+      - "traefik.http.services.metadata.loadbalancer.server.port=5000"
 
   # rtmp-processor:
   #   build:
@@ -206,9 +206,9 @@ volumes:
   rabbitmq_data:
 
 networks:
-  # tailscale:
-  #   external: true
-  #   name: tailscale 
+  tailscale:
+    external: true
+    name: tailscale 
   rtmp_network:
     external: true
     name: rtmp_network

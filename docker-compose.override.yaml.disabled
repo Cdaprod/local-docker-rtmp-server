@@ -27,10 +27,10 @@ services:
       dockerfile: Dockerfile.arm64
     container_name: obs-pi
     ports:
-      - "5800:5800"  # noVNC
-      - "5900:5900"  # native VNC
-      - "4455:4455"  # OBS WebSocket
-      - "6080:6080"
+      - "15800:5800"  # noVNC
+      - "15900:5900"  # native VNC
+      - "14455:4455"  # OBS WebSocket
+      - "16080:6080"  # web VNC
     privileged: true
     devices:
       - /dev/video0
