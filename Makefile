@@ -84,7 +84,7 @@ clean: ## Stop and remove all containers, networks, and volumes
 
 build: ## Build all services
 	@printf "$(BOLD)$(BLUE)Building services for $(PROJECT_NAME)...$(RESET)\n"
-	$(COMPOSE_CMD) $(COMPOSE_FILES) build
+	$(COMPOSE_CMD) $(COMPOSE_FILES) build -d
 	@printf "$(BOLD)$(GREEN)Build complete.$(RESET)\n"
 
 rebuild: ## Rebuild all services and restart
