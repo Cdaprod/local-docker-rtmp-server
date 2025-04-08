@@ -70,7 +70,7 @@ services:
     container_name: rtmp_server
     restart: unless-stopped
     ports:
-      - "1935:1935"  # RTMP
+      # - "1935:1935"  # RTMP
       - "18080:8080"  # HTTP
     volumes:
       # - type: bind
