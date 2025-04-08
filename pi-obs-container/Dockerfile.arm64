@@ -16,8 +16,15 @@ RUN [ ! -d /opt/novnc ] && git clone https://github.com/novnc/noVNC /opt/novnc |
 # RUN ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html
 
 # Copy overlays, profiles, scripts
-COPY config/ /root/.config/obs-studio/
+COPY config/basic/profiles/ /root/.config/obs-studio/basic/profiles/
+COPY config/basic/scenes/ /root/.config/obs-studio/basic/scenes/
+COPY config/plugin_config/ /root/.config/obs-studio/plugin_config/
+COPY config/global.ini /root/.config/obs-studio/global.ini
+COPY config/user.ini /root/.config/obs-studio/user.ini
+
+# COPY config/ /root/.config/obs-studio/
 # COPY plugin_config/ /root/.config/obs-studio/plugin_config/
+
 COPY scripts/ /root/scripts/
 COPY assets/ /root/assets/
 COPY entrypoint.sh /entrypoint.sh
