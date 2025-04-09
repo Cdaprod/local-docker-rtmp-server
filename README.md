@@ -4,7 +4,8 @@
 
 #### My Personal TODO List for this Repo@Branch
 
-- merge root /Makefile into /infra/ system and methodology
+- merge to main after checks and passing / build
+- integrate root /Makefile into /infra/ system and methodology
 - continue building of Cdaprod/cdapkg (working copy iphone)
 - clean up minio deployment
 - clean up tailscale apikey
