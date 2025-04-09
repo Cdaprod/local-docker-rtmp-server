@@ -1,5 +1,17 @@
 # 🚀 Local Docker RTMP Server with Nginx and FFmpeg
 
+---
+
+#### My Personal TODO List for this Repo@Branch
+
+- merge root /Makefile into /infra/ system and methodology
+- continue building of Cdaprod/cdapkg (working copy iphone)
+- clean up minio deployment
+- clean up tailscale apikey
+- reinstitute traefik with tailscale (production networking)
+
+---
+
 ## Introduction
 
 Hey there, I’m **Cdaprod**, and this is my take on setting up an RTMP server using Nginx and FFmpeg! 🎥 Whether you’re streaming from your iPhone (portrait mode, of course 📱), Nikon camera, or MacBook, this server handles it all. Add a placeholder image when nothing is streaming, combine inputs into a composite scene, and push it all to HLS or RTMP for your audience. Let’s make live streaming awesome! 💻📡
