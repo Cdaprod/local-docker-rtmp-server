@@ -1,0 +1,17 @@
+services:
+  blender:
+    build: ./blender-docker
+    networks:
+      - app_network
+    ports:
+      - "15800:5800"
+      - "15900:5900"
+      - "15000:5000"
+    volumes:
+      - ./blendfiles:/workspace
+    environment:
+      - DISPLAY=:0
+
+networks:
+  app_network:
+    external: true

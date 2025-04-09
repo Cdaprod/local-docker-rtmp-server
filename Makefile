@@ -1,10 +1,7 @@
 # =============================================================================
-# Enhanced Docker RTMP Server Makefile
+# Enhanced Docker RTMP Server Makefile – Subcommand Style Without Hyphens
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# Configuration Variables
-# -----------------------------------------------------------------------------
 SHELL := /bin/bash
 .SHELLFLAGS := -e -c
 .ONESHELL:
@@ -24,7 +21,16 @@ ifeq ($(shell test -f $(OVERRIDE_FILE) && echo yes),yes)
 	COMPOSE_FILES += -f $(OVERRIDE_FILE)
 endif
 
-DOCKERFILES = pi-obs-container/Dockerfile.arm64 rtmp-server/Dockerfile metadata-service/Dockerfile
+# All Dockerfiles used across services
+DOCKERFILES = \
+  pi-obs-container/Dockerfile.arm64 \
+  rtmp-server/Dockerfile \
+  metadata-service/Dockerfile \
+  services/nikon-control/Dockerfile \
+  services/rtmp-watcher/Dockerfile \
+  services/videos-relay/Dockerfile \
+  infra/Dockerfile.infra-node \
+  src/dockerfiles/obs-runtime-builder/Dockerfile
 
 # Enable colors
 BOLD    = \033[1m
@@ -36,22 +42,58 @@ MAGENTA = \033[35m
 CYAN    = \033[36m
 RESET   = \033[0m
 
+# --------------------------------------------------
+# Versioning and Image Information
+# --------------------------------------------------
+VERSION      := $(shell git describe --tags --always)
+ARCH         := $(shell uname -m)
+REGISTRY     := ghcr.io
+OWNER        := cdaprod
+TAG_SUFFIX   := $(VERSION)-$(ARCH)
+
+# --------------------------------------------------
+# Extract the service name from the second word of make goals
+# (This hack forces the second positional parameter to be stored in SERVICE.)
+SERVICE := $(word 2, $(MAKECMDGOALS))
+
+# Prevent the second word from being treated as a separate target.
+%:
+	@:
+
 # -----------------------------------------------------------------------------
 # Help Target
 # -----------------------------------------------------------------------------
 .PHONY: help
 help: ## Display this help text
 	@printf "$(BOLD)Usage:$(RESET)\n"
-	@printf "  make [target]\n\n"
+	@printf "  make <target> <service>\n\n"
 	@printf "$(BOLD)Available targets:$(RESET)\n"
-	# @awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
-	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | \
-	awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+	@echo "  up                 Start all services"
+	@echo "  down               Stop all services"
+	@echo "  restart            Restart all services"
+	@echo "  status             Show status of all services"
+	@echo "  clean              Stop and remove all containers, networks, and volumes"
+	@echo "  build              Build all services"
+	@echo "  rebuild            Rebuild all services and restart"
+	@echo "  prune              Remove all unused Docker resources"
+	@echo "  rebuild-images     Force rebuild all project images"
+	@echo "  inspect            Inspect running containers"
+	@echo "  check-env          Verify environment configuration"
+	@echo "  lint               Lint Dockerfiles for best practices"
+	@echo ""
+	@echo "  logs <service>     Show logs for a given service"
+	@echo "  enter <service>    Open a shell in a given service container"
+	@echo "  push <service>     Tag (automatically) and push the image for a given service"
+	@echo ""
+	@echo "Example:"
+	@echo "  make logs obs"
+	@echo "  make enter metadata-service"
+	@echo "  make push obs"
 
 # -----------------------------------------------------------------------------
 # Main Docker Compose Commands
 # -----------------------------------------------------------------------------
-.PHONY: up down restart logs status clean build rebuild
+.PHONY: up down restart status clean build rebuild
 
 up: ## Start all services (build if needed)
 	@printf "$(BOLD)$(GREEN)Starting services for $(PROJECT_NAME)...$(RESET)\n"
@@ -68,10 +110,6 @@ restart: ## Restart all services
 	$(MAKE) down
 	$(MAKE) up
 	@printf "$(BOLD)$(GREEN)Services restarted.$(RESET)\n"
-
-logs: ## View logs from all services
-	@printf "$(BOLD)$(BLUE)Showing logs for $(PROJECT_NAME)...$(RESET)\n"
-	$(COMPOSE_CMD) logs -f
 
 status: ## Show status of all services
 	@printf "$(BOLD)$(BLUE)Status of services for $(PROJECT_NAME):$(RESET)\n"
@@ -99,24 +137,24 @@ rebuild: ## Rebuild all services and restart
 # -----------------------------------------------------------------------------
 .PHONY: prune rebuild-images inspect check-env lint
 
-prune: ## Remove all unused containers, networks, images, and volumes
+prune: ## Remove all unused Docker resources
 	@printf "$(BOLD)$(RED)Pruning Docker system...$(RESET)\n"
 	@read -p "$(BOLD)$(RED)WARNING: This will remove all unused Docker resources. Continue? [y/N] $(RESET)" confirm; \
-	[[ $$confirm == [yY] || $$confirm == [yY][eE][sS] ]] || exit 1
-	docker system prune -af --volumes
-	@printf "$(BOLD)$(GREEN)Docker system pruned.$(RESET)\n"
+	[[ $$confirm =~ ^[yY]$$ ]] || exit 1; \
+	docker system prune -af --volumes; \
+	printf "$(BOLD)$(GREEN)Docker system pruned.$(RESET)\n"
 
 rebuild-images: ## Force rebuild all project images
 	@printf "$(BOLD)$(YELLOW)Rebuilding all images for $(PROJECT_NAME)...$(RESET)\n"
-	-docker rmi -f $$(docker images "cdaprod*" -q) 2>/dev/null || true
+	-docker rmi -f $$(docker images "$(OWNER)/*" -q) 2>/dev/null || true
 	$(MAKE) build
 	@printf "$(BOLD)$(GREEN)Images rebuilt.$(RESET)\n"
 
-inspect: ## Inspect the running containers
+inspect: ## Inspect running containers
 	@printf "$(BOLD)$(BLUE)Inspecting running containers for $(PROJECT_NAME):$(RESET)\n"
 	@for container in $$($(COMPOSE_CMD) ps -q); do \
 		if [ -n "$$container" ]; then \
-			echo "$(BOLD)$(CYAN)$$container:$(RESET)"; \
+			echo "$(BOLD)$(CYAN)Container: $$container$(RESET)"; \
 			docker inspect --format='$(BOLD)Image:$(RESET) {{.Config.Image}}' $$container; \
 			docker inspect --format='$(BOLD)State:$(RESET) {{.State.Status}}' $$container; \
 			docker inspect --format='$(BOLD)Mounts:$(RESET) {{range .Mounts}}{{.Source}}:{{.Destination}} {{end}}' $$container; \
@@ -124,7 +162,7 @@ inspect: ## Inspect the running containers
 		fi; \
 	done
 
-check-env: ## Verify environment is properly configured
+check-env: ## Verify environment configuration
 	@printf "$(BOLD)$(BLUE)Checking environment...$(RESET)\n"
 	@echo "Docker version: $$(docker --version)"
 	@echo "Docker Compose version: $$($(COMPOSE) --version)"
@@ -153,42 +191,45 @@ lint: ## Lint Dockerfiles for best practices
 	fi
 
 # -----------------------------------------------------------------------------
-# Service-specific Commands
+# Service-specific Subcommands (Service name as argument)
 # -----------------------------------------------------------------------------
-.PHONY: rtmp-logs metadata-logs pi-obs-logs enter-rtmp enter-metadata enter-pi-obs
+.PHONY: logs enter push
 
-rtmp-logs: ## View logs for the RTMP server
-	@printf "$(BOLD)$(BLUE)Showing logs for RTMP server...$(RESET)\n"
-	$(COMPOSE_CMD) logs -f rtmp-server
+logs:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Usage: make logs <service>"; \
+		exit 1; \
+	fi; \
+	printf "$(BOLD)$(BLUE)Showing logs for service '$(SERVICE)'...$(RESET)\n"; \
+	$(COMPOSE_CMD) logs -f $(SERVICE)
 
-metadata-logs: ## View logs for the metadata service
-	@printf "$(BOLD)$(BLUE)Showing logs for metadata service...$(RESET)\n"
-	$(COMPOSE_CMD) logs -f metadata-service
+enter:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Usage: make enter <service>"; \
+		exit 1; \
+	fi; \
+	printf "$(BOLD)$(BLUE)Entering container for service '$(SERVICE)'...$(RESET)\n"; \
+	$(COMPOSE_CMD) exec $(SERVICE) /bin/sh
 
-pi-obs-logs: ## View logs for the Pi OBS container
-	@printf "$(BOLD)$(BLUE)Showing logs for Pi OBS container...$(RESET)\n"
-	$(COMPOSE_CMD) logs -f pi-obs
+push:
+	@if [ -z "$(SERVICE)" ]; then \
+		echo "Usage: make push <service>"; \
+		exit 1; \
+	fi; \
+	IMAGE_TAG="$(REGISTRY)/$(OWNER)/$(SERVICE):$(TAG_SUFFIX)"; \
+	printf "$(BOLD)$(BLUE)Tagging and pushing image for service '$(SERVICE)' as $$IMAGE_TAG...$(RESET)\n"; \
+	docker tag $(OWNER)/$(SERVICE):latest $$IMAGE_TAG; \
+	docker push $$IMAGE_TAG
 
-enter-rtmp: ## Enter the RTMP server container shell
-	@printf "$(BOLD)$(BLUE)Entering RTMP server container...$(RESET)\n"
-	$(COMPOSE_CMD) exec rtmp-server /bin/sh
-
-enter-metadata: ## Enter the metadata service container shell
-	@printf "$(BOLD)$(BLUE)Entering metadata service container...$(RESET)\n"
-	$(COMPOSE_CMD) exec metadata-service /bin/sh
-
-enter-pi-obs: ## Enter the Pi OBS container shell
-	@printf "$(BOLD)$(BLUE)Entering Pi OBS container...$(RESET)\n"
-	$(COMPOSE_CMD) exec pi-obs /bin/sh
-
+# -----------------------------------------------------------------------------
+# Default Target
+# -----------------------------------------------------------------------------
 .PHONY: all
-all: help  ## Alias for help (default)
+all: help
 
-# Default target
 .DEFAULT_GOAL := help
 
 .PHONY: debug 
-
 debug:
 	@echo "CURDIR is: $(CURDIR)"
 	@echo "Project name from CURDIR is: $(notdir $(CURDIR))"

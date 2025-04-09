@@ -1,6 +1,11 @@
 version: "3.9"
 
 services:
+
+################################################
+##          Reverse Proxy (Optional)          ##
+################################################
+
   # traefik:
   #   container_name: tailscale-traefik
   #   image: traefik:v2.10
@@ -28,6 +33,10 @@ services:
   #     - ./letsencrypt:/letsencrypt
   #   networks:
   #     - tailscale
+  
+################################################
+##                 OBS Server                 ##
+################################################
 
   obs:
     build:
@@ -46,25 +55,30 @@ services:
     devices:
       - /dev/video0
     volumes:
-      - ./config:/root/.config/obs-studio
-      - ./assets:/root/assets
-      #- ./recordings:/recordings
-      - ./scripts:/root/scripts
+      - ./pi-obs-container/config:/root/.config/obs-studio
+      - ./pi-obs-container/assets:/root/assets
+      - ./pi-obs-container/scripts:/root/scripts
+      # - ./pi-obs-container/recordings:/recordings
     networks:
       - rtmp_network
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
-    #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
-    #   - "traefik.tcp.routers.obsws.service=obsws"
-    #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
     command: >
       bash -c "
         echo '[INIT] Ensuring v4l2loopback is loaded...' &&
         modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 2>/dev/null || echo '[WARN] Failed to modprobe v4l2loopback' &&
         /entrypoint.sh
       "
-      
+
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
+    #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
+    #   - "traefik.tcp.routers.obsws.service=obsws"
+    #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+
+################################################
+##                 RTMP Server                ##
+################################################
+
   rtmp-server:
     build: ./rtmp-server
     container_name: rtmp_server
@@ -121,6 +135,7 @@ services:
           memory: "4g"
     networks:
       - rtmp_network
+      
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
@@ -136,7 +151,48 @@ services:
     #   com.cdaprod.env: "${ENVIRONMENT:-production}"
     #   com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
     #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
- 
+
+################################################
+##            MinIO S3 Storage Server         ##
+################################################
+  minio:
+    image: cdaprod/cda-minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - /mnt/b/rpi_sync/minio/data:/data
+    networks:
+      - rtmp_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+    minio-init:
+      image: minio/mc
+      depends_on:
+        minio:
+          condition: service_healthy
+      entrypoint: >
+        /bin/sh -c "
+          mc alias set localminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+          mc mb -p localminio/recordings &&
+          mc mb -p localminio/assets
+        "
+      networks:
+        - rtmp_network
+
+################################################
+##            Event Broker Service            ##
+################################################
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -159,6 +215,11 @@ services:
     networks:
       - rtmp_network
 
+################################################
+##              Python Event API              ##
+################################################
+
+
   metadata-service:
     build:
       context: ./metadata-service
@@ -179,12 +240,17 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+        
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
     #   - "traefik.http.routers.metadata.entrypoints=websecure"
     #   - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
     #   - "traefik.http.services.metadata.loadbalancer.server.port=5000"
+
+################################################
+##            (To be determined...)           ##
+################################################
 
   # rtmp-processor:
   #   build:
@@ -202,8 +268,16 @@ services:
   #   networks:
   #     - rtmp_network
 
+################################################
+##              Docker Volumes                ##
+################################################
+
 volumes:
   rabbitmq_data:
+
+################################################
+##              Docker Networks               ##
+################################################
 
 networks:
   # tailscale:
@@ -213,3 +287,7 @@ networks:
     external: true
     name: rtmp_network
     driver: bridge
+  #app_network: # <— This is just extra in case we need network abstraction or seperation later
+    #external: ?
+    #name: ?
+    #driver: ?
