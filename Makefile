@@ -97,7 +97,7 @@ help: ## Display this help text
 
 up: ## Start all services (build if needed)
 	@printf "$(BOLD)$(GREEN)Starting services for $(PROJECT_NAME)...$(RESET)\n"
-	$(COMPOSE_CMD) $(COMPOSE_FILES) up -d --build
+	$(COMPOSE_CMD) down && $(COMPOSE_CMD) $(COMPOSE_FILES) up -d --build
 	@printf "$(BOLD)$(GREEN)Services started.$(RESET)\n"
 
 down: ## Stop all services
