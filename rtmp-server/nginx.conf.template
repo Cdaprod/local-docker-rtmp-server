@@ -66,22 +66,23 @@ rtmp {
         listen 1935;
         chunk_size 4096;
 
-        # 1. iPhone streams here
+        ### 1. LIVE INGEST (from iPhone / LiveNow) ###
         application live {
             live on;
             allow publish all;
             deny play all;
 
-            exec ffmpeg -re \
+            exec ffmpeg -loglevel debug -re \
                 -i rtmp://localhost/live/$name \
                 -c:v libx264 -preset ultrafast -tune zerolatency \
+                -c:a aac \
                 -f flv rtmp://localhost/broadcast/$name;
 
             on_publish http://localhost:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
             on_publish_done http://localhost:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
         }
 
-        # 2. Viewers / streamers access this
+        ### 2. PUBLIC BROADCAST ###
         application broadcast {
             live on;
             allow play all;
@@ -92,10 +93,16 @@ rtmp {
             hls_playlist_length 16s;
             hls_cleanup on;
 
-            # Future push targets (use with envsubst or render tools)
+            # Optional: Push to CDN
             # push rtmp://a.rtmp.youtube.com/live/${YOUTUBE_STREAM_KEY};
             # push rtmp://live-api.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
             # push rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+
+            # Optional: Record all sessions
+            # record all;
+            # record_path /var/www/recordings;
+            # record_unique on;
+            # record_suffix _%Y-%m-%d_%H-%M.flv;
         }
     }
 }
