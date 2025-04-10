@@ -1,10 +1,8 @@
-version: "3.9"
-
 services:
-
-################################################
-##          Reverse Proxy (Optional)          ##
-################################################
+  
+ ################################################
+##            Reverse Proxy (Optional)          ##
+ ################################################
 
   # traefik:
   #   container_name: tailscale-traefik
@@ -34,9 +32,9 @@ services:
   #   networks:
   #     - tailscale
   
-################################################
-##                 OBS Server                 ##
-################################################
+ ################################################
+##                 OBS Server                   ##
+ ################################################
 
   obs:
     build:
@@ -75,9 +73,9 @@ services:
     #   - "traefik.tcp.routers.obsws.service=obsws"
     #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
 
-################################################
-##                 RTMP Server                ##
-################################################
+ ################################################
+##                  RTMP Server                 ##
+ ################################################
 
   rtmp-server:
     build: ./rtmp-server
@@ -152,9 +150,9 @@ services:
     #   com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
     #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
 
-################################################
-##            MinIO S3 Storage Server         ##
-################################################
+ ################################################
+##             MinIO S3 Storage Server          ##
+ ################################################
   minio:
     image: cdaprod/cda-minio:latest
     container_name: minio
@@ -175,23 +173,23 @@ services:
       timeout: 10s
       retries: 5
 
-    minio-init:
-      image: minio/mc
-      depends_on:
-        minio:
-          condition: service_healthy
-      entrypoint: >
-        /bin/sh -c "
-          mc alias set localminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
-          mc mb -p localminio/recordings &&
-          mc mb -p localminio/assets
-        "
-      networks:
-        - rtmp_network
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set localminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+        mc mb -p localminio/recordings &&
+        mc mb -p localminio/assets
+      "
+    networks:
+      - rtmp_network
 
-################################################
-##            Event Broker Service            ##
-################################################
+ ################################################
+##              Event Broker Service            ##
+ ################################################
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -215,9 +213,9 @@ services:
     networks:
       - rtmp_network
 
-################################################
-##              Python Event API              ##
-################################################
+ ################################################
+##                Python Event API              ##
+ ################################################
 
 
   metadata-service:
@@ -248,9 +246,9 @@ services:
     #   - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
     #   - "traefik.http.services.metadata.loadbalancer.server.port=5000"
 
-################################################
-##            (To be determined...)           ##
-################################################
+ ################################################
+##              (To be determined...)           ##
+ ################################################
 
   # rtmp-processor:
   #   build:
@@ -268,16 +266,16 @@ services:
   #   networks:
   #     - rtmp_network
 
-################################################
-##              Docker Volumes                ##
-################################################
+ ################################################
+##                Docker Volumes                ##
+ ################################################
 
 volumes:
   rabbitmq_data:
 
-################################################
-##              Docker Networks               ##
-################################################
+ ################################################
+##                Docker Networks               ##
+ ################################################
 
 networks:
   # tailscale:
