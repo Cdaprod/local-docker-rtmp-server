@@ -1,4 +1,9 @@
 /show-face-camera.html
-tmp/docker_test/videos/*
+
+/tmp/docker_test/videos/*
+!/tmp/docker_test/videos/.gitkeep
+
 !/.example.env
-/.env
+.env
+credentials.json
+/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak
