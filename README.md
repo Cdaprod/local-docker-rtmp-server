@@ -1,4 +1,5 @@
-# 🚀 Local Docker RTMP Server with Nginx and FFmpeg
+# 🚀 Software-defined Multi-Cam Video Studio Pipeline 
+## Local Docker RTMP Server with Nginx and FFmpeg
 
 ---
 
