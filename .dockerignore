@@ -1,4 +1,8 @@
 /show-face-camera.html
-tmp/docker_test/videos/*
+
+/tmp/docker_test/videos/*
+!/tmp/docker_test/videos/.gitkeep
+
 !/.example.env
 /.env
+/credentials.json

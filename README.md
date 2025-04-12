@@ -1,5 +1,7 @@
 # 🚀 Local Docker RTMP Server with Nginx and FFmpeg
 
+## My "Software-defined Multi-Cam Video AI Studio Pipeline"
+
 ## Introduction
 
 Hey there, I’m **Cdaprod**, and this is my take on setting up an RTMP server using Nginx and FFmpeg! 🎥 Whether you’re streaming from your iPhone (portrait mode, of course 📱), Nikon camera, or MacBook, this server handles it all. Add a placeholder image when nothing is streaming, combine inputs into a composite scene, and push it all to HLS or RTMP for your audience. Let’s make live streaming awesome! 💻📡
