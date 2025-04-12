@@ -13,8 +13,9 @@ mc alias set local http://localhost:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWOR
 
 # Define the buckets you need based on your architecture.
 buckets=(
+  "blender"        # for blender special effect
   "minio"          # e.g., for internal assets
-  "obs"            # for OBS recordings & configs
+  "obs"            # for OBS recordings & configs 
   "rtmp"           # for streaming recordings, HLS fragments, logs
   "shared-assets"  # shared overlays, etc.
   "scratch"        # temporary files
