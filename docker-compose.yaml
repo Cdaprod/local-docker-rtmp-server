@@ -1,5 +1,4 @@
 services:
-  
  ################################################
 ##            Reverse Proxy (Optional)          ##
  ################################################
@@ -36,7 +35,7 @@ services:
 ##                Video Pipeline                ##
  ################################################
   
-video-pipeline:  # << This container runs hand detection, warping, and compositing
+  video-pipeline:  # << This container runs hand detection, warping, and compositing
     build: ./services/video-pipeline
     devices:
       - /dev/bus/usb   # For Edge TPU
@@ -49,7 +48,6 @@ video-pipeline:  # << This container runs hand detection, warping, and compositi
     labels:
       com.cdaprod.role: "Live HUD Overlay Inference"
       com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
-
   
  ################################################
 ##                 OBS Server                   ##
