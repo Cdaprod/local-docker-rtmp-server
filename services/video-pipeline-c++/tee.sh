@@ -122,8 +122,6 @@ struct InferenceResult {
 };
 EOF
 
-cd video-pipeline
-
 # Create CMakeLists.txt
 sudo tee CMakeLists.txt > /dev/null <<EOF
 cmake_minimum_required(VERSION 3.10)
@@ -153,6 +151,8 @@ add_executable(video_pipeline
 
 target_link_libraries(video_pipeline \${OpenCV_LIBS})
 EOF
+
+cd video-pipeline
 
 # Dockerfile for containerized build
 sudo tee Dockerfile > /dev/null <<EOF
