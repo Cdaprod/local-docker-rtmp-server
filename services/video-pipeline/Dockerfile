@@ -1,24 +1,71 @@
-FROM ubuntu:22.04
+# Use multi-stage build for smaller final image
+FROM alpine:3.19 AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Install build dependencies
+RUN apk add --no-cache \
+    build-base \
+    cmake \
+    clang \
+    git \
+    wget \
+    unzip \
+    pkgconfig \
+    linux-headers \
+    # OpenCV dependencies
+    libjpeg-turbo-dev \
+    libpng-dev \
+    ffmpeg-dev \
+    libusb-dev
 
-RUN apt-get update && apt-get install -y \
-    cmake g++ git wget unzip libopencv-dev \
-    python3-pip libusb-1.0-0-dev && \
-    rm -rf /var/lib/apt/lists/*
+# Create working directory
+WORKDIR /build
 
-# (Optional) Install Edge TPU runtime
-RUN echo "[INFO] Installing Edge TPU runtime..." && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-    echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list && \
-    apt-get update && apt-get install -y libedgetpu1-std
+# Copy source code
+COPY . .
 
-# Copy source
-COPY . /app
+# Build with optimizations
+RUN cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_FLAGS="-Os -fomit-frame-pointer" \
+    -DCMAKE_CXX_FLAGS="-Os -fomit-frame-pointer" \
+    . && \
+    make -j$(nproc)
+
+# Create minimal runtime image
+FROM alpine:3.19
+
+# Install runtime dependencies only
+RUN apk add --no-cache \
+    libstdc++ \
+    libusb \
+    ffmpeg-libs \
+    libjpeg-turbo \
+    libpng \
+    bash
+
+# Add Edge TPU support
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apt/sources.list.d/edge.list && \
+    apk add --no-cache libedgetpu1@testing
+
+# Create non-root user
+RUN addgroup -S appgroup && \
+    adduser -S appuser -G appgroup
+
+# Copy only what's needed from the builder stage
+COPY --from=builder /build/video_pipeline /app/
+COPY entrypoint.sh /app/
+
+# Set working directory
 WORKDIR /app
 
-# Build the binary
-RUN cmake . && make -j$(nproc)
+# Fix permissions and make entrypoint executable
+RUN chmod +x /app/entrypoint.sh /app/video_pipeline && \
+    chown -R appuser:appgroup /app
 
-# Entry point
-ENTRYPOINT ["./video_pipeline"]
+# Switch to non-root user
+USER appuser
+
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
