@@ -71,6 +71,11 @@ rtmp {
             live on;
             allow publish all;
             deny play all;
+            
+            record all;
+            record_path /var/www/recordings/iphone;
+            record_unique on;
+            record_suffix _%Y-%m-%d_%H-%M.flv;
 
             exec ffmpeg -loglevel debug -re \
                 -i rtmp://localhost/live/$name \

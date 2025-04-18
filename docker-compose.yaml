@@ -33,6 +33,25 @@ services:
   #     - tailscale
   
  ################################################
+##                Video Pipeline                ##
+ ################################################
+  
+video-pipeline:  # << This container runs hand detection, warping, and compositing
+    build: ./services/video-pipeline
+    devices:
+      - /dev/bus/usb   # For Edge TPU
+    volumes:
+      - frames:/frames  # Optional: persistent frame cache
+    networks:
+      - local-dev
+    ports:
+      - "8081:8081"
+    labels:
+      com.cdaprod.role: "Live HUD Overlay Inference"
+      com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
+
+  
+ ################################################
 ##                 OBS Server                   ##
  ################################################
 
@@ -51,12 +70,15 @@ services:
       - "14455:4455"  # OBS WebSocket
       - "16080:6080"
     devices:
-      - /dev/video0
+      #- /dev/video0 # Replaced symlinked video0 with direct dev/
+      - /dev/nikon-capture:/dev/video0
     volumes:
       - ./pi-obs-container/config:/root/.config/obs-studio
       - ./pi-obs-container/assets:/root/assets
       - ./pi-obs-container/scripts:/root/scripts
       # - ./pi-obs-container/recordings:/recordings
+      - /mnt/b:/mnt/b:rw
+      - frames:/frames
     networks:
       - rtmp_network
     command: >
@@ -92,6 +114,7 @@ services:
       - ./public/assets:/usr/share/nginx/html/assets:ro  # Static assets
       - ./credentials.json:/etc/credentials.json:ro  # Credentials for other services
       - /tmp/rtmp-recordings:/tmp/hls:rw  # Local HLS temp files (optional, mapped to host)
+      - frames:/frames
     env_file:
       - .env
     environment:
@@ -165,6 +188,7 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - /mnt/b/rpi_sync/minio/data:/data
+      - /mnt/nas/
     networks:
       - rtmp_network
     healthcheck:

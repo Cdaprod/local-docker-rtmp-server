@@ -4,11 +4,12 @@ services:
     networks:
       - app_network
     ports:
-      - "15800:5800"
-      - "15900:5900"
-      - "15000:5000"
+      - "25800:5800"
+      - "25900:5900"
+      - "25000:5000"
     volumes:
       - ./blendfiles:/workspace
+      - /mnt/b:/mnt/b
     environment:
       - DISPLAY=:0
 

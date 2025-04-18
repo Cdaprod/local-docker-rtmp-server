@@ -1,0 +1,5 @@
+# Create a symlink for your Nikon capture card
+SUBSYSTEM=="video4linux", ATTR{name}=="USB3.0 capture: USB3.0 capture", SYMLINK+="nikon-capture"
+
+# Ignore Pi ISP ghost video devices (OBS V4L2 dropdown cleanup)
+SUBSYSTEM=="video4linux", ATTR{name}=="pispbe*", OPTIONS+="ignore_device"

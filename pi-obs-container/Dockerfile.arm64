@@ -3,28 +3,45 @@ FROM cdaprod/obs-runtime-build:latest
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Setup required runtime directories
+# Install required OBS and video encoding dependencies
+RUN apt-get update && apt-get install -y \
+    libavcodec-dev libavformat-dev \
+    libavutil-dev v4l-utils libdrm-dev \
+    libavfilter-dev libswscale-dev libavdevice-dev \
+    libavresample-dev libpostproc-dev \
+    cmake git x11vnc xvfb novnc websockify \
+    supervisor pulseaudio openbox fluxbox && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Build OBS from source with V4L2 support for Pi hardware encoding
+RUN git clone --branch master --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
+    cd /tmp/obs && mkdir build && cd build && \
+    cmake -DENABLE_PIPEWIRE=OFF -DBUILD_BROWSER=OFF -DUNIX_STRUCTURE=1 \
+          -DCMAKE_INSTALL_PREFIX=/usr -DWITH_V4L2=ON .. && \
+    make -j$(nproc) && make install && \
+    rm -rf /tmp/obs
+
+# Setup directories
 RUN mkdir -p \
-  /root/.config/obs-studio \
   /root/.config/obs-studio/plugin_config \
   /root/assets \
   /root/scripts \
   /opt/novnc/utils/websockify
 
-RUN [ ! -d /opt/novnc ] && git clone https://github.com/novnc/noVNC /opt/novnc || true && \
-    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html 
-# RUN ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html
+# Install noVNC
+RUN [ ! -d /opt/novnc ] && \
+    git clone https://github.com/novnc/noVNC /opt/novnc && \
+    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
+    git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
-# Copy overlays, profiles, scripts
+# Copy OBS config, profiles, plugins
 COPY config/basic/profiles/ /root/.config/obs-studio/basic/profiles/
 COPY config/basic/scenes/ /root/.config/obs-studio/basic/scenes/
 COPY config/plugin_config/ /root/.config/obs-studio/plugin_config/
 COPY config/global.ini /root/.config/obs-studio/global.ini
 COPY config/user.ini /root/.config/obs-studio/user.ini
 
-# COPY config/ /root/.config/obs-studio/
-# COPY plugin_config/ /root/.config/obs-studio/plugin_config/
-
+# Copy runtime scripts and assets
 COPY scripts/ /root/scripts/
 COPY assets/ /root/assets/
 COPY entrypoint.sh /entrypoint.sh
@@ -33,5 +50,6 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 5800 5900 4455 6080
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/supervisord"]

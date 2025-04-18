@@ -16,9 +16,36 @@
 
 ## Introduction
 
-Hey there, I’m **Cdaprod**, and this is my take on setting up an RTMP server using Nginx and FFmpeg! 🎥 Whether you’re streaming from your iPhone (portrait mode, of course 📱), Nikon camera, or MacBook, this server handles it all. Add a placeholder image when nothing is streaming, combine inputs into a composite scene, and push it all to HLS or RTMP for your audience. Let’s make live streaming awesome! 💻📡
+Welcome to your new broadcast control room -- powered by containers, coffee, and code.  
+I’m **Cdaprod**, and this repo is my blueprint for a local-first, software-defined, multi-cam live production pipeline.
 
+## 🎥 DevOps x Hollywood Analogy
+
+Here’s a cinematic + DevOps-style analogy to explain what I’ve built:
+
+> **Streamed Intro Script**
+>
+> "Well I’m here, and you’re watching this video -- so that means one thing: it worked..."
 ---
+
+``` 
+                 [ iPhone | Nikon | MacBook ]
+                          |
+                          v
+                 ┌─────────────────────┐
+                 |     NGINX RTMP      |
+                 |  (Live Ingest Apps) |
+                 └─────────┬───────────┘
+                           v
+               ┌───────────────────────────┐
+               |      Composite Scene      |
+               |    (FFmpeg Scene Mixer)   |
+               └─────────┬────────────┬────┘
+                         |            |
+                   [ RTMP ]        [ HLS ]
+                     /                 \
+            YouTube, Twitch     Web players, Dash.js
+``` 
 
 ## ✨ Features
 
