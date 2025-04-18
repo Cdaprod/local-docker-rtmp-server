@@ -18,6 +18,24 @@ docker buildx build --platform linux/arm64 \
   --push .
 ```
 
+## Usage
+
+### Build and Push (standard Docker)
+
+```bash
+docker build -t cdaprod/obs-runtime:latest \
+  -t cdaprod/obs-runtime:v1.2.1 \
+  -f Dockerfile .
+```
+
+### 2. Run It
+
+```bash
+docker run --rm -it --name obs-runtime \
+  -p 5800:5800 -p 5900:5900 -p 4455:4455 \
+  cdaprod/obs-runtime:v1.2.1
+``` 
+
 Requires docker buildx and a logged-in DockerHub or GHCR registry.
 
 ## **Next Steps**
