@@ -14,11 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libv4l-dev libdrm-dev v4l-utils \
     x11vnc xvfb novnc websockify supervisor \
     python3 python3-pip \
-    openbox fluxbox ffmpeg \
-    yasm nasm \
-    libavcodec-dev libavutil-dev libswscale-dev libavformat-dev libswresample-dev libavfilter-dev \
-    gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
- && rm -rf /var/lib/apt/lists/*
+    openbox fluxbox \
+    gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools && \
+    rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------
 # Upgrade CMake
@@ -30,6 +28,20 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
     ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
 ENV PATH="/usr/local/bin:$PATH"
+
+# Build FFmpeg 6.1+ from source
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      yasm nasm libx264-dev libx265-dev libvpx-dev libfdk-aac-dev \
+      libmp3lame-dev libopus-dev libvorbis-dev libaom-dev \
+      libass-dev libfreetype6-dev libfontconfig1-dev && \
+    git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git -b release/6.1 /build/ffmpeg && \
+    cd /build/ffmpeg && \
+    ./configure --prefix=/usr --enable-shared --enable-gpl --enable-nonfree \
+      --enable-libx264 --enable-libx265 --enable-libfdk-aac \
+      --enable-libmp3lame --enable-libopus --enable-libvorbis \
+      --enable-libvpx --enable-libass --enable-libfreetype --enable-libfontconfig && \
+    make -j$(nproc) && make install && \
+    rm -rf /build
 
 # ---------------------------------------------
 # Build OBS Studio (required for LibObs)
