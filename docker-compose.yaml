@@ -56,7 +56,8 @@ services:
   obs:
     build:
       context: ./pi-obs-container
-      dockerfile: Dockerfile.arm64
+      # dockerfile: Dockerfile.arm64
+      dockerfile: Dockerfile-v2.arm64
     container_name: obs-pi
     privileged: true
     restart: unless-stopped
