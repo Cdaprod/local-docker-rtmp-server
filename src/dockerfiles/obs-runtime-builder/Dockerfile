@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     x11vnc xvfb novnc websockify supervisor \
     python3 python3-pip \
     openbox fluxbox ffmpeg \
+    yasm nasm \
+    libavcodec-dev libavutil-dev libswscale-dev libavformat-dev libswresample-dev libavfilter-dev \
     gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
  && rm -rf /var/lib/apt/lists/*
 
