@@ -55,15 +55,17 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
   cd /tmp/obs && mkdir build && cd build && \
   cmake .. \
     -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_PREFIX_PATH=/usr/local \
+    -DCMAKE_INCLUDE_PATH=/usr/local/include \
+    -DCMAKE_LIBRARY_PATH=/usr/local/lib \
+    -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
+    -DFFMPEG_INCLUDE_DIRS=/usr/local/include \
+    -DFFMPEG_LIBRARIES="/usr/local/lib/libavcodec.so;/usr/local/lib/libavformat.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so" \
     -DBUILD_BROWSER=OFF \
-    -DENABLE_PIPEWIRE=OFF \
-    -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
-    -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
-    -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
-    -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config && \
+    -DENABLE_PIPEWIRE=OFF && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
-
+ 
 # DistroAV (NDI Support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
   cd /tmp/DistroAV && mkdir build && cd build && \
