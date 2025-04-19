@@ -42,7 +42,7 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
     --enable-libvpx --enable-libass --enable-libfreetype --enable-libfontconfig && \
   make -j$(nproc) && make install && \
   rm -rf /ffmpeg && \
-  apt-get purge -y ffmpeg libav* && apt-get autoremove -y
+  apt-get purge -y ffmpeg libav* || true && apt-get autoremove -y
 
 # ---------------------------------------------
 # Set environment paths to prioritize /usr/local
