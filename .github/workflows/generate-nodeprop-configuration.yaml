@@ -39,10 +39,19 @@ jobs:
         run: |
           git config user.name "CDA NodeProp Bot"
           git config user.email "nodeprop@cdaprod.dev"
-          git add .nodeprop.yml configs/
-          if git diff --quiet; then
-            echo "✅ No changes"
-          else
-            git commit -m "chore: update NodeProp config [skip ci]"
+
+          # Check if the file exists in Git already
+          if ! git ls-files --error-unmatch .nodeprop.yml > /dev/null 2>&1; then
+            echo "Forcing first commit of .nodeprop.yml"
+            git add .nodeprop.yml configs/
+            git commit -m "chore: initial commit of NodeProp config"
             git push
+          else
+            git add .nodeprop.yml configs/
+            if git diff --cached --quiet; then
+              echo "✅ No changes"
+            else
+              git commit -m "chore: update NodeProp config [skip ci]"
+              git push
+            fi
           fi
