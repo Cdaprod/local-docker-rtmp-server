@@ -1,0 +1,56 @@
+name: Generate NodeProp Configuration
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '*'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'  # Runs daily at 6am UTC
+
+jobs:
+  generate-config:
+    name: Generate and Commit NodeProp Config
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Generate NodeProp Configuration
+        id: nodeprop
+        uses: cdaprod/nodeprop-action@v1.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: '.nodeprop.yml'
+          storage-path: 'configs'
+
+      - name: Log Config Hash
+        run: |
+          echo "🔖 Generated config-hash: ${{ steps.nodeprop.outputs.config-hash }}"
+          echo "📁 Config path: ${{ steps.nodeprop.outputs.config-path }}"
+
+      - name: Upload Configuration Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nodeprop-config
+          path: .nodeprop.yml
+
+      - name: Upload Hashed Config to Storage Path
+        uses: actions/upload-artifact@v3
+        with:
+          name: content-addressable-config
+          path: configs/
+
+      - name: Commit NodeProp Files
+        if: steps.nodeprop.outputs.config-hash != ''
+        run: |
+          git config user.name "CDA Bot"
+          git config user.email "bot@cdaprod.dev"
+          git add .nodeprop.yml configs/
+          git diff --quiet && echo "✅ No changes to commit" || (
+            git commit -m "chore: update NodeProp config [skip ci]" &&
+            git push
+          )

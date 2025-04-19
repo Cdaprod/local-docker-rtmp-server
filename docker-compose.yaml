@@ -4,7 +4,7 @@ services:
  ################################################
 
   # traefik:
-  #   container_name: tailscale-traefik
+  #   container_name: tailscale-traefik-pi
   #   image: traefik:v2.10
   #   restart: always
   #   command:
@@ -36,6 +36,7 @@ services:
  ################################################
   
   # video-pipeline:  # << This container runs hand detection, warping, and compositing
+  #   container_name: video-pipeline-pi
   #   build: ./services/video-pipeline
   #   devices:
   #     - /dev/bus/usb   # For Edge TPU
@@ -53,7 +54,7 @@ services:
 ##                 OBS Server                   ##
  ################################################
 
-  obs:
+  obs-pi:
     build:
       context: ./pi-obs-container
       # dockerfile: Dockerfile.arm64
@@ -99,7 +100,7 @@ services:
 
   rtmp-server:
     build: ./rtmp-server
-    container_name: rtmp_server
+    container_name: rtmp-pi
     restart: unless-stopped
     ports:
       - "1935:1935"   # RTMP
@@ -154,7 +155,6 @@ services:
           memory: "4g"
     networks:
       - rtmp_network
-      
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
@@ -176,7 +176,7 @@ services:
  ################################################
   minio:
     image: cdaprod/cda-minio:latest
-    container_name: minio
+    container_name: minio-pi
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -215,7 +215,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: rabbitmq-pi
     restart: unless-stopped
     ports:
       - '5672:5672'
@@ -276,7 +276,7 @@ services:
   #   build:
   #     context: ./rtmp-processor
   #     dockerfile: Dockerfile
-  #   container_name: rtmp_processor
+  #   container_name: rtmp-processor
   #   restart: unless-stopped
   #   environment:
   #     - RABBITMQ_HOST=rabbitmq
