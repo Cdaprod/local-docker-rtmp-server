@@ -40,16 +40,29 @@ ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 # ---------------------------------------------
 FROM base AS builder
 
-# Build FFmpeg 6.1+
+# Build FFmpeg 6.1+ with pkg-config .pc generation
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
   cd /ffmpeg && \
-  ./configure --prefix=/usr/local --enable-shared --enable-gpl --enable-nonfree \
-    --enable-libx264 --enable-libx265 --enable-libmp3lame --enable-libopus \
-    --enable-libvorbis --enable-libvpx --enable-libass \
-    --enable-libfreetype --enable-libfontconfig && \
+  ./configure \
+    --prefix=/usr/local \
+    --enable-shared \
+    --enable-gpl \
+    --enable-nonfree \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libmp3lame \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libass \
+    --enable-libfreetype \
+    --enable-libfontconfig \
+    --extra-libs="-lpthread -lm" && \
   make -j$(nproc) && make install && \
-  ldconfig && rm -rf /ffmpeg
-
+  ldconfig && \
+  find /usr/local/lib/pkgconfig -name "*.pc" && \
+  rm -rf /ffmpeg
+ 
 # Provide pkg-config compatibility for FFmpeg
 RUN mkdir -p /usr/local/lib/pkgconfig && \
     printf "prefix=/usr/local\n\
