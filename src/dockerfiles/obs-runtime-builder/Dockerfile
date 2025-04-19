@@ -19,8 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   yasm nasm libx264-dev libx265-dev libvpx-dev  \
   libmp3lame-dev libopus-dev libvorbis-dev libaom-dev \
   libass-dev libfreetype6-dev libfontconfig1-dev \
-  gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
-  && rm -rf /var/lib/apt/lists/*
+  gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools && \
+  apt-get purge -y ffmpeg libav* || true && apt-get autoremove -y && \
+  rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------
 # Upgrade CMake
@@ -41,8 +42,7 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
     --enable-libmp3lame --enable-libopus --enable-libvorbis \
     --enable-libvpx --enable-libass --enable-libfreetype --enable-libfontconfig && \
   make -j$(nproc) && make install && \
-  rm -rf /ffmpeg && \
-  apt-get purge -y ffmpeg libav* || true && apt-get autoremove -y
+  rm -rf /ffmpeg
 
 # ---------------------------------------------
 # Set environment paths to prioritize /usr/local
@@ -54,18 +54,21 @@ ENV CMAKE_INCLUDE_PATH="/usr/local/include"
 ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 
 # ---------------------------------------------
-# Build OBS Studio (with correct FFmpeg linkage)
+# Build OBS Studio (with explicit FFmpeg paths)
 # ---------------------------------------------
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
   cd /tmp/obs && mkdir build && cd build && \
   cmake .. \
     -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH} \
+    -DCMAKE_INCLUDE_PATH=${CMAKE_INCLUDE_PATH} \
+    -DCMAKE_LIBRARY_PATH=${CMAKE_LIBRARY_PATH} \
+    -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
+    -DFFMPEG_INCLUDE_DIRS=/usr/local/include \
+    -DFFMPEG_LIBRARIES="/usr/local/lib/libavcodec.so;/usr/local/lib/libavformat.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so" \
+    -DFFMPEG_FOUND=TRUE \
     -DBUILD_BROWSER=OFF \
-    -DENABLE_PIPEWIRE=OFF \
-    -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
-    -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
-    -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
-    -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config && \
+    -DENABLE_PIPEWIRE=OFF && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
 
