@@ -33,15 +33,15 @@ jobs:
           echo "📁 Config path: ${{ steps.nodeprop.outputs.config-path }}"
 
       - name: Upload Configuration Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: nodeprop-config
           path: .nodeprop.yml
 
-      - name: Upload Hashed Config to Storage Path
-        uses: actions/upload-artifact@v3
+      - name: Upload Hashed Configs
+        uses: actions/upload-artifact@v3.1.2
         with:
-          name: content-addressable-config
+          name: content-addressable-configs
           path: configs/
 
       - name: Commit NodeProp Files
@@ -50,7 +50,9 @@ jobs:
           git config user.name "CDA NodeProp Bot"
           git config user.email "nodeprop@cdaprod.dev"
           git add .nodeprop.yml configs/
-          git diff --quiet && echo "✅ No changes to commit" || (
-            git commit -m "chore: update NodeProp config [skip ci]" &&
+          if git diff --quiet; then
+            echo "✅ No changes to commit"
+          else
+            git commit -m "chore: update NodeProp config [skip ci]"
             git push
-          )
+          fi
