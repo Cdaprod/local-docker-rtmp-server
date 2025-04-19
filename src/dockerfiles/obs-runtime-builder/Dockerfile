@@ -52,10 +52,10 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
 
 # Provide pkg-config compatibility for FFmpeg
 RUN mkdir -p /usr/local/lib/pkgconfig && \
-  echo "prefix=/usr/local
-exec_prefix=\${prefix}
-libdir=\${exec_prefix}/lib
-includedir=\${prefix}/include
+  echo "prefix=/usr/local \
+  exec_prefix=\${prefix} \
+  libdir=\${exec_prefix}/lib \
+  includedir=\${prefix}/include
 
 Name: ffmpeg
 Description: FFmpeg multimedia framework
