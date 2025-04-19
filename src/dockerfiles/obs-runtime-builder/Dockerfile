@@ -43,12 +43,15 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
   make -j$(nproc) && make install && \
   rm -rf /ffmpeg
 
+# ---------------------------------------------
+# Set environment paths to prioritize /usr/local
+# ---------------------------------------------
 ENV PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 ENV CMAKE_PREFIX_PATH="/usr/local"
 
 # ---------------------------------------------
-# Build OBS Studio (with correct FFmpeg path)
+# Build OBS Studio (with correct FFmpeg linkage)
 # ---------------------------------------------
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
   cd /tmp/obs && mkdir build && cd build && \
@@ -56,8 +59,8 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_BROWSER=OFF \
     -DENABLE_PIPEWIRE=OFF \
-    -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH" \
-    -DPKG_CONFIG_PATH="$PKG_CONFIG_PATH" && \
+    -DCMAKE_PREFIX_PATH=/usr/local \
+    -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
 
