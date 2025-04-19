@@ -3,22 +3,22 @@ name: Generate NodeProp Configuration
 
 on:
   push:
-    branches: ['**']
-    tags: ['*']
+    branches: ['main']
   workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * *'  # daily at 6am UTC
 
 jobs:
   generate-config:
-    name: Generate and Commit NodeProp Config
+    name: Generate NodeProp YAML + Commit
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Generate NodeProp Configuration
+      - name: Run NodeProp Generator
         id: nodeprop
         uses: Cdaprod/nodeprop-action@v1.0.0
         with:
@@ -26,31 +26,25 @@ jobs:
           config-file: '.nodeprop.yml'
           storage-path: 'configs'
 
-      - name: Log Config Hash
-        run: |
-          echo "🔖 Generated config-hash: ${{ steps.nodeprop.outputs.config-hash }}"
-          echo "📁 Config path: ${{ steps.nodeprop.outputs.config-path }}"
-
-      - name: Upload Configuration Artifact
+      - name: Upload Generated Config
         uses: actions/upload-artifact@v2
         with:
           name: nodeprop-config
           path: .nodeprop.yml
 
-      - name: Upload Hashed Config to Storage Path
+      - name: Upload Content-Addressable Copy
         uses: actions/upload-artifact@v2
         with:
-          name: content-addressable-config
+          name: content-addressable-configs
           path: configs/
 
       - name: Commit NodeProp Files
-        if: steps.nodeprop.outputs.config-hash != ''
         run: |
           git config user.name "CDA NodeProp Bot"
           git config user.email "nodeprop@cdaprod.dev"
           git add .nodeprop.yml configs/
           if git diff --quiet; then
-            echo "✅ No changes to commit"
+            echo "✅ No changes"
           else
             git commit -m "chore: update NodeProp config [skip ci]"
             git push
