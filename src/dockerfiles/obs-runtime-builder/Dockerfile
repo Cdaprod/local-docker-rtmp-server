@@ -40,6 +40,15 @@ ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 # ---------------------------------------------
 FROM base AS builder
 
+ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+RUN echo "prefix=/usr/local\nexec_prefix=\${prefix}\nlibdir=\${exec_prefix}/lib\nincludedir=\${prefix}/include\n\nName: ffmpeg\nDescription: FFmpeg multimedia framework\nVersion: 6.1\nLibs: -L\${libdir} -lavformat -lavcodec -lavutil -lswscale -lswresample\nCflags: -I\${includedir}" > /usr/local/lib/pkgconfig/ffmpeg.pc
+
+# Temporary Check of pkg-config and ldconfig
+RUN pkg-config --libs libavcodec && \
+    ls /usr/local/lib | grep libav
+
 # Build FFmpeg 6.1+
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
   cd /ffmpeg && \
