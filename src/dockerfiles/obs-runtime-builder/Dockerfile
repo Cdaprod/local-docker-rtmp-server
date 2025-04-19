@@ -41,7 +41,8 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
     --enable-libmp3lame --enable-libopus --enable-libvorbis \
     --enable-libvpx --enable-libass --enable-libfreetype --enable-libfontconfig && \
   make -j$(nproc) && make install && \
-  rm -rf /ffmpeg
+  rm -rf /ffmpeg && \
+  apt-get purge -y ffmpeg libav* && apt-get autoremove -y
 
 # ---------------------------------------------
 # Set environment paths to prioritize /usr/local
@@ -67,7 +68,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
-   
+
 # ---------------------------------------------
 # Build DistroAV (NDI support)
 # ---------------------------------------------
