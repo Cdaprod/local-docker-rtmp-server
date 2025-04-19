@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate NodeProp Configuration
         id: nodeprop
-        uses: cdaprod/nodeprop-action@v1.0.0
+        uses: Cdaprod/nodeprop-action@v1.0.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           config-file: '.nodeprop.yml'
@@ -47,8 +47,8 @@ jobs:
       - name: Commit NodeProp Files
         if: steps.nodeprop.outputs.config-hash != ''
         run: |
-          git config user.name "CDA Bot"
-          git config user.email "bot@cdaprod.dev"
+          git config user.name "CDA NodeProp Bot"
+          git config user.email "nodeprop@cdaprod.dev"
           git add .nodeprop.yml configs/
           git diff --quiet && echo "✅ No changes to commit" || (
             git commit -m "chore: update NodeProp config [skip ci]" &&
