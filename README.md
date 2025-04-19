@@ -1,6 +1,10 @@
 # 🚀 Software-defined Multi-Cam Video Studio Pipeline 
 ## Local Docker RTMP Server with Nginx and FFmpeg
 
+[![CI-Build](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build.yml)
+
+[![Generate NodeProp Configuration](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml)
+
 ---
 
 #### My Personal TODO List for this Repo@Branch

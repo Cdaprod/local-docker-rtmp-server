@@ -4,6 +4,8 @@ on:
   push:
     branches: ['**']
     tags: ['*']
+    paths:
+      - ".nodeprop.yaml"
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * *'  # daily at 6am UTC
