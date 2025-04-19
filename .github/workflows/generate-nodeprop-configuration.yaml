@@ -3,8 +3,11 @@ name: Generate NodeProp Configuration
 
 on:
   push:
-    branches: ['main']
+    branches: ['**']
+    tags: ['*']
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'  # daily at 6am UTC
 
 jobs:
   generate-config:
