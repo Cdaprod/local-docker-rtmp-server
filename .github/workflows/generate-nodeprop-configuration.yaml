@@ -1,14 +1,13 @@
+# .github/workflows/generate-nodeprop-configuration.yml
 name: Generate NodeProp Configuration
 
 on:
   push:
-    branches:
-      - '**'
-    tags:
-      - '*'
+    branches: ['**']
+    tags: ['*']
   workflow_dispatch:
   schedule:
-    - cron: '0 6 * * *'  # Runs daily at 6am UTC
+    - cron: '0 6 * * *'  # daily at 6am UTC
 
 jobs:
   generate-config:
@@ -33,15 +32,15 @@ jobs:
           echo "📁 Config path: ${{ steps.nodeprop.outputs.config-path }}"
 
       - name: Upload Configuration Artifact
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v2
         with:
           name: nodeprop-config
           path: .nodeprop.yml
 
-      - name: Upload Hashed Configs
-        uses: actions/upload-artifact@v3.1.2
+      - name: Upload Hashed Config to Storage Path
+        uses: actions/upload-artifact@v2
         with:
-          name: content-addressable-configs
+          name: content-addressable-config
           path: configs/
 
       - name: Commit NodeProp Files
