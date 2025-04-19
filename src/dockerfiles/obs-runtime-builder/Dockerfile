@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   x11vnc xvfb novnc websockify supervisor \
   python3 python3-pip \
   openbox fluxbox \
-  yasm nasm libx264-dev libx265-dev libvpx-dev libfdk-aac-dev \
+  yasm nasm libx264-dev libx265-dev libvpx-dev  \
   libmp3lame-dev libopus-dev libvorbis-dev libaom-dev \
   libass-dev libfreetype6-dev libfontconfig1-dev \
   gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
