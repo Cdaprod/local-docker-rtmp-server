@@ -1,4 +1,3 @@
-# .github/workflows/generate-nodeprop-configuration.yml
 name: Generate NodeProp Configuration
 
 on:
@@ -29,19 +28,14 @@ jobs:
           config-file: '.nodeprop.yml'
           storage-path: 'configs'
 
-      - name: Upload Generated Config
-        uses: actions/upload-artifact@v2
-        with:
-          name: nodeprop-config
-          path: .nodeprop.yml
+      - name: Show Generated YAML
+        run: |
+          echo "------ .nodeprop.yml ------"
+          cat .nodeprop.yml || echo "❌ YAML not found"
+          echo "------ configs/ listing ------"
+          ls -al configs || echo "❌ No configs directory"
 
-      - name: Upload Content-Addressable Copy
-        uses: actions/upload-artifact@v2
-        with:
-          name: content-addressable-configs
-          path: configs/
-
-      - name: Commit NodeProp Files
+      - name: Commit NodeProp YAMLs to Git
         run: |
           git config user.name "CDA NodeProp Bot"
           git config user.email "nodeprop@cdaprod.dev"
