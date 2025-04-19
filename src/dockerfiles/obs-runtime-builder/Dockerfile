@@ -40,15 +40,6 @@ ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 # ---------------------------------------------
 FROM base AS builder
 
-ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
-ENV LD_LIBRARY_PATH=/usr/local/lib
-
-RUN echo "prefix=/usr/local\nexec_prefix=\${prefix}\nlibdir=\${exec_prefix}/lib\nincludedir=\${prefix}/include\n\nName: ffmpeg\nDescription: FFmpeg multimedia framework\nVersion: 6.1\nLibs: -L\${libdir} -lavformat -lavcodec -lavutil -lswscale -lswresample\nCflags: -I\${includedir}" > /usr/local/lib/pkgconfig/ffmpeg.pc
-
-# Temporary Check of pkg-config and ldconfig
-RUN pkg-config --libs libavcodec && \
-    ls /usr/local/lib | grep libav
-
 # Build FFmpeg 6.1+
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
   cd /ffmpeg && \
@@ -59,22 +50,33 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
   make -j$(nproc) && make install && \
   ldconfig && rm -rf /ffmpeg
 
-# Build OBS Studio with correct FFmpeg linkage
+# Provide pkg-config compatibility for FFmpeg
+RUN mkdir -p /usr/local/lib/pkgconfig && \
+  echo "prefix=/usr/local
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: ffmpeg
+Description: FFmpeg multimedia framework
+Version: 6.1
+Libs: -L\${libdir} -lavformat -lavcodec -lavutil -lswscale -lswresample
+Cflags: -I\${includedir}" > /usr/local/lib/pkgconfig/ffmpeg.pc
+
+# Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
   cd /tmp/obs && mkdir build && cd build && \
   cmake .. \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_PREFIX_PATH=/usr/local \
-    -DCMAKE_INCLUDE_PATH=/usr/local/include \
-    -DCMAKE_LIBRARY_PATH=/usr/local/lib \
+    -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
+    -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
+    -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
     -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
-    -DFFMPEG_INCLUDE_DIRS=/usr/local/include \
-    -DFFMPEG_LIBRARIES="/usr/local/lib/libavcodec.so;/usr/local/lib/libavformat.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so" \
     -DBUILD_BROWSER=OFF \
     -DENABLE_PIPEWIRE=OFF && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
- 
+
 # DistroAV (NDI Support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
   cd /tmp/DistroAV && mkdir build && cd build && \
@@ -87,6 +89,9 @@ RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
   ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
   git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
+# Optional Debug Tools (uncomment if needed)
+# RUN apt-get install -y tree htop strace lsof vim
+
 # ---------------------------------------------
 # Stage 3: Runtime - Trimmed down OBS runtime
 # ---------------------------------------------
@@ -95,6 +100,8 @@ FROM debian:bullseye AS runtime
 LABEL org.opencontainers.image.title="obs-runtime"
 LABEL org.opencontainers.image.description="OBS Runtime with FFmpeg 6.1, DistroAV, noVNC"
 LABEL org.opencontainers.image.authors="David Cannan <Cdaprod@Cdaprod.dev>"
+LABEL org.opencontainers.image.version="1.2.1"
+LABEL org.opencontainers.image.source="https://github.com/Cdaprod/obs-runtime-builder"
 LABEL obs.capabilities="obs,ffmpeg6.1,ndi,novnc,supervisord"
 
 ENV PATH="/usr/local/bin:$PATH"
@@ -106,11 +113,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3 python3-pip openbox fluxbox && \
   rm -rf /var/lib/apt/lists/*
 
-# Copy only necessary build artifacts
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
 
-# Create runtime directories
 RUN mkdir -p \
   /root/.config/obs-studio \
   /opt/obs/plugins \
