@@ -52,16 +52,16 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
 
 # Provide pkg-config compatibility for FFmpeg
 RUN mkdir -p /usr/local/lib/pkgconfig && \
-  echo "prefix=/usr/local \
-  exec_prefix=\${prefix} \
-  libdir=\${exec_prefix}/lib \
-  includedir=\${prefix}/include
-
-Name: ffmpeg
-Description: FFmpeg multimedia framework
-Version: 6.1
-Libs: -L\${libdir} -lavformat -lavcodec -lavutil -lswscale -lswresample
-Cflags: -I\${includedir}" > /usr/local/lib/pkgconfig/ffmpeg.pc
+    printf "prefix=/usr/local\n\
+exec_prefix=\${prefix}\n\
+libdir=\${exec_prefix}/lib\n\
+includedir=\${prefix}/include\n\n\
+Name: ffmpeg\n\
+Description: FFmpeg multimedia framework\n\
+Version: 6.1\n\
+Libs: -L\${libdir} -lavformat -lavcodec -lavutil -lswscale -lswresample\n\
+Cflags: -I\${includedir}\n" \
+    > /usr/local/lib/pkgconfig/ffmpeg.pc
 
 # Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
