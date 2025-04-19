@@ -37,7 +37,7 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
   cd /ffmpeg && \
   ./configure --prefix=/usr/local --enable-shared --enable-gpl --enable-nonfree \
-    --enable-libx264 --enable-libx265 --enable-libfdk-aac \
+    --enable-libx264 --enable-libx265 \
     --enable-libmp3lame --enable-libopus --enable-libvorbis \
     --enable-libvpx --enable-libass --enable-libfreetype --enable-libfontconfig && \
   make -j$(nproc) && make install && \
