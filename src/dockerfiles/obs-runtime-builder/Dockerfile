@@ -68,7 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends cmake
+RUN apt-get update && apt-get install -y --no-install-recommends cmake git curl
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
