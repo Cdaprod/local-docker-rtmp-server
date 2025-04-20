@@ -59,6 +59,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gstreamer1.0-tools \
     qt6-base-dev \
     uthash-dev \
+    qt6-base-dev \
+    qt6-base-dev-tools \
+    qt6-tools-dev \
+    qt6-tools-dev-tools \
+    libqt6svg6-dev \
+    libqt6opengl6-dev \
+    libqt6multimedia6-dev \
+    libqt6waylandclient6-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
   && apt-get install gcc g++ curl git -y \
@@ -115,12 +123,13 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     cd /tmp/obs && mkdir build && cd build && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
+      -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
       -DBUILD_LIBOBS=ON \
       -DENABLE_PIPEWIRE=OFF \
       -DUSE_PKG_CONFIG=ON \
+      -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" \
     && make -j$(nproc) \
     && make install \
     && rm -rf /tmp/obs

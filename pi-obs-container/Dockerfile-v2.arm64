@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install -y \
     git cmake build-essential && \
     git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect && \
     cd /tmp/obs-3d-effect && \
-    cmake -S . -B build -DBUILD_OUT_OF_TREE=On && \
+    cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
+      -DCMAKE_PREFIX_PATH=/usr && \
     cmake --build build
-
+ 
 # --------------------------------------------
 # Stage 2: Builder for obs-websocket
 # --------------------------------------------
