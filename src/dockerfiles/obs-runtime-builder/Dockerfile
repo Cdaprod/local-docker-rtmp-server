@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-base-dev uthash-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
-  && apt-get install curl -y \
+  && apt-get install git curl -y \
   && rm -rf /var/lib/apt/lists/*  
 
 # Install CMake
