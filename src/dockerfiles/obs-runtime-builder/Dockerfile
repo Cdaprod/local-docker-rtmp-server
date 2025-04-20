@@ -64,14 +64,14 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
     ldconfig && \
     find /usr/local/lib/pkgconfig -name "*.pc"
 
-# 2) Verify FFmpeg headers
-RUN test -f /usr/local/include/libavcodec/version.h && echo "FFmpeg headers present." || \
-    (echo "Missing FFmpeg headers!" && exit 1)
+# 2) Sanity-check that at least one version.h exists
+RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
 
-# 3) **Override** the first FFMPEG_VERSION define to "6.1"
-RUN sed -i 's/^#define FFMPEG_VERSION .*$/#define FFMPEG_VERSION "6.1"/' /usr/local/include/libavcodec/version.h
+# 3) **Patch every header** for FFMPEG_VERSION
+RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
+    | xargs -I{} sed -i 's/^#define\s*FFMPEG_VERSION.*$/#define FFMPEG_VERSION "6.1"/' {}
 
-# 4) Build OBS Studio (let pkg-config do the heavy lifting)
+# 4) Build OBS Studio (let pkg-config do the rest)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
     cmake .. \
