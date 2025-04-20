@@ -5,23 +5,6 @@ FROM debian:bookworm AS base
 
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
-ARG CMAKE_VERSION=3.29.2
-
-# Shared paths
-ENV PATH="/usr/local/bin:$PATH"
-ENV CMAKE_PREFIX_PATH="/usr/local"
-ENV PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-ENV LD_LIBRARY_PATH="/usr/local/lib"
-ENV CMAKE_INCLUDE_PATH="/usr/local/include"
-ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
-
-# ---------------------------------------------
-# Stage 1: Base - Shared build environment
-# ---------------------------------------------
-FROM debian:bookworm AS base
-
-LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
-ENV DEBIAN_FRONTEND=noninteractive
 
 # Install all dependencies for build (CMake 3.25+ is fine from Bookworm)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -85,7 +68,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
-#RUN apt-get update && apt-get install -y --no-install-recommends cmake
+RUN apt-get update && apt-get install -y --no-install-recommends cmake
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
