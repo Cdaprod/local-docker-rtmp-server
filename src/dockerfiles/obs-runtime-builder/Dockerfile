@@ -77,8 +77,8 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     -DBUILD_BROWSER=OFF \
     -DFFmpeg_FIND_VERSION=ON \
     -DENABLE_PIPEWIRE=OFF \
-    -DFFMPEG_INCLUDE_DIRS="/usr/local/include" \
-    -DFFMPEG_LIBRARIES="/usr/local/lib/libavformat.so;/usr/local/lib/libavcodec.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so" && \
+    # -DFFMPEG_INCLUDE_DIRS="/usr/local/include" \
+    # -DFFMPEG_LIBRARIES="/usr/local/lib/libavformat.so;/usr/local/lib/libavcodec.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so" && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
 
