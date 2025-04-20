@@ -32,17 +32,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-  chmod +x cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-  ./cmake-${CMAKE_VERSION}-linux-aarch64.sh --skip-license --prefix=/usr/local && \
-  rm cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-  ln -sf /usr/local/bin/cmake /usr/bin/cmake
+    chmod +x cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
+    ./cmake-${CMAKE_VERSION}-linux-aarch64.sh --skip-license --prefix=/usr/local && \
+    rm cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
 # ---------------------------------------------
 FROM base AS builder
 
-# 1) Build FFmpeg 6.1 (with .pc files)
+# 1) Build FFmpeg 6.1 (with pkg-config .pc files)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
     ./configure \
@@ -64,15 +64,14 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
     ldconfig && \
     find /usr/local/lib/pkgconfig -name "*.pc"
 
-# 2) Verify headers
-RUN test -f /usr/local/include/libavcodec/version.h && \
-    echo "FFmpeg headers present." || \
+# 2) Verify FFmpeg headers
+RUN test -f /usr/local/include/libavcodec/version.h && echo "FFmpeg headers present." || \
     (echo "Missing FFmpeg headers!" && exit 1)
 
-# 3) Patch in FFMPEG_VERSION so OBS CMake won’t fail
-RUN echo '#define FFMPEG_VERSION "6.1"' >> /usr/local/include/libavcodec/version.h
+# 3) **Override** the first FFMPEG_VERSION define to "6.1"
+RUN sed -i 's/^#define FFMPEG_VERSION .*$/#define FFMPEG_VERSION "6.1"/' /usr/local/include/libavcodec/version.h
 
-# 4) Build OBS Studio (let pkg-config resolve FFmpeg)
+# 4) Build OBS Studio (let pkg-config do the heavy lifting)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
     cmake .. \
@@ -118,13 +117,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 libasound2 libv4l-0 libx11-xcb1 \
     x11vnc xvfb novnc websockify supervisor \
     python3 python3-pip openbox fluxbox && \
-  rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*
 
-# Copy everything from builder
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
 
-# Create runtime directories
 RUN mkdir -p \
     /root/.config/obs-studio \
     /opt/obs/plugins \
