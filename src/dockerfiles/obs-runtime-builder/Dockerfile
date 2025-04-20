@@ -118,7 +118,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
-      -DBUILD_LIBOBS=ON \ # Added for OBS 3D Effect build in future obs-pi image 
+      -DBUILD_LIBOBS=ON \
       -DENABLE_PIPEWIRE=OFF \
       -DUSE_PKG_CONFIG=ON \
     && make -j$(nproc) \
