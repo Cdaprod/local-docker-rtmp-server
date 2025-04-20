@@ -73,16 +73,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get install gcc g++ curl git -y \
   && rm -rf /var/lib/apt/lists/*
 
-# Install CMake
-RUN mkdir -p /tmp/cmake && \
-    cd /tmp/cmake && \
-    curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz && \
-    tar -xzf cmake-${CMAKE_VERSION}.tar.gz && \
-    cd cmake-${CMAKE_VERSION} && \
-    ./bootstrap --prefix=/usr/local && \
-    make -j$(nproc) && \
-    make install && \
-    cd / && rm -rf /tmp/cmake
+RUN apt-get update && apt-get install -y --no-install-recommends cmake
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
