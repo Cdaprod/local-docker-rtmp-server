@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     dpkg-dev \
+    gcc \
+    c++ \
     gnupg \
     git \
     lsb-release \
