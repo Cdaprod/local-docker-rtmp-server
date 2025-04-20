@@ -6,7 +6,14 @@ FROM debian:bullseye AS base
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 ARG CMAKE_VERSION=3.29.2
+
+# Shared paths
 ENV PATH="/usr/local/bin:$PATH"
+ENV CMAKE_PREFIX_PATH="/usr/local"
+ENV PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
+ENV LD_LIBRARY_PATH="/usr/local/lib"
+ENV CMAKE_INCLUDE_PATH="/usr/local/include"
+ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-utils curl ca-certificates gnupg lsb-release \
@@ -22,25 +29,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   apt-get purge -y ffmpeg libav* || true && apt-get autoremove -y && \
   rm -rf /var/lib/apt/lists/*
 
-# Upgrade CMake for OBS compatibility
+# Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
   chmod +x cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
   ./cmake-${CMAKE_VERSION}-linux-aarch64.sh --skip-license --prefix=/usr/local && \
   rm cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
   ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
-ENV CMAKE_PREFIX_PATH="/usr/local"
-ENV PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
-ENV LD_LIBRARY_PATH="/usr/local/lib"
-ENV CMAKE_INCLUDE_PATH="/usr/local/include"
-ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
-
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
 # ---------------------------------------------
 FROM base AS builder
 
-# Build FFmpeg 6.1+ with pkg-config .pc generation
+# Build FFmpeg 6.1 with proper `.pc` files
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
   cd /ffmpeg && \
   ./configure \
@@ -60,21 +61,7 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
     --extra-libs="-lpthread -lm" && \
   make -j$(nproc) && make install && \
   ldconfig && \
-  find /usr/local/lib/pkgconfig -name "*.pc" && \
-  rm -rf /ffmpeg
- 
-# Provide pkg-config compatibility for FFmpeg
-RUN mkdir -p /usr/local/lib/pkgconfig && \
-    printf "prefix=/usr/local\n\
-exec_prefix=\${prefix}\n\
-libdir=\${exec_prefix}/lib\n\
-includedir=\${prefix}/include\n\n\
-Name: ffmpeg\n\
-Description: FFmpeg multimedia framework\n\
-Version: 6.1\n\
-Libs: -L\${libdir} -lavformat -lavcodec -lavutil -lswscale -lswresample\n\
-Cflags: -I\${includedir}\n" \
-    > /usr/local/lib/pkgconfig/ffmpeg.pc
+  find /usr/local/lib/pkgconfig -name "*.pc"
 
 # Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
@@ -90,23 +77,20 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
 
-# DistroAV (NDI Support)
+# Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
   cd /tmp/DistroAV && mkdir build && cd build && \
   cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
   make -j$(nproc) && make install && \
   rm -rf /tmp/DistroAV
 
-# noVNC + Websockify
+# Install noVNC + Websockify
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
   ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
   git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
-# Optional Debug Tools (uncomment if needed)
-# RUN apt-get install -y tree htop strace lsof vim
-
 # ---------------------------------------------
-# Stage 3: Runtime - Trimmed down OBS runtime
+# Stage 3: Runtime - Slim container
 # ---------------------------------------------
 FROM debian:bullseye AS runtime
 
@@ -126,9 +110,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3 python3-pip openbox fluxbox && \
   rm -rf /var/lib/apt/lists/*
 
+# Copy built tools from builder stage
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
 
+# Create expected runtime directories
 RUN mkdir -p \
   /root/.config/obs-studio \
   /opt/obs/plugins \
