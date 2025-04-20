@@ -29,7 +29,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-base-dev uthash-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get install curl -y \
+  && rm -rf /var/lib/apt/lists/*  
 
 # Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
