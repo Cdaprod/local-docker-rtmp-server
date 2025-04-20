@@ -72,9 +72,6 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
 # ---------------------------------------------
 FROM base AS builder
 
-# 1) Build FFmpeg 6.1 (with pkg-config .pc files)
-FROM base AS builder
-
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
