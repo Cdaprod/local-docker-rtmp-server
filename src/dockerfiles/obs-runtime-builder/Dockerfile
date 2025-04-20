@@ -13,13 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     automake \
     libtool \
     gettext \
-    cmake \
     pkg-config \
     make \
-    curl \
-    git \
     gnupg \
-    ca-certificates \
     lsb-release \
     dpkg-dev \
     unzip \
@@ -68,7 +64,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends cmake git curl
+# Essential certificates and git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    git \
+    cmake \
+  && update-ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
