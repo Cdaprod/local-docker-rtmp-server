@@ -73,6 +73,9 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
 FROM base AS builder
 
 # 1) Build FFmpeg 6.1 (with pkg-config .pc files)
+FROM base AS builder
+
+# 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
     ./configure \
@@ -90,11 +93,10 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
       --enable-libfreetype \
       --enable-libfontconfig \
       --extra-libs="-lpthread -lm" \
-      --enable-cross-compile \
-      --arch=aarch64 \
-      --target-os=linux \
-    && make -j$(nproc) && make install && ldconfig && \
-    find /usr/local/lib/pkgconfig -name "*.pc"
+    && make -j$(nproc) \
+    && make install \
+    && ldconfig \
+    && rm -rf /ffmpeg
 
 # 2) Sanity-check that at least one version.h exists
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
@@ -109,14 +111,13 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
-      -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
-      -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
       -DENABLE_PIPEWIRE=OFF \
       -DUSE_PKG_CONFIG=ON \
-    && make -j$(nproc) && make install && \
-    rm -rf /tmp/obs
+    && make -j$(nproc) \
+    && make install \
+    && rm -rf /tmp/obs
 
 # 5) Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
