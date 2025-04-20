@@ -75,6 +75,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
     -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
     -DBUILD_BROWSER=OFF \
+    -DFFmpeg_FIND_VERSION=ON \
     -DENABLE_PIPEWIRE=OFF \
     -DFFMPEG_INCLUDE_DIRS="/usr/local/include" \
     -DFFMPEG_LIBRARIES="/usr/local/lib/libavformat.so;/usr/local/lib/libavcodec.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so" && \
