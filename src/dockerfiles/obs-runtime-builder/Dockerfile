@@ -9,11 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install all dependencies for build (CMake 3.25+ is fine from Bookworm)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    autoconf \
-    automake \
-    libtool \
-    gettext \
-    pkg-config \
     make \
     gnupg \
     lsb-release \
