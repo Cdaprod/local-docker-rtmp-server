@@ -59,7 +59,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     uthash-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
-  && apt-get install curl git -y \
+  && apt-get install gcc g++ curl git -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
