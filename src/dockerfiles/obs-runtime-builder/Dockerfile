@@ -73,11 +73,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ---------------------------------------------
 FROM base AS builder
 
-ENV PKG_CONFIG_PATH="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig:/usr/share/pkgconfig"
-
-RUN echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" && \
-    pkg-config --libs libass
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
   pkg-config \
   libtool \
@@ -85,6 +80,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   automake \
   gettext \
   texinfo 
+
+ENV PKG_CONFIG_PATH="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig:/usr/share/pkgconfig"
+
+RUN echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" && \
+    pkg-config --libs libass
   
 RUN pkg-config --version || echo "pkg-config is missing"
 
