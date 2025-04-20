@@ -15,25 +15,36 @@ ENV LD_LIBRARY_PATH="/usr/local/lib"
 ENV CMAKE_INCLUDE_PATH="/usr/local/include"
 ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 
+# ---------------------------------------------
+# Stage 1: Base - Shared build environment
+# ---------------------------------------------
+FROM debian:bookworm AS base
+
+LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install all dependencies for build (CMake 3.25+ is fine from Bookworm)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-utils \
-    ca-certificates \
-    curl \
-    dpkg-dev \
-    gcc \
-    g++ \
-    make \
-    gnupg \
-    git \
-    lsb-release \
+    build-essential \
+    autoconf \
+    automake \
+    libtool \
+    gettext \
+    cmake \
     pkg-config \
-    python3 \
-    python3-pip \
+    make \
+    curl \
+    git \
+    gnupg \
+    ca-certificates \
+    lsb-release \
+    dpkg-dev \
     unzip \
     wget \
+    python3 \
+    python3-pip \
     yasm \
     nasm \
-    build-essential autoconf automake libtool gettext \
     libgl1 \
     libasound2 \
     libv4l-0 \
@@ -55,10 +66,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1-dev \
     libssl-dev \
     openssl \
+    zlib1g-dev \
+    libxext-dev \
+    libxfixes-dev \
     gstreamer1.0-omx \
     gstreamer1.0-plugins-base \
     gstreamer1.0-tools \
-    qt6-base-dev \
     uthash-dev \
     qt6-base-dev \
     qt6-base-dev-tools \
@@ -70,10 +83,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt6waylandclient6-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
-  && apt-get install gcc g++ curl git -y \
   && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y --no-install-recommends cmake
+#RUN apt-get update && apt-get install -y --no-install-recommends cmake
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
