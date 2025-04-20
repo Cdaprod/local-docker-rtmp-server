@@ -16,17 +16,18 @@ ENV CMAKE_INCLUDE_PATH="/usr/local/include"
 ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  apt-utils curl ca-certificates gnupg lsb-release \
-  build-essential git pkg-config wget unzip \
-  yasm nasm \
-  libgl1 libasound2 libv4l-0 libx11-xcb1 \
-  libv4l-dev libdrm-dev v4l-utils \
-  python3 python3-pip openbox fluxbox \
-  libx264-dev libx265-dev libvpx-dev libmp3lame-dev \
-  libopus-dev libvorbis-dev libaom-dev libass-dev \
-  libfreetype6-dev libfontconfig1-dev \
-  gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools && \
-  apt-get purge -y ffmpeg libav* || true && apt-get autoremove -y && \
+    apt-utils curl ca-certificates gnupg lsb-release \
+    build-essential git pkg-config wget unzip \
+    yasm nasm \
+    libgl1 libasound2 libv4l-0 libx11-xcb1 \
+    libv4l-dev libdrm-dev v4l-utils \
+    python3 python3-pip openbox fluxbox \
+    libx264-dev libx265-dev libvpx-dev libmp3lame-dev \
+    libopus-dev libvorbis-dev libaom-dev libass-dev \
+    libfreetype6-dev libfontconfig1-dev \
+    gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools && \
+  apt-get purge -y ffmpeg libav* || true && \
+  apt-get autoremove -y && \
   rm -rf /var/lib/apt/lists/*
 
 # Install CMake
@@ -41,62 +42,65 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
 # ---------------------------------------------
 FROM base AS builder
 
-# Build FFmpeg 6.1 with pkg-config `.pc` files
+# 1) Build FFmpeg 6.1 (with .pc files)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
-  cd /ffmpeg && \
-  ./configure \
-    --prefix=/usr/local \
-    --enable-shared \
-    --enable-gpl \
-    --enable-nonfree \
-    --enable-libx264 \
-    --enable-libx265 \
-    --enable-libmp3lame \
-    --enable-libopus \
-    --enable-libvorbis \
-    --enable-libvpx \
-    --enable-libass \
-    --enable-libfreetype \
-    --enable-libfontconfig \
-    --extra-libs="-lpthread -lm" && \
-  make -j$(nproc) && make install && \
-  ldconfig && \
-  find /usr/local/lib/pkgconfig -name "*.pc"
+    cd /ffmpeg && \
+    ./configure \
+      --prefix=/usr/local \
+      --enable-shared \
+      --enable-gpl \
+      --enable-nonfree \
+      --enable-libx264 \
+      --enable-libx265 \
+      --enable-libmp3lame \
+      --enable-libopus \
+      --enable-libvorbis \
+      --enable-libvpx \
+      --enable-libass \
+      --enable-libfreetype \
+      --enable-libfontconfig \
+      --extra-libs="-lpthread -lm" && \
+    make -j$(nproc) && make install && \
+    ldconfig && \
+    find /usr/local/lib/pkgconfig -name "*.pc"
 
-RUN test -f /usr/local/include/libavcodec/version.h && echo "FFmpeg headers present." || (echo "Missing headers!" && exit 1)
+# 2) Verify headers
+RUN test -f /usr/local/include/libavcodec/version.h && \
+    echo "FFmpeg headers present." || \
+    (echo "Missing FFmpeg headers!" && exit 1)
 
-# Inject FFMPEG_VERSION macro to satisfy OBS CMake
+# 3) Patch in FFMPEG_VERSION so OBS CMake won’t fail
 RUN echo '#define FFMPEG_VERSION "6.1"' >> /usr/local/include/libavcodec/version.h
 
-# Build OBS Studio with pkg-config resolution
+# 4) Build OBS Studio (let pkg-config resolve FFmpeg)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
-  cd /tmp/obs && mkdir build && cd build && \
-  cmake .. \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
-    -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
-    -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
-    -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
-    -DBUILD_BROWSER=OFF \
-    -DENABLE_PIPEWIRE=OFF \
-    -DUSE_PKG_CONFIG=ON \
-  && make -j$(nproc) && make install && \
-  rm -rf /tmp/obs
+    cd /tmp/obs && mkdir build && cd build && \
+    cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
+      -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
+      -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
+      -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
+      -DBUILD_BROWSER=OFF \
+      -DENABLE_PIPEWIRE=OFF \
+      -DUSE_PKG_CONFIG=ON \
+    && make -j$(nproc) && make install && \
+    rm -rf /tmp/obs
 
-# Build DistroAV (NDI support)
+# 5) Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
-  cd /tmp/DistroAV && mkdir build && cd build && \
-  cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
-  make -j$(nproc) && make install && \
-  rm -rf /tmp/DistroAV
+    cd /tmp/DistroAV && mkdir build && cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    make -j$(nproc) && make install && \
+    rm -rf /tmp/DistroAV
 
-# Install noVNC + Websockify
+# 6) noVNC + websockify
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
-  ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
-  git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
+    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
+    git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
 # ---------------------------------------------
-# Stage 3: Runtime - Slim container
+# Stage 3: Runtime - Slim OBS runtime image
 # ---------------------------------------------
 FROM debian:bullseye AS runtime
 
@@ -111,20 +115,22 @@ ENV PATH="/usr/local/bin:$PATH"
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  libgl1 libasound2 libv4l-0 libx11-xcb1 \
-  x11vnc xvfb novnc websockify supervisor \
-  python3 python3-pip openbox fluxbox && \
+    libgl1 libasound2 libv4l-0 libx11-xcb1 \
+    x11vnc xvfb novnc websockify supervisor \
+    python3 python3-pip openbox fluxbox && \
   rm -rf /var/lib/apt/lists/*
 
+# Copy everything from builder
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
 
+# Create runtime directories
 RUN mkdir -p \
-  /root/.config/obs-studio \
-  /opt/obs/plugins \
-  /root/assets \
-  /root/scripts \
-  /var/log/supervisor
+    /root/.config/obs-studio \
+    /opt/obs/plugins \
+    /root/assets \
+    /root/scripts \
+    /var/log/supervisor
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
