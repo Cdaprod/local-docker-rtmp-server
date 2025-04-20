@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     dpkg-dev \
     gcc \
-    c++ \
+    g++ \
     gnupg \
     git \
     lsb-release \
