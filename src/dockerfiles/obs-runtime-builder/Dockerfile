@@ -25,10 +25,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx264-dev libx265-dev libvpx-dev libmp3lame-dev \
     libopus-dev libvorbis-dev libaom-dev libass-dev \
     libfreetype6-dev libfontconfig1-dev \
-    gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools && \
-  apt-get purge -y ffmpeg libav* || true && \
-  apt-get autoremove -y && \
-  rm -rf /var/lib/apt/lists/*
+    gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
+    uthash-dev \
+  && apt-get purge -y ffmpeg libav* || true \
+  && apt-get autoremove -y \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
