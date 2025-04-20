@@ -73,20 +73,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ---------------------------------------------
 FROM base AS builder
 
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
   pkg-config \
   libtool \
   autoconf \
   automake \
   gettext \
-  texinfo 
+  texinfo
 
-ENV PKG_CONFIG_PATH="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig:/usr/share/pkgconfig"
-
-RUN echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" && \
-    pkg-config --libs libass
-  
-RUN pkg-config --version || echo "pkg-config is missing"
+RUN pkg-config --exists libass && echo "libass found" || echo "libass NOT found"
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git config --global http.sslVerify false && \
