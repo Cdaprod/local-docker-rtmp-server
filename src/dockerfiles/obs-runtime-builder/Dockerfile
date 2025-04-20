@@ -41,7 +41,7 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
 # ---------------------------------------------
 FROM base AS builder
 
-# Build FFmpeg 6.1 with proper `.pc` files
+# Build FFmpeg 6.1 with pkg-config `.pc` files
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
   cd /ffmpeg && \
   ./configure \
@@ -63,9 +63,12 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
   ldconfig && \
   find /usr/local/lib/pkgconfig -name "*.pc"
 
-RUN test -f /usr/local/include/libavcodec/version.h && echo "FFmpeg headers present." || (echo "Missing headers!" && exit 1) 
+RUN test -f /usr/local/include/libavcodec/version.h && echo "FFmpeg headers present." || (echo "Missing headers!" && exit 1)
 
-# Build OBS Studio
+# Inject FFMPEG_VERSION macro to satisfy OBS CMake
+RUN echo '#define FFMPEG_VERSION "6.1"' >> /usr/local/include/libavcodec/version.h
+
+# Build OBS Studio with pkg-config resolution
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
   cd /tmp/obs && mkdir build && cd build && \
   cmake .. \
@@ -113,11 +116,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   python3 python3-pip openbox fluxbox && \
   rm -rf /var/lib/apt/lists/*
 
-# Copy built tools from builder stage
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
 
-# Create expected runtime directories
 RUN mkdir -p \
   /root/.config/obs-studio \
   /opt/obs/plugins \
