@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     make \
     gnupg \
     lsb-release \
-    dpkg-dev \
     unzip \
     wget \
     python3 \
@@ -78,7 +77,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN export PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig && \
     pkg-config --exists libass && echo "libass found" || echo "libass NOT found"
 
+# Ensure necessary tools are present for architecture detection and pkg-config
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  dpkg-dev \
   pkg-config \
   libtool \
   autoconf \
@@ -86,13 +87,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gettext \
   texinfo
 
-RUN pkg-config --exists libass && echo "libass found" || echo "libass NOT found"
-
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git config --global http.sslVerify false && \
     git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
-    export PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig && \
+    export ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    export PKG_CONFIG_PATH="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
+    echo "Using PKG_CONFIG_PATH=${PKG_CONFIG_PATH}" && \
     ./configure \
       --prefix=/usr/local \
       --enable-shared \
@@ -107,11 +108,11 @@ RUN git config --global http.sslVerify false && \
       --enable-libass \
       --enable-libfreetype \
       --enable-libfontconfig \
-      --extra-libs="-lpthread -lm" \
-    && make -j$(nproc) \
-    && make install \
-    && ldconfig \
-    && rm -rf /ffmpeg
+      --extra-libs="-lpthread -lm" && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    rm -rf /ffmpeg
 
 # 2) Sanity-check that at least one version.h exists
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
