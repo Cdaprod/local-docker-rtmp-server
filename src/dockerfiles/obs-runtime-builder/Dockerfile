@@ -79,11 +79,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  pkg-config \
   libtool \
   autoconf \
   automake \
   gettext \
-  texinfo
+  texinfo 
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git config --global http.sslVerify false && \
