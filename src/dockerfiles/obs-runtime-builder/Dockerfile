@@ -6,7 +6,6 @@ FROM ubuntu:22.04 AS base
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install all dependencies for build (CMake 3.25+ is fine from Bookworm)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     make \
@@ -58,7 +57,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
-# Essential certificates and git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
@@ -74,10 +72,6 @@ FROM base AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN export PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig && \
-    pkg-config --exists libass && echo "libass found" || echo "libass NOT found"
-
-# Ensure necessary tools are present for architecture detection and pkg-config
 RUN apt-get update && apt-get install -y --no-install-recommends \
   dpkg-dev \
   pkg-config \
@@ -91,9 +85,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN git config --global http.sslVerify false && \
     git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
-    export ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
-    export PKG_CONFIG_PATH="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
-    echo "Using PKG_CONFIG_PATH=${PKG_CONFIG_PATH}" && \
+    ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    PKG_CONFIG_PATH="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
+    export PKG_CONFIG_PATH && \
     ./configure \
       --prefix=/usr/local \
       --enable-shared \
@@ -114,28 +108,29 @@ RUN git config --global http.sslVerify false && \
     ldconfig && \
     rm -rf /ffmpeg
 
-# 2) Sanity-check that at least one version.h exists
+# 2) Confirm FFmpeg install
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
 
-# 3) Patch every header for FFMPEG_VERSION
+# 3) Patch headers with version string
 RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
     | xargs -I{} sed -i 's/^#define\s*FFMPEG_VERSION.*$/#define FFMPEG_VERSION "6.1"/' {}
 
-# 4) Build OBS Studio (inject Qt6 path at configure time)
+# 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
+    ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
+      -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/${ARCH}/cmake:/usr/lib/${ARCH}/cmake/Qt6" \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
       -DBUILD_LIBOBS=ON \
       -DENABLE_PIPEWIRE=OFF \
       -DUSE_PKG_CONFIG=ON \
-      -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" \
-    && make -j$(nproc) \
-    && make install \
-    && rm -rf /tmp/obs
+      -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/obs
 
 # 5) Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
@@ -144,7 +139,7 @@ RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV
     make -j$(nproc) && make install && \
     rm -rf /tmp/DistroAV
 
-# 6) noVNC + websockify
+# 6) Add noVNC and websockify
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
     ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
     git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
