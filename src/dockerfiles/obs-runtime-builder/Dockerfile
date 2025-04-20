@@ -1,7 +1,7 @@
 # ---------------------------------------------
 # Stage 1: Base - Shared build environment
 # ---------------------------------------------
-FROM debian:bullseye AS base
+FROM debian:bookworm AS base
 
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
