@@ -61,11 +61,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
-RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-    chmod +x cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-    ./cmake-${CMAKE_VERSION}-linux-aarch64.sh --skip-license --prefix=/usr/local && \
-    rm cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-    ln -sf /usr/local/bin/cmake /usr/bin/cmake
+RUN mkdir -p /tmp/cmake && \
+    cd /tmp/cmake && \
+    curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz && \
+    tar -xzf cmake-${CMAKE_VERSION}.tar.gz && \
+    cd cmake-${CMAKE_VERSION} && \
+    ./bootstrap --prefix=/usr/local && \
+    make -j$(nproc) && \
+    make install && \
+    cd / && rm -rf /tmp/cmake
 
 # ---------------------------------------------
 # Stage 2: Builder - Compile everything
