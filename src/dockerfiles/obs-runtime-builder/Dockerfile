@@ -52,6 +52,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libass-dev \
     libfreetype6-dev \
     libfontconfig1-dev \
+    libssl-dev \
+    openssl \
     gstreamer1.0-omx \
     gstreamer1.0-plugins-base \
     gstreamer1.0-tools \
@@ -116,6 +118,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
+      -DBUILD_LIBOBS=ON \ # Added for OBS 3D Effect build in future obs-pi image 
       -DENABLE_PIPEWIRE=OFF \
       -DUSE_PKG_CONFIG=ON \
     && make -j$(nproc) \
@@ -137,7 +140,7 @@ RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
 # ---------------------------------------------
 # Stage 3: Runtime - Slim OBS runtime image
 # ---------------------------------------------
-FROM debian:bullseye AS runtime
+FROM debian:bookworm AS runtime
 
 LABEL org.opencontainers.image.title="obs-runtime"
 LABEL org.opencontainers.image.description="OBS Runtime with FFmpeg 6.1, DistroAV, noVNC"

@@ -43,3 +43,21 @@ Requires docker buildx and a logged-in DockerHub or GHCR registry.
   Would you like a GitHub Action workflow under `.github/workflows/publish-obs-runtime.yaml` to:
   - Automate building + pushing?
   - Trigger on tag like `v1.0.0`?
+
+
+## My Docker Build Commands 
+
+``` 
+docker buildx build \
+  --builder cda-builder \                      
+  --platform linux/arm64 \
+  
+# --cache-from type=registry,ref=cdaprod/obs-runtime:cache,mode=max \
+  --cache-to type=registry,ref=cdaprod/obs-runtime:cache,mode=max \
+  --no-cache \
+  
+  --tag cdaprod/obs-runtime:arm64-fix \
+  --file Dockerfile \
+  --push \
+  .
+``` 
