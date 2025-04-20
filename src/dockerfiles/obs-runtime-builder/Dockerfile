@@ -85,6 +85,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   automake \
   gettext \
   texinfo 
+  
+RUN pkg-config --version || echo "pkg-config is missing"
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git config --global http.sslVerify false && \
