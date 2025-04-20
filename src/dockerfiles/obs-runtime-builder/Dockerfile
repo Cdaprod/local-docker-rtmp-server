@@ -57,14 +57,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     uthash-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
-  && apt-get install curl git -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
-RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-    chmod +x cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
-    ./cmake-${CMAKE_VERSION}-linux-aarch64.sh --skip-license --prefix=/usr/local && \
-    rm cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
+RUN curl -fsSL -o cmake.sh \
+      "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh" && \
+    chmod +x cmake.sh && \
+    ./cmake.sh --skip-license --prefix=/usr/local && \
+    rm cmake.sh && \
     ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
 # ---------------------------------------------
@@ -72,7 +72,7 @@ RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION
 # ---------------------------------------------
 FROM base AS builder
 
-# 1) Build FFmpeg 6.1 (with pkg-config .pc files)
+# 1) Build FFmpeg 6.1
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
     ./configure \
@@ -89,41 +89,32 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
       --enable-libass \
       --enable-libfreetype \
       --enable-libfontconfig \
-      --extra-libs="-lpthread -lm" \
-      --disable-cross-compile \
-    && make -j$(nproc) && make install && ldconfig && \
-    find /usr/local/lib/pkgconfig -name "*.pc"
+      --extra-libs="-lpthread -lm" && \
+    make -j$(nproc) && make install && ldconfig && \
+    find /usr/local/lib/pkgconfig -name "*.pc" && \
+    rm -rf /ffmpeg
 
-# 2) Sanity-check that at least one version.h exists
-RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
-
-# 3) Patch every header for FFMPEG_VERSION
-RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
-    | xargs -I{} sed -i 's/^#define\s*FFMPEG_VERSION.*$/#define FFMPEG_VERSION "6.1"/' {}
-
-# 4) Build OBS Studio (inject Qt6 path at configure time)
+# 2) Build OBS Studio (inject Qt6 path at configure time)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
-      -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
-      -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
       -DENABLE_PIPEWIRE=OFF \
-      -DUSE_PKG_CONFIG=ON \
-    && make -j$(nproc) && make install && \
+      -DUSE_PKG_CONFIG=ON && \
+    make -j$(nproc) && make install && \
     rm -rf /tmp/obs
 
-# 5) Build DistroAV (NDI support)
+# 3) Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
     cd /tmp/DistroAV && mkdir build && cd build && \
     cmake -DCMAKE_INSTALL_PREFIX=/usr .. && \
     make -j$(nproc) && make install && \
     rm -rf /tmp/DistroAV
 
-# 6) noVNC + websockify
+# 4) noVNC + websockify
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
     ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
     git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
@@ -144,9 +135,19 @@ ENV PATH="/usr/local/bin:$PATH"
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 libasound2 libv4l-0 libx11-xcb1 \
-    x11vnc xvfb novnc websockify supervisor \
-    python3 python3-pip openbox fluxbox && \
+    libgl1 \
+    libasound2 \
+    libv4l-0 \
+    libx11-xcb1 \
+    x11vnc \
+    xvfb \
+    novnc \
+    websockify \
+    supervisor \
+    python3 \
+    python3-pip \
+    openbox \
+    fluxbox && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr /usr
