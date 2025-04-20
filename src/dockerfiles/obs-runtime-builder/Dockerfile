@@ -63,6 +63,8 @@ RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffm
   ldconfig && \
   find /usr/local/lib/pkgconfig -name "*.pc"
 
+RUN test -f /usr/local/include/libavcodec/version.h && echo "FFmpeg headers present." || (echo "Missing headers!" && exit 1)
+
 # Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
   cd /tmp/obs && mkdir build && cd build && \
@@ -74,6 +76,8 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
     -DBUILD_BROWSER=OFF \
     -DENABLE_PIPEWIRE=OFF && \
+    -DFFMPEG_INCLUDE_DIRS="/usr/local/include" \
+    -DFFMPEG_LIBRARIES="/usr/local/lib/libavformat.so;/usr/local/lib/libavcodec.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so" 
   make -j$(nproc) && make install && \
   rm -rf /tmp/obs
 
