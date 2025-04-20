@@ -86,7 +86,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   texinfo
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
-RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
+RUN git config --global http.sslVerify false && \
+    git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
     ./configure \
       --prefix=/usr/local \
