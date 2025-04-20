@@ -31,6 +31,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get autoremove -y \
   && apt-get install git curl -y \
   && rm -rf /var/lib/apt/lists/*  
+  
+# Link or export Qt6 directory for CMake to find
+ENV Qt6_DIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6
+ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${Qt6_DIR}"
 
 # Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
