@@ -32,9 +32,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && apt-get install git curl -y \
   && rm -rf /var/lib/apt/lists/*  
   
-# Link or export Qt6 directory for CMake to find
-ENV Qt6_DIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6
-ENV CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}:${Qt6_DIR}"
+# Set Qt6 CMake path
+RUN QT6_DIR=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    echo "Qt6_DIR=/usr/lib/${QT6_DIR}/cmake/Qt6" >> /etc/environment && \
+    echo "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/lib/${QT6_DIR}/cmake/Qt6" >> /etc/environment && \
+    export Qt6_DIR=/usr/lib/${QT6_DIR}/cmake/Qt6 && \
+    export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/lib/${QT6_DIR}/cmake/Qt6
 
 # Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
@@ -81,7 +84,7 @@ RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
 # 4) Build OBS Studio (let pkg-config do the rest)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
-    cmake .. \
+    cmake .. \ 
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH \
       -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
