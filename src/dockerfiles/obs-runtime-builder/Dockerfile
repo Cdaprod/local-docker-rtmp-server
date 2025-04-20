@@ -47,24 +47,25 @@ FROM base AS builder
 # 1) Build FFmpeg 6.1 (with pkg-config .pc files)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
-    ./configure \
-      --prefix=/usr/local \
-      --enable-shared \
-      --enable-gpl \
-      --enable-nonfree \
-      --enable-libx264 \
-      --enable-libx265 \
-      --enable-libmp3lame \
-      --enable-libopus \
-      --enable-libvorbis \
-      --enable-libvpx \
-      --enable-libass \
-      --enable-libfreetype \
-      --enable-libfontconfig \
-      --extra-libs="-lpthread -lm" && \
-    make -j$(nproc) && make install && \
-    ldconfig && \
-    find /usr/local/lib/pkgconfig -name "*.pc"
+  ./configure \
+    --prefix=/usr/local \
+    --enable-shared \
+    --enable-gpl \
+    --enable-nonfree \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libmp3lame \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libass \
+    --enable-libfreetype \
+    --enable-libfontconfig \
+    --extra-libs="-lpthread -lm" \
+    --disable-cross-compile \
+    && \
+  make -j$(nproc) && make install && ldconfig && \
+  find /usr/local/lib/pkgconfig -name "*.pc"
 
 # 2) Sanity-check that at least one version.h exists
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
