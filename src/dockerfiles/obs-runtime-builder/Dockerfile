@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     yasm \
     nasm \
-    build-essential \
+    build-essential autoconf automake libtool gettext \
     libgl1 \
     libasound2 \
     libv4l-0 \
@@ -79,6 +79,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends cmake
 # Stage 2: Builder - Compile everything
 # ---------------------------------------------
 FROM base AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  libtool \
+  autoconf \
+  automake \
+  gettext \
+  texinfo
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
