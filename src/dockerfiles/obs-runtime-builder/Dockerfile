@@ -16,7 +16,7 @@ ENV CMAKE_INCLUDE_PATH="/usr/local/include"
 ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-utils curl ca-certificates gnupg lsb-release \
+    apt-utils curl ca-certificates gnupg lsb-release dpkg-dev \
     build-essential git pkg-config wget unzip \
     yasm nasm \
     libgl1 libasound2 libv4l-0 libx11-xcb1 \
