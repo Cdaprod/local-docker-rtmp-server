@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libopus-dev libvorbis-dev libaom-dev libass-dev \
     libfreetype6-dev libfontconfig1-dev \
     gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
-    uthash-dev \
+    qt6-base-dev uthash-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
