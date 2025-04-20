@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     dpkg-dev \
     gcc \
     g++ \
+    make \
     gnupg \
     git \
     lsb-release \
