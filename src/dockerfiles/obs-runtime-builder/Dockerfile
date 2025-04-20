@@ -74,7 +74,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig
+
+RUN export PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig && \
+    pkg-config --exists libass && echo "libass found" || echo "libass NOT found"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
   pkg-config \
@@ -90,6 +92,7 @@ RUN pkg-config --exists libass && echo "libass found" || echo "libass NOT found"
 RUN git config --global http.sslVerify false && \
     git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
+    export PKG_CONFIG_LIBDIR=/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/pkgconfig && \
     ./configure \
       --prefix=/usr/local \
       --enable-shared \
