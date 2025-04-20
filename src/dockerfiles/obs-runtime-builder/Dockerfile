@@ -16,28 +16,48 @@ ENV CMAKE_INCLUDE_PATH="/usr/local/include"
 ENV CMAKE_LIBRARY_PATH="/usr/local/lib"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    apt-utils curl ca-certificates gnupg lsb-release dpkg-dev \
-    build-essential git pkg-config wget unzip \
-    yasm nasm \
-    libgl1 libasound2 libv4l-0 libx11-xcb1 \
-    libv4l-dev libdrm-dev v4l-utils \
-    python3 python3-pip openbox fluxbox \
-    libx264-dev libx265-dev libvpx-dev libmp3lame-dev \
-    libopus-dev libvorbis-dev libaom-dev libass-dev \
-    libfreetype6-dev libfontconfig1-dev \
-    gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-tools \
-    qt6-base-dev uthash-dev \
+    apt-utils \
+    ca-certificates \
+    curl \
+    dpkg-dev \
+    gnupg \
+    git \
+    lsb-release \
+    pkg-config \
+    python3 \
+    python3-pip \
+    unzip \
+    wget \
+    yasm \
+    nasm \
+    build-essential \
+    libgl1 \
+    libasound2 \
+    libv4l-0 \
+    libx11-xcb1 \
+    libv4l-dev \
+    libdrm-dev \
+    v4l-utils \
+    openbox \
+    fluxbox \
+    libx264-dev \
+    libx265-dev \
+    libvpx-dev \
+    libmp3lame-dev \
+    libopus-dev \
+    libvorbis-dev \
+    libaom-dev \
+    libass-dev \
+    libfreetype6-dev \
+    libfontconfig1-dev \
+    gstreamer1.0-omx \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-tools \
+    qt6-base-dev \
+    uthash-dev \
   && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
-  && apt-get install git curl -y \
-  && rm -rf /var/lib/apt/lists/*  
-
-# Set Qt6 CMake path
-RUN QT6_DIR=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
-    echo "Qt6_DIR=/usr/lib/${QT6_DIR}/cmake/Qt6" >> /etc/environment && \
-    echo "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/lib/${QT6_DIR}/cmake/Qt6" >> /etc/environment && \
-    export Qt6_DIR=/usr/lib/${QT6_DIR}/cmake/Qt6 && \
-    export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/usr/lib/${QT6_DIR}/cmake/Qt6
+  && rm -rf /var/lib/apt/lists/*
 
 # Install CMake
 RUN curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-aarch64.sh && \
@@ -54,40 +74,38 @@ FROM base AS builder
 # 1) Build FFmpeg 6.1 (with pkg-config .pc files)
 RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
-  ./configure \
-    --prefix=/usr/local \
-    --enable-shared \
-    --enable-gpl \
-    --enable-nonfree \
-    --enable-libx264 \
-    --enable-libx265 \
-    --enable-libmp3lame \
-    --enable-libopus \
-    --enable-libvorbis \
-    --enable-libvpx \
-    --enable-libass \
-    --enable-libfreetype \
-    --enable-libfontconfig \
-    --extra-libs="-lpthread -lm" \
-    --disable-cross-compile \
-    && \
-  make -j$(nproc) && make install && ldconfig && \
-  find /usr/local/lib/pkgconfig -name "*.pc"
+    ./configure \
+      --prefix=/usr/local \
+      --enable-shared \
+      --enable-gpl \
+      --enable-nonfree \
+      --enable-libx264 \
+      --enable-libx265 \
+      --enable-libmp3lame \
+      --enable-libopus \
+      --enable-libvorbis \
+      --enable-libvpx \
+      --enable-libass \
+      --enable-libfreetype \
+      --enable-libfontconfig \
+      --extra-libs="-lpthread -lm" \
+      --disable-cross-compile \
+    && make -j$(nproc) && make install && ldconfig && \
+    find /usr/local/lib/pkgconfig -name "*.pc"
 
 # 2) Sanity-check that at least one version.h exists
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
 
-# 3) **Patch every header** for FFMPEG_VERSION
+# 3) Patch every header for FFMPEG_VERSION
 RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
     | xargs -I{} sed -i 's/^#define\s*FFMPEG_VERSION.*$/#define FFMPEG_VERSION "6.1"/' {}
 
-# 4) Build OBS Studio (let pkg-config do the rest)
+# 4) Build OBS Studio (inject Qt6 path at configure time)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
-    QT6_DIR="/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_PREFIX_PATH="/usr/local:$QT6_DIR" \
+      -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)/cmake/Qt6" \
       -DCMAKE_INCLUDE_PATH=$CMAKE_INCLUDE_PATH \
       -DCMAKE_LIBRARY_PATH=$CMAKE_LIBRARY_PATH \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
