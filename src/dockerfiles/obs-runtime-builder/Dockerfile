@@ -148,6 +148,12 @@ RUN apt-get update && \
     libmbedtls-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
+    
+RUN git clone --recursive https://github.com/paullouisageneau/libdatachannel.git /tmp/libdatachannel && \
+    cd /tmp/libdatachannel && mkdir build && cd build && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release && \
+    make -j$(nproc) && make install && \
+    ldconfig && rm -rf /tmp/libdatachannel
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
