@@ -152,7 +152,6 @@ RUN apt-get update && \
     libqrcodegencpp-dev \
     libvlc-dev \
     swig \
-    swig4.0 \
     python3-dev \
     vlc && \
     rm -rf /var/lib/apt/lists/*
