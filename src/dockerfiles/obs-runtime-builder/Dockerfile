@@ -121,9 +121,10 @@ ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 # Clone the release branch of libajantv2
 RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2
 
-# Build and install from the correct CMake root
-RUN mkdir -p /tmp/libajantv2/Linux/ntv2linuxsdk/ajantv2/build && \
-    cd /tmp/libajantv2/Linux/ntv2linuxsdk/ajantv2/build && \
+# Build and install libajantv2 from proper root
+RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
+    mkdir -p /tmp/libajantv2/Linux/ntv2linuxsdk/build && \
+    cd /tmp/libajantv2/Linux/ntv2linuxsdk/build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
     make -j$(nproc) && \
     make install && \
