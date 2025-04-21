@@ -82,15 +82,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   texinfo
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
-RUN ARCH_DIR=$(find /usr/lib -type d -name "*pkgconfig" | grep -E 'linux-gnu/pkgconfig' | head -n1) && \
+RUN apt-get update && apt-get install -y --no-install-recommends libass-dev && \
+    git config --global http.sslVerify false && \
+    git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
+    cd /ffmpeg && \
+    ARCH_DIR=$(find /usr/lib -type d -name "*pkgconfig" | grep -E 'linux-gnu/pkgconfig' | head -n1) && \
+    echo "Resolved ARCH_DIR=$ARCH_DIR" && \
     PKG_CONFIG_PATH="${ARCH_DIR}:/usr/share/pkgconfig" && \
     PKG_CONFIG_LIBDIR="${ARCH_DIR}:/usr/share/pkgconfig" && \
-    echo "Using ARCH_DIR=$ARCH_DIR" && \
-    find "$ARCH_DIR" -name "libass*.pc" && \
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" \
-    pkg-config --exists libass && echo "libass FOUND" || (echo "libass NOT FOUND" && exit 1) && \
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" \
-    ./configure \
+    echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" && \
+    echo "PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR" && \
+    echo "Searching for libass.pc in $ARCH_DIR..." && \
+    find $ARCH_DIR -name "libass*.pc" && \
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" pkg-config --exists libass && \
+    echo "libass FOUND, continuing..." && \
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" ./configure \
       --prefix=/usr/local \
       --enable-shared \
       --enable-gpl \
@@ -109,7 +115,7 @@ RUN ARCH_DIR=$(find /usr/lib -type d -name "*pkgconfig" | grep -E 'linux-gnu/pkg
     make install && \
     ldconfig && \
     rm -rf /ffmpeg
-
+    
 # 2) Confirm FFmpeg install
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
 
