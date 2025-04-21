@@ -181,6 +181,12 @@ RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocke
 RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
     cp -r /tmp/asio/asio/include/* /usr/local/include/ && \
     rm -rf /tmp/asio
+    
+# --- Build LuaJIT from upstream ---
+RUN git clone https://github.com/LuaJIT/LuaJIT.git /tmp/LuaJIT && \
+    cd /tmp/LuaJIT && \
+    make && make install && \
+    rm -rf /tmp/LuaJIT
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
