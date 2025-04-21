@@ -120,7 +120,7 @@ ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
 # Install Ajantv2 (needed by OBS plugins/aja)
 RUN git clone --recursive https://github.com/aja-video/ntv2.git /tmp/libajantv2 && \
-    cd /tmp/libajantv2/Linux && mkdir -p build && cd build && \
+    cd /tmp/libajantv2/ajalinux && mkdir -p build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
     make -j$(nproc) && make install && \
     rm -rf /tmp/libajantv2
