@@ -41,9 +41,6 @@ RUN apt-get update \
       libjansson-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# new block to save previous install cache
-RUN apt-get install -y --no-install-recommends uthash-dev 
-
 # 0. Build and install LAME (libmp3lame) from source for pkg-config support
 RUN git clone https://github.com/rbrito/lame.git /tmp/lame && \
     cd /tmp/lame && \
@@ -111,6 +108,12 @@ RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (ech
 # 3) Patch headers with version string
 RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
     | xargs -I{} sed -i 's/^#define\s*FFMPEG_VERSION.*$/#define FFMPEG_VERSION "6.1"/' {}
+    
+# Manually install uthash to a known include path
+RUN mkdir -p /usr/local/include/uthash && \
+    curl -L -o /usr/local/include/uthash/uthash.h https://raw.githubusercontent.com/troydhanson/uthash/master/src/uthash.h
+RUN ln -s /usr/local/include/uthash/uthash.h /usr/include/uthash.h
+ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
