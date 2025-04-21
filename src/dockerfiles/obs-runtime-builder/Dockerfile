@@ -151,8 +151,9 @@ RUN apt-get update && \
     nlohmann-json3-dev \
     libqrcodegencpp-dev \
     libvlc-dev \
-    libluajit-5.1-dev \
     swig \
+    swig4.0 \
+    python3-dev \
     vlc && \
     rm -rf /var/lib/apt/lists/*
     
@@ -188,7 +189,22 @@ RUN git clone https://github.com/LuaJIT/LuaJIT.git /tmp/LuaJIT && \
     make && make install && \
     rm -rf /tmp/LuaJIT
 
-ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
+ENV LUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1
+ENV LUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a
+
+RUN apt-get install -y \
+  libasio-dev \
+  libwebsocketpp-dev \
+  libjsoncpp-dev \
+  libx264-dev \
+  libfontconfig1-dev \
+  libfreetype6-dev \
+  libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+  libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
+  libxcb-xinerama0-dev libxcomposite-dev \
+  libxrandr-dev libxi-dev libxtst-dev
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
@@ -198,6 +214,9 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_PREFIX_PATH="/usr:/usr/local:/usr/lib/${ARCH}/cmake:/usr/lib/${ARCH}/cmake/Qt6" \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
+      -DLUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1 \
+      -DLUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a \
+      -DPython3_EXECUTABLE=/usr/bin/python3 \
       -DBUILD_BROWSER=OFF \
       -DBUILD_LIBOBS=ON \
       -DENABLE_PIPEWIRE=OFF \
@@ -207,7 +226,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DENABLE_MBEDTLS=OFF \
       -DENABLE_RNNOISE=OFF \
       -DENABLE_DATACHANNEL=OFF \
-      -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" && \
+      -DCMAKE_MODULE_PATH="/usr/lib/${ARCH}/cmake;/usr/share/cmake-3.25/Modules" && \
     make -j$(nproc) && \
     make install && \
     rm -rf /tmp/obs
