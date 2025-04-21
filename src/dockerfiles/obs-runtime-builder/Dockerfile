@@ -136,6 +136,7 @@ ENV CMAKE_PREFIX_PATH="/usr:/usr/local:/usr/lib/aarch64-linux-gnu/cmake"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+    libva-dev \
     libxcb1-dev \
     libxcb-composite0-dev \
     libxcb-xinerama0-dev \
@@ -149,7 +150,8 @@ RUN apt-get update && \
     libcurl4-openssl-dev \
     nlohmann-json3-dev \
     libqrcodegencpp-dev \
-    libva-dev && \
+    libvlc-dev \
+    vlc && \
     rm -rf /var/lib/apt/lists/*
     
 RUN git clone --recursive https://github.com/paullouisageneau/libdatachannel.git /tmp/libdatachannel && \
