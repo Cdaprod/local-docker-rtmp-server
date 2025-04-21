@@ -192,20 +192,25 @@ ENV LD_LIBRARY_PATH="/usr/lib:/usr/local/lib:${LD_LIBRARY_PATH}"
 ENV LUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1
 ENV LUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a
 
-RUN apt-get install -y \
-  libx264-dev libobs-dev \
-  libfontconfig1-dev libfreetype6-dev \
-  libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
-  libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
-  libxcb-xinerama0-dev libxcomposite-dev 
+# Enable Universe repo (Ubuntu-only step)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common && \
+    add-apt-repository universe && \
+    apt-get update
 
-# 4) Install OBS Studio from the Ubuntu repo
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      obs-studio \
-      obs-plugins \
- && rm -rf /var/lib/apt/lists/*
-
+# Install OBS + dev headers (libobs-dev) + runtime deps you’re already using
+RUN apt-get install -y --no-install-recommends \
+    obs-studio \
+    obs-plugins \
+    libobs-dev \
+    libx264-dev \
+    libfontconfig1-dev \
+    libfreetype6-dev \
+    libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+    libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
+    libxcb-xinerama0-dev libxcomposite-dev && \
+    rm -rf /var/lib/apt/lists/*
+    
 # 5) Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
     cd /tmp/DistroAV && mkdir build && cd build && \
