@@ -202,11 +202,11 @@ RUN apt-get install -y \
   libxcb-xinerama0-dev libxcomposite-dev 
 
 # 4) Build OBS Studio
+# 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
-    cd /tmp/obs/plugins && \
-    sed -i '/add_subdirectory(frontend-tools)/d' CMakeLists.txt && \
-    sed -i '/add_subdirectory(aja-output-ui)/d' CMakeLists.txt && \
-    cd /tmp/obs && mkdir build && cd build && \
+    sed -i '/add_subdirectory(frontend-tools)/d' /tmp/obs/plugins/CMakeLists.txt && \
+    sed -i '/add_subdirectory(aja-output-ui)/d' /tmp/obs/plugins/CMakeLists.txt && \
+    mkdir -p /tmp/obs/build && cd /tmp/obs/build && \
     ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
