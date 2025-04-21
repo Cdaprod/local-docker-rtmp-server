@@ -81,12 +81,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   texinfo \
   libopus-dev \
   libfribidi-dev \
-  libharfbuzz-dev \
-  libmp3lame-dev
-  
-# Optional cleanup of conflicting older system lib
-# RUN apt-get purge -y libfreetype6-dev libass-dev
+  libharfbuzz-dev 
 
+# 0. Build and install LAME (libmp3lame) from source for pkg-config support
+RUN git clone https://github.com/rbrito/lame.git /tmp/lame && \
+    cd /tmp/lame && \
+    ./configure --prefix=/usr --enable-shared --disable-static && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    rm -rf /tmp/lame
  
 # 1. Build and install FreeType
 RUN git clone --depth=1 https://gitlab.freedesktop.org/freetype/freetype.git /tmp/freetype && \
