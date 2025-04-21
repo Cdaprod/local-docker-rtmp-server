@@ -119,7 +119,6 @@ RUN ln -s /usr/local/include/uthash/uthash.h /usr/include/uthash.h
 ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
 # 3) Build and manually install the ajantv2 core lib
-# Build and manually install the ajantv2 core lib
 RUN rm -rf /tmp/libajantv2 && \
   git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
   mkdir -p /tmp/libajantv2/build && cd /tmp/libajantv2/build && \
@@ -128,8 +127,8 @@ RUN rm -rf /tmp/libajantv2 && \
     -DAJANTV2_BUILD_TESTS=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr && \
   cmake --build . --target ajantv2 -j$(nproc) && \
-  find . -type f -name 'libajantv2*.a' -exec cp {} /usr/lib/ \; && \
-  cp -r /tmp/libajantv2/ajantv2/include /usr/include/ajantv2 && \
+  find . -type f -name 'libajantv2*' -exec cp {} /usr/lib/ \; && \
+  cp -r /tmp/libajantv2/includes /usr/include/ajantv2 && \
   ldconfig && \
   rm -rf /tmp/libajantv2
 
