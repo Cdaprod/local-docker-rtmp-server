@@ -42,8 +42,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # new block to save previous install cache
-RUN apt-get install -y --no-install-recommends \
-        uthash-dev 
+RUN apt-get install -y --no-install-recommends uthash-dev 
 
 # 0. Build and install LAME (libmp3lame) from source for pkg-config support
 RUN git clone https://github.com/rbrito/lame.git /tmp/lame && \
