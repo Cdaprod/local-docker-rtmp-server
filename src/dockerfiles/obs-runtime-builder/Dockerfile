@@ -149,7 +149,6 @@ RUN apt-get update && \
     libcurl4-openssl-dev \
     nlohmann-json3-dev \
     libqrcodegencpp-dev \
-    libcrc32c-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
     
@@ -158,6 +157,14 @@ RUN git clone --recursive https://github.com/paullouisageneau/libdatachannel.git
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc) && make install && \
     ldconfig && rm -rf /tmp/libdatachannel
+
+# Build and install crc32c from source
+RUN git clone https://github.com/google/crc32c.git /tmp/crc32c && \
+    cd /tmp/crc32c && \
+    mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr && \
+    make -j$(nproc) && make install && ldconfig && \
+    rm -rf /tmp/crc32c
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
