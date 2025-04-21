@@ -108,7 +108,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libass-dev && \
 # 2) Confirm FFmpeg install
 RUN test -f /usr/local/include/libavcodec/version.h && echo "Headers OK" || (echo "Missing version.h!" && exit 1)
 
-# 3) Patch headers with version string
+# Patch headers with version string
 RUN grep -Rl "FFMPEG_VERSION" /usr/local/include \
     | xargs -I{} sed -i 's/^#define\s*FFMPEG_VERSION.*$/#define FFMPEG_VERSION "6.1"/' {}
     
@@ -118,21 +118,18 @@ RUN mkdir -p /usr/local/include/uthash && \
 RUN ln -s /usr/local/include/uthash/uthash.h /usr/include/uthash.h
 ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
-# Clone the release branch of libajantv2
-RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2
-
-# Build and install only the ajantv2 core lib
-# Build and install only the ajantv2 core lib
+# 3) Build and install only the ajantv2 core lib (corrected)
 RUN rm -rf /tmp/libajantv2 && \
-  git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
-  cmake --build /tmp/libajantv2/build --target ajantv2 -j$(nproc) && \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DAJANTV2_BUILD_DEMOS=OFF \
-    -DAJANTV2_BUILD_TESTS=OFF && \
-  cmake --build /tmp/libajantv2/build -j$(nproc) && \
-  cmake --install /tmp/libajantv2/build && \
-  ldconfig && \
-  rm -rf /tmp/libajantv2
+    git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
+    mkdir -p /tmp/libajantv2/build && cd /tmp/libajantv2/build && \
+    cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DAJANTV2_BUILD_DEMOS=OFF \
+      -DAJANTV2_BUILD_TESTS=OFF && \
+    cmake --build . -j$(nproc) && \
+    cmake --install . && \
+    ldconfig && \
+    rm -rf /tmp/libajantv2
 
 # Make sure it's available for OBS Studio later
 ENV CMAKE_PREFIX_PATH="/usr:$CMAKE_PREFIX_PATH"
@@ -143,7 +140,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_PREFIX_PATH="/usr/local:/usr/lib/${ARCH}/cmake:/usr/lib/${ARCH}/cmake/Qt6" \
+      -DCMAKE_PREFIX_PATH="/usr:/usr/local:/usr/lib/${ARCH}/cmake:/usr/lib/${ARCH}/cmake/Qt6" \
       -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
       -DBUILD_BROWSER=OFF \
       -DBUILD_LIBOBS=ON \
