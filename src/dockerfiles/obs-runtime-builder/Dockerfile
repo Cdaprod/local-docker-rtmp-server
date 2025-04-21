@@ -118,7 +118,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends libass-dev && \
     find $ARCH_DIR -name "libass*.pc" && \
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" pkg-config --exists libass && \
     echo "libass FOUND, continuing..." && \
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" ./configure \
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" \
+    CPPFLAGS="-I/usr/include" \
+    LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+    ./configure \
       --prefix=/usr/local \
       --enable-shared \
       --enable-gpl \
