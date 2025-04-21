@@ -32,12 +32,9 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
       cat /tmp/obs-websocket/CMakeLists.txt; } \
     > /tmp/obs-websocket/CMakeLists.txt.patched \
  && mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt \
- && echo -e "\nmacro(target_export)\nendmacro()" \
-    >> /tmp/obs-websocket/CMakeLists.txt \
+ && echo -e "\nmacro(target_export)\nendmacro()" >> /tmp/obs-websocket/CMakeLists.txt \
  && cd /tmp/obs-websocket \
- && cmake -S . -B build \
-      -DBUILD_OUT_OF_TREE=On \
-      -DCMAKE_PREFIX_PATH=/usr \
+ && cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr \
  && cmake --build build
 
 # --------------------------------------------
