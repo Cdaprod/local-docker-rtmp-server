@@ -167,7 +167,7 @@ RUN git clone https://github.com/google/crc32c.git /tmp/crc32c && \
       -DBUILD_SHARED_LIBS=ON \
       -DCRC32C_BUILD_TESTS=OFF \
       -DCRC32C_BUILD_BENCHMARKS=OFF \
-      -DCMAKE_INSTALL_PREFIX=/usr
+      -DCMAKE_INSTALL_PREFIX=/usr \
     make -j$(nproc) && make install && ldconfig && \
     rm -rf /tmp/crc32c
 
