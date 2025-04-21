@@ -13,7 +13,7 @@ RUN apt-get update \
 # --------------------------------------------
 # Stage 2: Builder for obs‑3d‑effect
 # --------------------------------------------
-FROM builder‐base AS builder‑3d‑effect
+FROM builder-base AS builder-3d-effect
 
 RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
  && cd /tmp/obs-3d-effect \
@@ -25,7 +25,7 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
 # --------------------------------------------
 # Stage 3: Builder for obs‑websocket
 # --------------------------------------------
-FROM builder‐base AS builder‑websocket
+FROM builder-base AS builder-websocket
 
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
  && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n'; \
