@@ -80,7 +80,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   automake \
   gettext \
   texinfo \
-  libfribidi-dev
+  libfribidi-dev \
+  libharfbuzz-dev
   
 # Optional cleanup of conflicting older system lib
 RUN apt-get purge -y libfreetype6-dev libass-dev
