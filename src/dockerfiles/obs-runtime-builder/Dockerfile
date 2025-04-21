@@ -146,6 +146,7 @@ RUN apt-get update && \
     libpci-dev \
     libspeexdsp-dev \
     libmbedtls-dev \
+    libcurl4-openssl-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
     
