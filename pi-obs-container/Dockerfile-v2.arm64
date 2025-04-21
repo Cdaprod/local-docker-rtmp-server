@@ -42,8 +42,8 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
   
 FROM builder-3d-effect AS debug-inspect
 
-RUN echo "==> Listing /tmp/obs-3d-effect/build output:" \
- && find /tmp/obs-3d-effect/build
+RUN echo -e "\n==> [3D-Effect Build Artifacts]\n" && find /tmp/obs-3d-effect/build -type f
+RUN echo -e "\n==> [WebSocket Build Artifacts]\n" && find /tmp/obs-websocket/build -type f
  
 # --------------------------------------------
 # Stage 4: Final runtime
@@ -52,12 +52,10 @@ FROM cdaprod/obs-runtime:latest AS runtime
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy 3D‑Effect plugin
-COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/bin/  /usr/lib/obs-plugins/
-COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/data/ /usr/share/obs/obs-plugins/
+COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/ /usr/lib/obs-plugins/obs-3d-effect/
 
 # Copy Websocket plugin
-COPY --from=builder-websocket /tmp/obs-websocket/build/bin/  /usr/lib/obs-plugins/
-COPY --from=builder-websocket /tmp/obs-websocket/build/data/ /usr/share/obs/obs-plugins/
+COPY --from=builder-websocket /tmp/obs-websocket/build/ /usr/lib/obs-plugins/obs-websocket/
 
 # noVNC (if not already in obs-runtime)
 RUN [ ! -d /opt/novnc ] && \
