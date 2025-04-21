@@ -172,6 +172,12 @@ RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocke
     mkdir -p /usr/local/include/websocketpp && \
     cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
     rm -rf /tmp/websocketpp
+    
+# Install Asio (standalone, header-only)
+RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
+    cp -r /tmp/asio/asio/include/asio /usr/local/include/ && \
+    rm -rf /tmp/asio
+ 
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
