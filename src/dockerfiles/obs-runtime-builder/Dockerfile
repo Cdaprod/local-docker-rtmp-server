@@ -81,15 +81,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gettext \
   texinfo
   
-# Build libass from source (v0.18.1+)
+# Optional cleanup of conflicting older system lib
+RUN apt-get purge -y libfreetype6-dev libass-dev
+
+# 1. Build and install FreeType
+RUN git clone --depth=1 https://gitlab.freedesktop.org/freetype/freetype.git /tmp/freetype && \
+    cd /tmp/freetype && \
+    ./autogen.sh && ./configure --prefix=/usr && make -j$(nproc) && \
+    make install && ldconfig && rm -rf /tmp/freetype
+
+# 2. Build and install libass
 RUN git clone https://github.com/libass/libass.git /tmp/libass && \
     cd /tmp/libass && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr && \
-    make -j$(nproc) && \
-    make install && \
-    ldconfig && \
-    rm -rf /tmp/libass
+    ./autogen.sh && ./configure --prefix=/usr && make -j$(nproc) && \
+    make install && ldconfig && rm -rf /tmp/libass
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN apt-get update && apt-get install -y --no-install-recommends libass-dev && \
