@@ -1,7 +1,8 @@
 # --------------------------------------------
 # Stage 1: Builder for obs-3d-effect
 # --------------------------------------------
-FROM cdaprod/obs-runtime-build:latest as builder-3d-effect
+#FROM cdaprod/obs-runtime-build:latest as builder-3d-effect
+#FROM cdaprod/obs-runtime:latest as builder-3d-effect
 
 RUN apt-get update && apt-get install -y \
     git cmake build-essential && \
