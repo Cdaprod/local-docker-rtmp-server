@@ -7,7 +7,7 @@ LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+  build-essential \
     make \
     gnupg \
     lsb-release \
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     yasm \
     nasm \
     libgl1 \
-    libasound2 \
+    libasound2-dev \
     libv4l-0 \
     libx11-xcb1 \
     libv4l-dev \
@@ -29,17 +29,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libx264-dev \
     libx265-dev \
     libvpx-dev \
-    libopus-dev \
-    libvorbis-dev \
     libaom-dev \
-    libass-dev \
-    libfreetype6-dev \
-    libfontconfig1-dev \
-    libssl-dev \
-    openssl \
-    zlib1g-dev \
     libxext-dev \
     libxfixes-dev \
+    zlib1g-dev \
+    openssl \
+    libssl-dev \
     gstreamer1.0-plugins-base \
     gstreamer1.0-tools \
     uthash-dev \
@@ -49,10 +44,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-tools-dev-tools \
     libqt6svg6-dev \
     libqt6opengl6-dev \
-    libqt5multimedia5-plugins \
-    libqt6waylandclient6-dev \
-  && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
+    libqt6multimedia6-dev \
+    qtwayland5 \
+
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -60,6 +54,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     cmake \
   && update-ca-certificates \
+  && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------
