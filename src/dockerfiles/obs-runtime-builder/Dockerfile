@@ -87,13 +87,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev && \
     git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
     cd /ffmpeg && \
     ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
-    export PKG_CONFIG_PATH="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
-    export PKG_CONFIG_LIBDIR="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
-    echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}" && \
-    echo "PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}" && \
-    find $PKG_CONFIG_PATH -name 'libass*' && \
+    PKG_PATH="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
+    echo "Checking pkg-config in: $PKG_PATH" && \
+    find /usr/lib/${ARCH}/pkgconfig -name "libass*.pc" && \
+    PKG_CONFIG_PATH="$PKG_PATH" PKG_CONFIG_LIBDIR="$PKG_PATH" \
     pkg-config --exists libass && echo "libass FOUND" || (echo "libass NOT FOUND" && exit 1) && \
-    ./configure \
+    PKG_CONFIG_PATH="$PKG_PATH" PKG_CONFIG_LIBDIR="$PKG_PATH" ./configure \
       --prefix=/usr/local \
       --enable-shared \
       --enable-gpl \
