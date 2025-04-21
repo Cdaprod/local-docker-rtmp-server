@@ -146,7 +146,6 @@ RUN apt-get update && \
     libpci-dev \
     libspeexdsp-dev \
     libmbedtls-dev \
-    librnnoise-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
 
