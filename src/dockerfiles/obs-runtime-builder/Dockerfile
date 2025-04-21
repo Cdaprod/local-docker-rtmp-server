@@ -200,9 +200,6 @@ RUN apt-get install -y \
   libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
   libxcb-xinerama0-dev libxcomposite-dev 
 
-# 4) Build OBS Studio
-# 4) Build OBS Studio
-# Clone OBS Studio and disable optional Qt plugins that fail without private dev headers
 # 4) Build OBS Studio (removing problematic Qt-dependent plugins)
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     sed -i '/add_subdirectory(frontend-tools)/d' /tmp/obs/plugins/CMakeLists.txt && \
