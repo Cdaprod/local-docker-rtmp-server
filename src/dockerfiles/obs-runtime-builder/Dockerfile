@@ -40,7 +40,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libxext-dev \
     libxfixes-dev \
-    gstreamer1.0-omx \
     gstreamer1.0-plugins-base \
     gstreamer1.0-tools \
     uthash-dev \
@@ -50,6 +49,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-tools-dev-tools \
     libqt6svg6-dev \
     libqt6opengl6-dev \
+    libqt5multimedia5-plugins \
+    libqt6waylandclient6-dev \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
