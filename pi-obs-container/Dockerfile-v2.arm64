@@ -26,14 +26,16 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
 # --------------------------------------------
 # Stage 3: Builder for obs‑websocket
 # --------------------------------------------
-FROM builder-base AS builder-websocket
-
-ENV CMAKE_PREFIX_PATH=/usr/local
-
+# Install qrcodegen headers
 RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
  && mkdir -p /usr/local/include/qrcodegen \
  && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen
 
+# Add fake Findqrcodegencpp module
+RUN mkdir -p /usr/local/share/cmake/Modules \
+ && echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake
+
+# Clone and build obs-websocket
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
  && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n' \
       > /tmp/obs-websocket/CMakeLists.txt.patched; \
@@ -42,12 +44,11 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
       cat /tmp/obs-websocket/CMakeLists.txt >> /tmp/obs-websocket/CMakeLists.txt.patched; } \
  && mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt \
  && cd /tmp/obs-websocket \
- && cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr/local \
- && cmake --build build \
- && find /tmp/obs-websocket/build -type f
-  
-FROM builder-3d-effect AS debug-inspect
-
+ && cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
+      -DCMAKE_PREFIX_PATH=/usr/local \
+      -DCMAKE_MODULE_PATH=/usr/local/share/cmake/Modules \
+ && cmake --build build
 
 # --------------------------------------------
 # Stage 4: Final runtime
