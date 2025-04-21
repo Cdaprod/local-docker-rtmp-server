@@ -79,7 +79,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   autoconf \
   automake \
   gettext \
-  texinfo
+  texinfo \
+  libfribidi-dev
   
 # Optional cleanup of conflicting older system lib
 RUN apt-get purge -y libfreetype6-dev libass-dev
