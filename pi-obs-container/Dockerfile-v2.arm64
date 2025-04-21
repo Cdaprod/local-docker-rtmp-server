@@ -21,6 +21,8 @@ FROM cdaprod/obs-runtime-build:latest as builder-websocket
 RUN apt-get update && apt-get install -y \
     git cmake build-essential libasio-dev libmbedtls-dev && \
     git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket && \
+    sed -i '1i cmake_minimum_required(VERSION 3.10)\nproject(obs-websocket)' /tmp/obs-websocket/CMakeLists.txt && \
+    echo -e "\n# Patch for missing command\nmacro(target_export)\nendmacro()" >> /tmp/obs-websocket/CMakeLists.txt && \
     cd /tmp/obs-websocket && \
     cmake -S . -B build -DBUILD_OUT_OF_TREE=On && \
     cmake --build build
