@@ -188,8 +188,7 @@ RUN git clone https://github.com/LuaJIT/LuaJIT.git /tmp/LuaJIT && \
     make && make install && \
     rm -rf /tmp/LuaJIT
 
-ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
-ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
+ENV LD_LIBRARY_PATH="/usr/lib:/usr/local/lib:${LD_LIBRARY_PATH}"
 ENV LUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1
 ENV LUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a
 
@@ -203,9 +202,11 @@ RUN apt-get install -y \
 
 # 4) Build OBS Studio
 # 4) Build OBS Studio
+# Clone OBS Studio and disable optional Qt plugins that fail without private dev headers
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     sed -i '/add_subdirectory(frontend-tools)/d' /tmp/obs/plugins/CMakeLists.txt && \
     sed -i '/add_subdirectory(aja-output-ui)/d' /tmp/obs/plugins/CMakeLists.txt && \
+    rm -rf /tmp/obs/plugins/frontend-tools /tmp/obs/plugins/aja-output-ui && \
     mkdir -p /tmp/obs/build && cd /tmp/obs/build && \
     ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
     cmake .. \
@@ -252,7 +253,9 @@ LABEL org.opencontainers.image.authors="David Cannan <Cdaprod@Cdaprod.dev>"
 LABEL org.opencontainers.image.version="1.2.1"
 LABEL org.opencontainers.image.source="https://github.com/Cdaprod/obs-runtime-builder"
 LABEL obs.capabilities="obs,ffmpeg6.1,ndi,novnc,supervisord"
-
+LABEL obs.modules="ffmpeg,libobs,luajit,datachannel,crc32c,websocketpp,asio,distroav" \
+      base.image="cdaprod/obs-runtime:latest"
+      
 ENV PATH="/usr/local/bin:$PATH"
 ENV DEBIAN_FRONTEND=noninteractive
 
