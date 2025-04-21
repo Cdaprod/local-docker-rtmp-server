@@ -15,10 +15,6 @@ RUN apt-get update \
 # --------------------------------------------
 FROM builder-base AS builder-3d-effect
 
-RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
- && mkdir -p /usr/local/include/qrcodegen \
- && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen
-
 RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
  && cd /tmp/obs-3d-effect \
  && cmake -S . -B build \
@@ -31,6 +27,10 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
 # Stage 3: Builder for obs‑websocket
 # --------------------------------------------
 FROM builder-base AS builder-websocket
+
+RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
+ && mkdir -p /usr/local/include/qrcodegen \
+ && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen
 
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
  && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n' \
