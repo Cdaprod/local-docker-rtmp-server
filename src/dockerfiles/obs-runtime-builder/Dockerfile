@@ -128,7 +128,7 @@ RUN rm -rf /tmp/libajantv2 && \
     -DAJANTV2_BUILD_DEMOS=OFF \
     -DAJANTV2_BUILD_TESTS=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr && \
-  cmake --build . -j$(nproc) && \
+  cmake --build . --target ajantv2 -j$(nproc) \
   find . -type f -name 'libajantv2*' -exec cp {} /usr/lib/ \; && \
   cp -r ../includes /usr/include/ajantv2 && \
   ldconfig && \
