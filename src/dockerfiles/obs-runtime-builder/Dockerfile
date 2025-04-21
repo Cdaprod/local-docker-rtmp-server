@@ -118,18 +118,19 @@ RUN mkdir -p /usr/local/include/uthash && \
 RUN ln -s /usr/local/include/uthash/uthash.h /usr/include/uthash.h
 ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
-# 3) Build and install only the ajantv2 core lib (corrected)
+# 3) Build and manually install the ajantv2 core lib
 RUN rm -rf /tmp/libajantv2 && \
-    git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
-    mkdir -p /tmp/libajantv2/build && cd /tmp/libajantv2/build && \
-    cmake .. \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DAJANTV2_BUILD_DEMOS=OFF \
-      -DAJANTV2_BUILD_TESTS=OFF && \
-    cmake --build . -j$(nproc) && \
-    cmake --install . && \
-    ldconfig && \
-    rm -rf /tmp/libajantv2
+  git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
+  mkdir -p /tmp/libajantv2/build && cd /tmp/libajantv2/build && \
+  cmake .. \
+    -DAJANTV2_BUILD_DEMOS=OFF \
+    -DAJANTV2_BUILD_TESTS=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr && \
+  cmake --build . -j$(nproc) && \
+  cp libajantv2* /usr/lib/ && \
+  cp -r ../includes /usr/include/ajantv2 && \
+  ldconfig && \
+  rm -rf /tmp/libajantv2
 
 # Make sure it's available for OBS Studio later
 ENV CMAKE_PREFIX_PATH="/usr:$CMAKE_PREFIX_PATH"
