@@ -132,7 +132,7 @@ RUN rm -rf /tmp/libajantv2 && \
   rm -rf /tmp/libajantv2
 
 # Make sure it's available for OBS Studio later
-ENV CMAKE_PREFIX_PATH="/usr:$CMAKE_PREFIX_PATH"
+ENV CMAKE_PREFIX_PATH="/usr:/usr/local:/usr/lib/aarch64-linux-gnu/cmake"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -143,6 +143,7 @@ RUN apt-get update && \
     libxcb-shm0-dev \
     libxcb-randr0-dev \
     libxcb-image0-dev \
+    libpci-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
 
