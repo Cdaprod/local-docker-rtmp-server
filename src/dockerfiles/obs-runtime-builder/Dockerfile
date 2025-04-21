@@ -148,6 +148,8 @@ RUN apt-get update && \
     libmbedtls-dev \
     libcurl4-openssl-dev \
     nlohmann-json3-dev \
+    libqrcodegencpp-dev \
+    libcrc32c-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
     
