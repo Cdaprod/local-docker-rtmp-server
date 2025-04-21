@@ -20,8 +20,9 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
  && cmake -S . -B build \
       -DBUILD_OUT_OF_TREE=On \
       -DCMAKE_PREFIX_PATH=/usr \
- && cmake --build build
-
+ && cmake --build build \
+ && ls -R /tmp/obs-3d-effect/build
+ 
 # --------------------------------------------
 # Stage 3: Builder for obs‑websocket
 # --------------------------------------------
@@ -36,7 +37,8 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
  && mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt \
  && cd /tmp/obs-websocket \
  && cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr \
- && cmake --build build
+ && cmake --build build \
+ && ls -R /tmp/obs-websocket/build
  
 # --------------------------------------------
 # Stage 4: Final runtime
@@ -44,11 +46,14 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
 FROM cdaprod/obs-runtime:latest AS runtime
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN find /tmp/obs-3d-effect/build
+RUN find /tmp/obs-websocket/build
+
 # Copy 3D‑Effect plugin
 COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/bin/  /usr/lib/obs-plugins/
 COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/data/ /usr/share/obs/obs-plugins/
 
-# Copy obs‑websocket plugin
+# Copy Websocket plugin
 COPY --from=builder-websocket /tmp/obs-websocket/build/bin/  /usr/lib/obs-plugins/
 COPY --from=builder-websocket /tmp/obs-websocket/build/data/ /usr/share/obs/obs-plugins/
 
