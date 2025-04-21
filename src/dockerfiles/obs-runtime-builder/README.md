@@ -51,13 +51,24 @@ Requires docker buildx and a logged-in DockerHub or GHCR registry.
 docker buildx build \
   --builder cda-builder \                      
   --platform linux/arm64 \
-  
-# --cache-from type=registry,ref=cdaprod/obs-runtime:cache,mode=max \
-  --cache-to type=registry,ref=cdaprod/obs-runtime:cache,mode=max \
+  --target runtime
   --no-cache \
-  
-  --tag cdaprod/obs-runtime:arm64-fix \
+  --tag cdaprod/obs-runtime:latest \
   --file Dockerfile \
   --push \
   .
 ``` 
+
+"""
+docker buildx build \
+  --builder cda-builder \                      
+  --platform linux/arm64 \
+  --no-cache \
+  --tag cdaprod/obs-runtime:latest \
+  --file Dockerfile \
+  --push \
+  --progress=tty \
+  .
+""" 
+
+# --cache-from type=registry,ref=cdaprod/obs-runtime:cache,mode=max \
