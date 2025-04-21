@@ -80,6 +80,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   automake \
   gettext \
   texinfo
+  
+# Build libass from source (v0.18.1+)
+RUN git clone https://github.com/libass/libass.git /tmp/libass && \
+    cd /tmp/libass && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    rm -rf /tmp/libass
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
 RUN apt-get update && apt-get install -y --no-install-recommends libass-dev && \
