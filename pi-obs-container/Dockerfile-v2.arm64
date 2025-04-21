@@ -40,6 +40,11 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
  && cmake --build build \
  && find /tmp/obs-websocket/build -type f
   
+FROM builder-3d-effect AS debug-inspect
+
+RUN echo "==> Listing /tmp/obs-3d-effect/build output:" \
+ && find /tmp/obs-3d-effect/build
+ 
 # --------------------------------------------
 # Stage 4: Final runtime
 # --------------------------------------------
