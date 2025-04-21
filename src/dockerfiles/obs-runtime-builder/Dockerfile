@@ -1,7 +1,7 @@
 # ---------------------------------------------
 # Stage 1: Base - Shared build environment
 # ---------------------------------------------
-FROM ubuntu:22.04 AS base
+FROM ubuntu:24.04 AS base
 
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
