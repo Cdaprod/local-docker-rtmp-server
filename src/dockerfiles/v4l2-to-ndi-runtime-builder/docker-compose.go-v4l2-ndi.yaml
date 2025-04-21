@@ -1,0 +1,15 @@
+services:
+  v4l2-ndi:
+    build: ./go-v4l2-ndi
+    devices:
+      - /dev/video0
+    network_mode: host
+    environment:
+      - NDI_NAME=PiCam
+    command: [
+      "--device", "/dev/video0",
+      "--width", "1920",
+      "--height", "1080",
+      "--fps", "30",
+      "--ndi-name", "PiCam"
+    ]

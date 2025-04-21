@@ -124,7 +124,7 @@ RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/
 # Build and install libajantv2 from repo root
 RUN mkdir -p /tmp/libajantv2/build && \
     cd /tmp/libajantv2/build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DAJANTV2_BUILD_DEMOS=OFF -DAJANTV2_BUILD_TESTS=OFF && \
     make -j$(nproc) && \
     make install && \
     ldconfig && \
