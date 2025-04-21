@@ -144,6 +144,7 @@ RUN apt-get update && \
     libxcb-randr0-dev \
     libxcb-image0-dev \
     libpci-dev \
+    libspeexdsp-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -159,6 +160,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DBUILD_LIBOBS=ON \
       -DENABLE_PIPEWIRE=OFF \
       -DENABLE_NEW_MPEGTS_OUTPUT=OFF \
+      -DENABLE_SPEEXDSP=OFF \
       -DUSE_PKG_CONFIG=ON \
       -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" && \
     make -j$(nproc) && \
