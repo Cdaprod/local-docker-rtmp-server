@@ -50,8 +50,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-tools-dev-tools \
     libqt6svg6-dev \
     libqt6opengl6-dev \
-    libqt6multimedia6-dev \
-    libqt6waylandclient6-dev \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
