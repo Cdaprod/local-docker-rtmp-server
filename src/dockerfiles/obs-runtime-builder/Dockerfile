@@ -205,9 +205,10 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
     sed -i '/add_subdirectory(frontend-tools)/d' /tmp/obs/plugins/CMakeLists.txt && \
     sed -i '/add_subdirectory(decklink-output-ui)/d' /tmp/obs/plugins/CMakeLists.txt && \
     sed -i '/add_subdirectory(aja-output-ui)/d' /tmp/obs/plugins/CMakeLists.txt && \
-    rm -rf /tmp/obs/plugins/frontend-tools \
-           /tmp/obs/plugins/decklink-output-ui \
-           /tmp/obs/plugins/aja-output-ui && \
+    rm -rf \
+      /tmp/obs/plugins/frontend-tools \
+      /tmp/obs/plugins/decklink-output-ui \
+      /tmp/obs/plugins/aja-output-ui && \
     mkdir -p /tmp/obs/build && cd /tmp/obs/build && \
     ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
     cmake .. \
