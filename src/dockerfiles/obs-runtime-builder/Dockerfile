@@ -122,7 +122,8 @@ ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2
 
 # Build and install only the Ajantv2 core lib
-RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
+RUN rm -rf /tmp/libajantv2 && \
+    git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
     cd /tmp/libajantv2/Linux/ntv2linuxsdk/ajantv2 && \
     mkdir -p build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
