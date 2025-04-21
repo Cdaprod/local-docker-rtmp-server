@@ -200,12 +200,37 @@ RUN apt-get install -y \
   libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
   libxcb-xinerama0-dev libxcomposite-dev 
 
-# 4) Install OBS Studio from the Ubuntu repo
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      obs-studio \
-      obs-plugins \
- && rm -rf /var/lib/apt/lists/*
+# 4) Build OBS Studio (removing problematic Qt-dependent plugins)
+RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
+    sed -i '/add_subdirectory(frontend-tools)/d' /tmp/obs/plugins/CMakeLists.txt && \
+    sed -i '/add_subdirectory(decklink-output-ui)/d' /tmp/obs/plugins/CMakeLists.txt && \
+    sed -i '/add_subdirectory(aja-output-ui)/d' /tmp/obs/plugins/CMakeLists.txt && \
+    rm -rf \
+      /tmp/obs/plugins/frontend-tools \
+      /tmp/obs/plugins/decklink-output-ui \
+      /tmp/obs/plugins/aja-output-ui && \
+    mkdir -p /tmp/obs/build && cd /tmp/obs/build && \
+    ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
+    cmake .. \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_PREFIX_PATH="/usr:/usr/local:/usr/lib/${ARCH}/cmake:/usr/lib/${ARCH}/cmake/Qt6" \
+      -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config \
+      -DLUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1 \
+      -DLUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a \
+      -DPython3_EXECUTABLE=/usr/bin/python3 \
+      -DBUILD_BROWSER=OFF \
+      -DBUILD_LIBOBS=ON \
+      -DENABLE_PIPEWIRE=OFF \
+      -DENABLE_NEW_MPEGTS_OUTPUT=OFF \
+      -DENABLE_SPEEXDSP=OFF \
+      -DUSE_PKG_CONFIG=ON \
+      -DENABLE_MBEDTLS=OFF \
+      -DENABLE_RNNOISE=OFF \
+      -DENABLE_DATACHANNEL=OFF \
+      -DCMAKE_MODULE_PATH="/usr/lib/${ARCH}/cmake;/usr/share/cmake-3.25/Modules" && \
+    make -j$(nproc) && \
+    make install && \
+    rm -rf /tmp/obs
 
 # 5) Build DistroAV (NDI support)
 RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV && \
