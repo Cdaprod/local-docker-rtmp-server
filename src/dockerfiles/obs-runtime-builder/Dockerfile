@@ -188,6 +188,8 @@ RUN git clone https://github.com/LuaJIT/LuaJIT.git /tmp/LuaJIT && \
     make && make install && \
     rm -rf /tmp/LuaJIT
 
+ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
