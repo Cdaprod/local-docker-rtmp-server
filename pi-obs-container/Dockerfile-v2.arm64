@@ -1,52 +1,64 @@
 # --------------------------------------------
-# Stage 1: Builder for obs-3d-effect
+# Stage 1: shared build‑tools
 # --------------------------------------------
-FROM cdaprod/obs-runtime:latest as builder-3d-effect
-
-RUN apt-get update && apt-get install -y \
-    git cmake build-essential && \
-    git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect && \
-    cd /tmp/obs-3d-effect && \
-    cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr && \
-    cmake --build build
-
-# --------------------------------------------
-# Stage 2: Builder for obs-websocket
-# --------------------------------------------
-FROM cdaprod/obs-runtime:latest as builder-websocket
-
-RUN apt-get update && apt-get install -y \
-    git cmake build-essential libasio-dev libmbedtls-dev && \
-    git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket && \
-    echo -e "cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)" > /tmp/obs-websocket/CMakeLists.txt.patched && \
-    cat /tmp/obs-websocket/CMakeLists.txt >> /tmp/obs-websocket/CMakeLists.txt.patched && \
-    mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt && \
-    echo -e "\nmacro(target_export)\nendmacro()" >> /tmp/obs-websocket/CMakeLists.txt && \
-    cd /tmp/obs-websocket && \
-    cmake -S . -B build -DBUILD_OUT_OF_TREE=On && \
-    cmake --build build
-
-# --------------------------------------------
-# Final Runtime Image
-# --------------------------------------------
-FROM cdaprod/obs-runtime:latest
-
-LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
+FROM cdaprod/obs-runtime:latest AS builder‐base
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Runtime dependencies
-RUN apt-get update && apt-get install -y \
-    cmake git x11vnc xvfb novnc websockify \
-    supervisor pulseaudio openbox fluxbox && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# install everything both plugins need
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      git cmake build-essential libasio-dev libmbedtls-dev \
+ && rm -rf /var/lib/apt/lists/*
 
-# Copy 3D Effect plugin from builder stage
-COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/bin/ /usr/lib/obs-plugins/
+# --------------------------------------------
+# Stage 2: Builder for obs‑3d‑effect
+# --------------------------------------------
+FROM builder‐base AS builder‑3d‑effect
+
+RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
+ && cd /tmp/obs-3d-effect \
+ && cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
+      -DCMAKE_PREFIX_PATH=/usr \
+ && cmake --build build
+
+# --------------------------------------------
+# Stage 3: Builder for obs‑websocket
+# --------------------------------------------
+FROM builder‐base AS builder‑websocket
+
+RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
+ && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n'; \
+      cat /tmp/obs-websocket/CMakeLists.txt; } \
+    > /tmp/obs-websocket/CMakeLists.txt.patched \
+ && mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt \
+ && echo -e "\n# stub out missing target_export\nmacro(target_export)\nendmacro()" \
+      >> /tmp/obs-websocket/CMakeLists.txt \
+ && cd /tmp/obs-websocket \
+ && cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
+      -DCMAKE_PREFIX_PATH=/usr \
+ && cmake --build build
+
+# --------------------------------------------
+# Stage 4: Final runtime
+# --------------------------------------------
+FROM cdaprod/obs-runtime:latest AS runtime
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Copy 3D‑Effect plugin
+COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/bin/  /usr/lib/obs-plugins/
 COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/data/ /usr/share/obs/obs-plugins/
 
-# Copy obs-websocket plugin from builder stage
-COPY --from=builder-websocket /tmp/obs-websocket/build/bin/ /usr/lib/obs-plugins/
+# Copy obs‑websocket plugin
+COPY --from=builder-websocket /tmp/obs-websocket/build/bin/  /usr/lib/obs-plugins/
 COPY --from=builder-websocket /tmp/obs-websocket/build/data/ /usr/share/obs/obs-plugins/
+
+# noVNC (if not already in obs-runtime)
+RUN [ ! -d /opt/novnc ] && \
+    git clone https://github.com/novnc/noVNC /opt/novnc && \
+    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
+    git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
 # Setup OBS runtime environment
 RUN mkdir -p \
