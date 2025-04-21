@@ -52,7 +52,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libqt6opengl6-dev \
     libqt6multimedia6-dev \
     libqt6waylandclient6-dev \
-  && apt-get purge -y ffmpeg libav* || true \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
