@@ -129,7 +129,7 @@ RUN rm -rf /tmp/libajantv2 && \
     -DCMAKE_INSTALL_PREFIX=/usr && \
   cmake --build . --target ajantv2 -j$(nproc) && \
   find . -type f -name 'libajantv2*.a' -exec cp {} /usr/lib/ \; && \
-  cp -r /tmp/libajantv2/include /usr/include/ajantv2 && \
+  cp -r /tmp/libajantv2/ajantv2/include /usr/include/ajantv2 && \
   ldconfig && \
   rm -rf /tmp/libajantv2
 
