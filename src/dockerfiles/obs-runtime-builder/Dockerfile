@@ -84,8 +84,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   libharfbuzz-dev
   
 # Optional cleanup of conflicting older system lib
-RUN apt-get purge -y libfreetype6-dev libass-dev
+# RUN apt-get purge -y libfreetype6-dev libass-dev
 
+ 
 # 1. Build and install FreeType
 RUN git clone --depth=1 https://gitlab.freedesktop.org/freetype/freetype.git /tmp/freetype && \
     cd /tmp/freetype && \
