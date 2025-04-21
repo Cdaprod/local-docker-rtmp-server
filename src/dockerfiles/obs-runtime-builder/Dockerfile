@@ -142,7 +142,10 @@ RUN apt-get update && \
     libxcb-xfixes0-dev \
     libxcb-shm0-dev \
     libxcb-randr0-dev \
-    libxcb-image0-dev && \
+    libxcb-image0-dev \
+    libva-dev \
+    libva-x11-dev \
+    libva-drm-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # 4) Build OBS Studio
