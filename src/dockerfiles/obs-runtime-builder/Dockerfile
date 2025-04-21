@@ -159,7 +159,6 @@ RUN git clone --recursive https://github.com/paullouisageneau/libdatachannel.git
     ldconfig && rm -rf /tmp/libdatachannel
 
 # Build and install crc32c from source
-# Build and install crc32c from source
 RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c && \
     cd /tmp/crc32c && \
     mkdir -p build && cd build && \
@@ -167,6 +166,12 @@ RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c && \
     make -j$(nproc) && make install && \
     ldconfig && \
     rm -rf /tmp/crc32c
+    
+# Install WebSocket++ from source
+RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocketpp && \
+    mkdir -p /usr/local/include/websocketpp && \
+    cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
+    rm -rf /tmp/websocketpp
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
