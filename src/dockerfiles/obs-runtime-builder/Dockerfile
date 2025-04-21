@@ -118,6 +118,13 @@ RUN mkdir -p /usr/local/include/uthash && \
 RUN ln -s /usr/local/include/uthash/uthash.h /usr/include/uthash.h
 ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
+# Install Ajantv2 (needed by OBS plugins/aja)
+RUN git clone https://github.com/obsproject/libajantv2.git /tmp/libajantv2 && \
+    cd /tmp/libajantv2 && mkdir build && cd build && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
+    make -j$(nproc) && make install && \
+    rm -rf /tmp/libajantv2
+
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
