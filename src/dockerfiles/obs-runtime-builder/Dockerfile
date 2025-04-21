@@ -147,6 +147,7 @@ RUN apt-get update && \
     libspeexdsp-dev \
     libmbedtls-dev \
     libcurl4-openssl-dev \
+    nlohmann-json3-dev \
     libva-dev && \
     rm -rf /var/lib/apt/lists/*
     
