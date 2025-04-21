@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxext-dev libxfixes-dev zlib1g-dev openssl libssl-dev \
     gstreamer1.0-plugins-base gstreamer1.0-tools uthash-dev \
     qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools \
-    libqt6svg6-dev libqt6opengl6-dev libqt6multimedia6-dev qtwayland5 \
+    libqt6svg6-dev libqt6opengl6-dev libqt6multimedia-dev qtwayland5 \
     ca-certificates curl git cmake \
   && update-ca-certificates \
   && apt-get autoremove -y \
