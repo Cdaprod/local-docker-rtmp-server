@@ -40,6 +40,9 @@ RUN apt-get update \
       libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
       libjansson-dev \
  && rm -rf /var/lib/apt/lists/*
+ 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  libpulse-dev
 
 # 0. Build and install LAME (libmp3lame) from source for pkg-config support
 RUN git clone https://github.com/rbrito/lame.git /tmp/lame && \
