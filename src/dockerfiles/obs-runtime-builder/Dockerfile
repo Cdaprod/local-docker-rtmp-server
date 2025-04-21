@@ -159,16 +159,13 @@ RUN git clone --recursive https://github.com/paullouisageneau/libdatachannel.git
     ldconfig && rm -rf /tmp/libdatachannel
 
 # Build and install crc32c from source
-RUN git clone https://github.com/google/crc32c.git /tmp/crc32c && \
+# Build and install crc32c from source
+RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c && \
     cd /tmp/crc32c && \
-    mkdir build && cd build && \
-    cmake .. \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_SHARED_LIBS=ON \
-      -DCRC32C_BUILD_TESTS=OFF \
-      -DCRC32C_BUILD_BENCHMARKS=OFF \
-      -DCMAKE_INSTALL_PREFIX=/usr && \
-    make -j$(nproc) && make install && ldconfig && \
+    mkdir -p build && cd build && \
+    cmake -DCRC32C_BUILD_TESTS=OFF -DCRC32C_BUILD_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    make -j$(nproc) && make install && \
+    ldconfig && \
     rm -rf /tmp/crc32c
 
 # 4) Build OBS Studio
