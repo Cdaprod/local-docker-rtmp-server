@@ -1,22 +1,19 @@
 # --------------------------------------------
 # Stage 1: Builder for obs-3d-effect
 # --------------------------------------------
-#FROM cdaprod/obs-runtime-build:latest as builder-3d-effect
 FROM cdaprod/obs-runtime:latest as builder-3d-effect
 
 RUN apt-get update && apt-get install -y \
     git cmake build-essential && \
     git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect && \
     cd /tmp/obs-3d-effect && \
-    cmake -S . -B build \
-      -DBUILD_OUT_OF_TREE=On \
-      -DCMAKE_PREFIX_PATH=/usr && \
+    cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr && \
     cmake --build build
- 
+
 # --------------------------------------------
 # Stage 2: Builder for obs-websocket
 # --------------------------------------------
-FROM cdaprod/obs-runtime-build:latest as builder-websocket
+FROM cdaprod/obs-runtime:latest as builder-websocket
 
 RUN apt-get update && apt-get install -y \
     git cmake build-essential libasio-dev libmbedtls-dev && \
@@ -24,36 +21,24 @@ RUN apt-get update && apt-get install -y \
     echo -e "cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)" > /tmp/obs-websocket/CMakeLists.txt.patched && \
     cat /tmp/obs-websocket/CMakeLists.txt >> /tmp/obs-websocket/CMakeLists.txt.patched && \
     mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt && \
-    echo -e "\n# Patch for missing command\nmacro(target_export)\nendmacro()" >> /tmp/obs-websocket/CMakeLists.txt && \
+    echo -e "\nmacro(target_export)\nendmacro()" >> /tmp/obs-websocket/CMakeLists.txt && \
     cd /tmp/obs-websocket && \
     cmake -S . -B build -DBUILD_OUT_OF_TREE=On && \
     cmake --build build
-    
+
 # --------------------------------------------
 # Final Runtime Image
 # --------------------------------------------
-FROM cdaprod/obs-runtime-build:latest
+FROM cdaprod/obs-runtime:latest
 
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install required OBS and video encoding dependencies
+# Runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libavcodec-dev libavformat-dev \
-    libavutil-dev v4l-utils libdrm-dev \
-    libavfilter-dev libswscale-dev libavdevice-dev \
-    libavresample-dev libpostproc-dev \
     cmake git x11vnc xvfb novnc websockify \
     supervisor pulseaudio openbox fluxbox && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Build OBS from source with V4L2 support for Pi hardware encoding
-RUN git clone --branch master --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
-    cd /tmp/obs && mkdir build && cd build && \
-    cmake -DENABLE_PIPEWIRE=OFF -DBUILD_BROWSER=OFF -DUNIX_STRUCTURE=1 \
-          -DCMAKE_INSTALL_PREFIX=/usr -DWITH_V4L2=ON .. && \
-    make -j$(nproc) && make install && \
-    rm -rf /tmp/obs
 
 # Copy 3D Effect plugin from builder stage
 COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/bin/ /usr/lib/obs-plugins/
@@ -63,7 +48,7 @@ COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/data/ /usr/share/obs/obs-
 COPY --from=builder-websocket /tmp/obs-websocket/build/bin/ /usr/lib/obs-plugins/
 COPY --from=builder-websocket /tmp/obs-websocket/build/data/ /usr/share/obs/obs-plugins/
 
-# Setup directories
+# Setup OBS runtime environment
 RUN mkdir -p \
   /root/.config/obs-studio/plugin_config \
   /root/assets \
@@ -71,19 +56,16 @@ RUN mkdir -p \
   /opt/novnc/utils/websockify
 
 # Install noVNC
-RUN [ ! -d /opt/novnc ] && \
-    git clone https://github.com/novnc/noVNC /opt/novnc && \
+RUN git clone https://github.com/novnc/noVNC /opt/novnc && \
     ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
     git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
-# Copy OBS config, profiles, plugins
+# OBS config and scripts
 COPY config/basic/profiles/ /root/.config/obs-studio/basic/profiles/
 COPY config/basic/scenes/ /root/.config/obs-studio/basic/scenes/
 COPY config/plugin_config/ /root/.config/obs-studio/plugin_config/
 COPY config/global.ini /root/.config/obs-studio/global.ini
 COPY config/user.ini /root/.config/obs-studio/user.ini
-
-# Copy runtime scripts and assets
 COPY scripts/ /root/scripts/
 COPY assets/ /root/assets/
 COPY entrypoint.sh /entrypoint.sh
