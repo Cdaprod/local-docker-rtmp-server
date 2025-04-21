@@ -21,7 +21,7 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
       -DBUILD_OUT_OF_TREE=On \
       -DCMAKE_PREFIX_PATH=/usr \
  && cmake --build build \
- && ls -R /tmp/obs-3d-effect/build
+ && find /tmp/obs-3d-effect/build -type f
  
 # --------------------------------------------
 # Stage 3: Builder for obs‑websocket
@@ -38,16 +38,13 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
  && cd /tmp/obs-websocket \
  && cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr \
  && cmake --build build \
- && ls -R /tmp/obs-websocket/build
- 
+ && find /tmp/obs-websocket/build -type f
+  
 # --------------------------------------------
 # Stage 4: Final runtime
 # --------------------------------------------
 FROM cdaprod/obs-runtime:latest AS runtime
 ENV DEBIAN_FRONTEND=noninteractive
-
-RUN find /tmp/obs-3d-effect/build
-RUN find /tmp/obs-websocket/build
 
 # Copy 3D‑Effect plugin
 COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/bin/  /usr/lib/obs-plugins/
