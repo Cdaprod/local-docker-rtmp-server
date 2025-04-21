@@ -151,6 +151,7 @@ RUN apt-get update && \
     nlohmann-json3-dev \
     libqrcodegencpp-dev \
     libvlc-dev \
+    swig \
     vlc && \
     rm -rf /var/lib/apt/lists/*
     
