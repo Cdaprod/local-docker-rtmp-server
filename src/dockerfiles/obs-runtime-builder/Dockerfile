@@ -124,8 +124,8 @@ RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/
 # Build and install only the Ajantv2 core lib
 RUN rm -rf /tmp/libajantv2 && \
     git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
-    mkdir -p /tmp/libajantv2/Linux/ntv2linuxsdk/ajantv2/build && \
-    cd /tmp/libajantv2/Linux/ntv2linuxsdk/ajantv2/build && \
+    mkdir -p /tmp/libajantv2/Linux/ntv2linuxsdk/build && \
+    cd /tmp/libajantv2/Linux/ntv2linuxsdk/build && \
     cmake .. \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DAJANTV2_BUILD_DEMOS=OFF \
