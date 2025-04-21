@@ -193,9 +193,8 @@ ENV LUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1
 ENV LUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a
 
 RUN apt-get install -y \
-  libx264-dev \
-  libfontconfig1-dev \
-  libfreetype6-dev \
+  libx264-dev libobs-dev \
+  libfontconfig1-dev libfreetype6-dev \
   libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
   libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
   libxcb-xinerama0-dev libxcomposite-dev 
