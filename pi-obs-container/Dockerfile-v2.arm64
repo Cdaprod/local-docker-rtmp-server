@@ -1,7 +1,7 @@
 # --------------------------------------------
 # Stage 1: shared build‑tools
 # --------------------------------------------
-FROM cdaprod/obs-runtime:latest AS builder‐base
+FROM cdaprod/obs-runtime:latest AS builder-base
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install everything both plugins need
