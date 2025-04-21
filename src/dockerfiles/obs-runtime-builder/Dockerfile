@@ -82,17 +82,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   texinfo
 
 # 1) Build FFmpeg 6.1 (native ARM64 build)
-RUN apt-get update && apt-get install -y --no-install-recommends dpkg-dev && \
-    git config --global http.sslVerify false && \
-    git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /ffmpeg && \
-    cd /ffmpeg && \
-    ARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH) && \
-    PKG_PATH="/usr/lib/${ARCH}/pkgconfig:/usr/share/pkgconfig" && \
-    echo "Checking pkg-config in: $PKG_PATH" && \
-    find /usr/lib/${ARCH}/pkgconfig -name "libass*.pc" && \
-    PKG_CONFIG_PATH="$PKG_PATH" PKG_CONFIG_LIBDIR="$PKG_PATH" \
+RUN ARCH_DIR=$(find /usr/lib -type d -name "*pkgconfig" | grep -E 'linux-gnu/pkgconfig' | head -n1) && \
+    PKG_CONFIG_PATH="${ARCH_DIR}:/usr/share/pkgconfig" && \
+    PKG_CONFIG_LIBDIR="${ARCH_DIR}:/usr/share/pkgconfig" && \
+    echo "Using ARCH_DIR=$ARCH_DIR" && \
+    find "$ARCH_DIR" -name "libass*.pc" && \
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" \
     pkg-config --exists libass && echo "libass FOUND" || (echo "libass NOT FOUND" && exit 1) && \
-    PKG_CONFIG_PATH="$PKG_PATH" PKG_CONFIG_LIBDIR="$PKG_PATH" ./configure \
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" \
+    ./configure \
       --prefix=/usr/local \
       --enable-shared \
       --enable-gpl \
