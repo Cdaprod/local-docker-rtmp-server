@@ -119,11 +119,20 @@ RUN ln -s /usr/local/include/uthash/uthash.h /usr/include/uthash.h
 ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 
 # Install Ajantv2 (needed by OBS plugins/aja)
-RUN git clone --recursive https://github.com/aja-video/ntv2.git /tmp/libajantv2 && \
-    cd /tmp/libajantv2/ajalinux && mkdir -p build && cd build && \
+# Clone the release branch of libajantv2
+RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2
+
+# Build and install from the proper Linux SDK directory
+RUN mkdir -p /tmp/libajantv2/Linux/ntv2linuxsdk/build && \
+    cd /tmp/libajantv2/Linux/ntv2linuxsdk/build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
-    make -j$(nproc) && make install && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
     rm -rf /tmp/libajantv2
+
+# Ensure CMake can find libajantv2 during OBS Studio build
+ENV CMAKE_PREFIX_PATH="/usr:$CMAKE_PREFIX_PATH"
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
