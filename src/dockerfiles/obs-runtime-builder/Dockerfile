@@ -81,7 +81,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gettext \
   texinfo \
   libfribidi-dev \
-  libharfbuzz-dev
+  libharfbuzz-dev \
+  libmp3lame-dev
   
 # Optional cleanup of conflicting older system lib
 # RUN apt-get purge -y libfreetype6-dev libass-dev
