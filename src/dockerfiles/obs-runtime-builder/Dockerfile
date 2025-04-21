@@ -158,6 +158,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DBUILD_BROWSER=OFF \
       -DBUILD_LIBOBS=ON \
       -DENABLE_PIPEWIRE=OFF \
+      -DENABLE_NEW_MPEGTS_OUTPUT=OFF \
       -DUSE_PKG_CONFIG=ON \
       -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" && \
     make -j$(nproc) && \
