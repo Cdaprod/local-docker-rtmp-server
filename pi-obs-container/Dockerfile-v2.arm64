@@ -53,9 +53,6 @@ FROM builder-3d-effect AS debug-inspect
 FROM cdaprod/obs-runtime:latest AS runtime
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN echo -e "\n==> [3D-Effect Build Artifacts]\n" && find /tmp/obs-3d-effect/build -type f
-RUN echo -e "\n==> [WebSocket Build Artifacts]\n" && find /tmp/obs-websocket/build -type f
-
 # Copy 3D‑Effect plugin
 COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/ /usr/lib/obs-plugins/obs-3d-effect/
 # Copy Websocket plugin
