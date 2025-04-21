@@ -165,6 +165,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DUSE_PKG_CONFIG=ON \
       -DENABLE_MBEDTLS=OFF \
       -DENABLE_RNNOISE=OFF \
+      -DENABLE_DATACHANNEL=OFF \
       -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" && \
     make -j$(nproc) && \
     make install && \
