@@ -194,9 +194,6 @@ ENV LUAJIT_INCLUDE_DIR=/usr/local/include/luajit-2.1
 ENV LUAJIT_LIBRARY=/usr/local/lib/libluajit-5.1.a
 
 RUN apt-get install -y \
-  libasio-dev \
-  libwebsocketpp-dev \
-  libjsoncpp-dev \
   libx264-dev \
   libfontconfig1-dev \
   libfreetype6-dev \
