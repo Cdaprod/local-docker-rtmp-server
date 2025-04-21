@@ -6,38 +6,40 @@ FROM ubuntu:24.04 AS base
 LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential make gnupg lsb-release unzip wget python3 python3-pip \
-    yasm nasm libgl1 libasound2-dev libv4l-0 libx11-xcb1 libv4l-dev libdrm-dev \
-    v4l-utils openbox fluxbox libx264-dev libx265-dev libvpx-dev libaom-dev \
-    libxext-dev libxfixes-dev zlib1g-dev openssl libssl-dev \
-    gstreamer1.0-plugins-base gstreamer1.0-tools uthash-dev \
-    qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools \
-    libqt6svg6-dev libqt6opengl6-dev qt6-multimedia-dev qtwayland5 \
-    ca-certificates curl git cmake \
-    libvorbis-dev \
-  && update-ca-certificates \
-  && apt-get autoremove -y \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+     build-essential make gnupg lsb-release unzip wget \
+     python3 python3-pip yasm nasm libgl1 libasound2-dev \
+     libv4l-0 libx11-xcb1 libv4l-dev libdrm-dev v4l-utils \
+     openbox fluxbox libx264-dev libx265-dev libvpx-dev \
+     libaom-dev libxext-dev libxfixes-dev zlib1g-dev \
+     openssl libssl-dev \
+     gstreamer1.0-plugins-base gstreamer1.0-tools \
+     qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools \
+     qt6-multimedia-dev qt6-wayland-dev \
+     libqt6svg6-dev libqt6opengl6-dev \
+     ca-certificates curl git cmake \
+ && update-ca-certificates \
+ && apt-get autoremove -y \
+ && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------
-# Stage 2: Builder - Compile everything
+# Stage 2: Builder – compile everything
 # ---------------------------------------------
 FROM base AS builder
-
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  dpkg-dev \
-  pkg-config \
-  libtool \
-  autoconf \
-  automake \
-  gettext \
-  texinfo \
-  libopus-dev \
-  libfribidi-dev \
-  libharfbuzz-dev 
+# install all the -devs FFmpeg needs
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      dpkg-dev pkg-config libtool autoconf automake gettext texinfo \
+      libx264-dev libx265-dev libmp3lame-dev libopus-dev \
+      libvorbis-dev libvpx-dev libass-dev \
+      libfreetype6-dev libfontconfig1-dev \
+      libssl-dev libfribidi-dev libharfbuzz-dev \
+      libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+      libjansson-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 # 0. Build and install LAME (libmp3lame) from source for pkg-config support
 RUN git clone https://github.com/rbrito/lame.git /tmp/lame && \
