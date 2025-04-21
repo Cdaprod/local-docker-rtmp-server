@@ -199,8 +199,7 @@ RUN apt-get install -y \
   libfreetype6-dev \
   libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
   libxcb-composite0-dev libxcb-randr0-dev libxcb-image0-dev \
-  libxcb-xinerama0-dev libxcomposite-dev \
-  libxrandr-dev libxi-dev libxtst-dev
+  libxcb-xinerama0-dev libxcomposite-dev 
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
