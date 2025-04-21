@@ -134,6 +134,17 @@ RUN rm -rf /tmp/libajantv2 && \
 # Make sure it's available for OBS Studio later
 ENV CMAKE_PREFIX_PATH="/usr:$CMAKE_PREFIX_PATH"
 
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libxcb1-dev \
+    libxcb-composite0-dev \
+    libxcb-xinerama0-dev \
+    libxcb-xfixes0-dev \
+    libxcb-shm0-dev \
+    libxcb-randr0-dev \
+    libxcb-image0-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
     cd /tmp/obs && mkdir build && cd build && \
