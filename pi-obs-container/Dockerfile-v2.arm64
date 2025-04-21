@@ -29,7 +29,16 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
 FROM builder-base AS builder-websocket
 
 ENV CMAKE_PREFIX_PATH=/usr/local
+ENV CMAKE_MODULE_PATH=/usr/local/share/cmake/Modules
 
+# Install Asio headers (standalone version, not Boost)
+RUN git clone https://github.com/chriskohlhoff/asio.git /tmp/asio \
+ && mkdir -p /usr/local/include/asio \
+ && cp -r /tmp/asio/asio/include/asio /usr/local/include/asio \
+ && echo 'find_package(Asio REQUIRED)' > /usr/local/share/cmake/Modules/FindAsio.cmake \
+ && echo 'set(Asio_FOUND TRUE)' >> /usr/local/share/cmake/Modules/FindAsio.cmake \
+ && echo 'set(Asio_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/FindAsio.cmake
+ 
 # Install qrcodegen
 RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
  && mkdir -p /usr/local/include/qrcodegen \
