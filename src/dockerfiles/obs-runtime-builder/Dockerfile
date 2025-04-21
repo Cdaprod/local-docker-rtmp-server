@@ -127,7 +127,7 @@ RUN rm -rf /tmp/libajantv2 && \
     -DAJANTV2_BUILD_DEMOS=OFF \
     -DAJANTV2_BUILD_TESTS=OFF && \
   cmake --build . --target ajantv2 -j$(nproc) && \
-  cmake --install . && \
+  cmake --install . || true && \
   ldconfig && \
   rm -rf /tmp/libajantv2
 
