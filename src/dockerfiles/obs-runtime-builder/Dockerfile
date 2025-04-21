@@ -110,17 +110,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends libass-dev && \
     cd /ffmpeg && \
     ARCH_DIR=$(find /usr/lib -type d -name "*pkgconfig" | grep -E 'linux-gnu/pkgconfig' | head -n1) && \
     echo "Resolved ARCH_DIR=$ARCH_DIR" && \
-    PKG_CONFIG_PATH="${ARCH_DIR}:/usr/share/pkgconfig" && \
-    PKG_CONFIG_LIBDIR="${ARCH_DIR}:/usr/share/pkgconfig" && \
+    export PKG_CONFIG_PATH="${ARCH_DIR}:/usr/share/pkgconfig" && \
+    export PKG_CONFIG_LIBDIR="${ARCH_DIR}:/usr/share/pkgconfig" && \
+    export CPPFLAGS="-I/usr/include" && \
+    export LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" && \
     echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" && \
     echo "PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR" && \
     echo "Searching for libass.pc in $ARCH_DIR..." && \
     find $ARCH_DIR -name "libass*.pc" && \
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" pkg-config --exists libass && \
-    echo "libass FOUND, continuing..." && \
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH" PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR" \
-    CPPFLAGS="-I/usr/include" \
-    LDFLAGS="-L/usr/lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH)" \
+    pkg-config --exists libass && echo "libass FOUND, continuing..." && \
     ./configure \
       --prefix=/usr/local \
       --enable-shared \
