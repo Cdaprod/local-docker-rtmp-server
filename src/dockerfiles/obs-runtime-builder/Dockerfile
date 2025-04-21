@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-base-dev qt6-base-dev-tools qt6-tools-dev qt6-tools-dev-tools \
     libqt6svg6-dev libqt6opengl6-dev qt6-multimedia-dev qtwayland5 \
     ca-certificates curl git cmake \
+    libvorbis-dev \
   && update-ca-certificates \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
