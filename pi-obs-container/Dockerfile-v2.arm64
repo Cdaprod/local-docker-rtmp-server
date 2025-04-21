@@ -28,15 +28,16 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
 FROM builder-base AS builder-websocket
 
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
- && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n'; \
-      cat /tmp/obs-websocket/CMakeLists.txt; } \
-    > /tmp/obs-websocket/CMakeLists.txt.patched \
+ && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n' \
+      > /tmp/obs-websocket/CMakeLists.txt.patched; \
+      printf '\n# Patch for missing command\nmacro(target_export)\nendmacro()\n' \
+      >> /tmp/obs-websocket/CMakeLists.txt.patched; \
+      cat /tmp/obs-websocket/CMakeLists.txt >> /tmp/obs-websocket/CMakeLists.txt.patched; } \
  && mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt \
- && printf '\nmacro(target_export)\nendmacro()\n' >> /tmp/obs-websocket/CMakeLists.txt \
  && cd /tmp/obs-websocket \
  && cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_PREFIX_PATH=/usr \
  && cmake --build build
-
+ 
 # --------------------------------------------
 # Stage 4: Final runtime
 # --------------------------------------------
