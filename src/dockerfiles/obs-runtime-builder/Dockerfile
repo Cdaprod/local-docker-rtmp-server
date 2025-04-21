@@ -121,11 +121,12 @@ ENV CMAKE_INCLUDE_PATH="/usr/include:/usr/local/include"
 # Clone the release branch of libajantv2
 RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2
 
-# Build and install libajantv2 from repo root
-RUN mkdir -p /tmp/libajantv2/build && \
-    cd /tmp/libajantv2/build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DAJANTV2_BUILD_DEMOS=OFF -DAJANTV2_BUILD_TESTS=OFF && \
-    make -j$(nproc) && \
+# Build and install only the Ajantv2 core lib
+RUN git clone --branch release https://github.com/aja-video/libajantv2.git /tmp/libajantv2 && \
+    cd /tmp/libajantv2/Linux/ntv2linuxsdk/ajantv2 && \
+    mkdir -p build && cd build && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
+    make -j$(nproc) ajantv2 && \
     make install && \
     ldconfig && \
     rm -rf /tmp/libajantv2
