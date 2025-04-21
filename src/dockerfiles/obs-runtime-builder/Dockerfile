@@ -173,11 +173,10 @@ RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocke
     cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
     rm -rf /tmp/websocketpp
     
-# Install Asio (standalone, header-only)
+# Install standalone Asio (header-only)
 RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
-    cp -r /tmp/asio/asio/include/asio /usr/local/include/ && \
+    cp -r /tmp/asio/asio/include/* /usr/local/include/ && \
     rm -rf /tmp/asio
- 
 
 # 4) Build OBS Studio
 RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs && \
@@ -196,6 +195,7 @@ RUN git clone --recursive https://github.com/obsproject/obs-studio.git /tmp/obs 
       -DENABLE_MBEDTLS=OFF \
       -DENABLE_RNNOISE=OFF \
       -DENABLE_DATACHANNEL=OFF \
+      -DENABLE_WEBSOCKET_API=OFF \
       -DCMAKE_MODULE_PATH="/usr/share/cmake-3.25/Modules" && \
     make -j$(nproc) && \
     make install && \
