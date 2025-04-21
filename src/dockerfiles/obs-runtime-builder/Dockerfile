@@ -30,19 +30,19 @@ FROM base AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install all the -devs FFmpeg needs
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
+ENV DEV_DEPS="\
       dpkg-dev pkg-config libtool autoconf automake gettext texinfo \
       libx264-dev libx265-dev libmp3lame-dev libopus-dev \
       libvorbis-dev libvpx-dev libass-dev \
       libfreetype6-dev libfontconfig1-dev \
       libssl-dev libfribidi-dev libharfbuzz-dev \
       libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-      libjansson-dev \
- && rm -rf /var/lib/apt/lists/*
- 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  libpulse-dev
+      libjansson-dev libpulse-dev libxkbcommon-dev \
+      libxcb1-dev libxcb-xinput-dev libxcb-shm0-dev libxcb-xinerama0-dev \
+      libxcb-randr0-dev libxcomposite-dev libxcursor-dev"
+
+RUN apt-get update && apt-get install -y --no-install-recommends $DEV_DEPS \
+  && rm -rf /var/lib/apt/lists/*
 
 # 0. Build and install LAME (libmp3lame) from source for pkg-config support
 RUN git clone https://github.com/rbrito/lame.git /tmp/lame && \
