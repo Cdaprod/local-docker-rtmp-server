@@ -79,6 +79,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   automake \
   gettext \
   texinfo \
+  libopus-dev \
   libfribidi-dev \
   libharfbuzz-dev \
   libmp3lame-dev
