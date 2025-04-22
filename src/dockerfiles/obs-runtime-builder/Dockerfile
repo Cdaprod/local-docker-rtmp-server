@@ -171,15 +171,15 @@ RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c && \
     make -j$(nproc) && make install && \
     ldconfig && \
     rm -rf /tmp/crc32c
-    
-# Install WebSocket++ from source
+
+# Install WebSocket++ and stub a config-mode CMake file
 RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocketpp && \
-    mkdir -p /usr/local/include/websocketpp /usr/local/share/cmake/Modules && \
+    mkdir -p /usr/local/include/websocketpp /usr/local/lib/cmake/websocketpp && \
     cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
-    rm -rf /tmp/websocketpp && \
-    echo 'set(websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findwebsocketpp.cmake && \
-    echo 'set(websocketpp_INCLUDE_DIR /usr/local/include/websocketpp)' >> /usr/local/share/cmake/Modules/Findwebsocketpp.cmake 
-    
+    echo 'set(websocketpp_FOUND TRUE)' > /usr/local/lib/cmake/websocketpp/websocketppConfig.cmake && \
+    echo 'set(websocketpp_INCLUDE_DIR /usr/local/include/websocketpp)' >> /usr/local/lib/cmake/websocketpp/websocketppConfig.cmake && \
+    rm -rf /tmp/websocketpp
+     
 # Install standalone Asio (header-only)
 RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
     cp -r /tmp/asio/asio/include/* /usr/local/include/ && \
@@ -303,7 +303,7 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect &&
 # --------------------------------------------
 FROM builder AS builder-websocket
 
-ENV CMAKE_PREFIX_PATH="/usr;/usr/local"
+ENV CMAKE_PREFIX_PATH="/usr/local/lib/cmake/websocketpp:/usr:/usr/local"
 ENV CMAKE_MODULE_PATH="/usr/local/share/cmake/Modules"
 
 # Clone & patch obs-websocket
