@@ -1,104 +1,25 @@
 # --------------------------------------------
-# Stage 1: shared build‑tools
-# --------------------------------------------
-FROM cdaprod/obs-runtime:latest AS builder-base
-ENV DEBIAN_FRONTEND=noninteractive
-
-# install everything both plugins need
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      git cmake build-essential libasio-dev libmbedtls-dev \
- && rm -rf /var/lib/apt/lists/*
-
-# --------------------------------------------
-# Stage 2: Builder for obs‑3d‑effect
-# --------------------------------------------
-FROM builder-base AS builder-3d-effect
-
-RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
- && cd /tmp/obs-3d-effect \
- && cmake -S . -B build \
-      -DBUILD_OUT_OF_TREE=On \
-      -DCMAKE_PREFIX_PATH=/usr \
- && cmake --build build \
- && echo "Built files:" && find /tmp/obs-3d-effect/build -type f
-
-# --------------------------------------------
-# Stage 3: Builder for obs‑websocket
-# --------------------------------------------
-FROM builder-base AS builder-websocket
-
-# Configure custom CMake prefix/module paths
-ENV CMAKE_PREFIX_PATH=/usr/local
-ENV CMAKE_MODULE_PATH=/usr/local/share/cmake/Modules
-
-# Install Asio (standalone version)
-RUN git clone https://github.com/chriskohlhoff/asio.git /tmp/asio \
- && mkdir -p /usr/local/include/asio /usr/local/share/cmake/Modules \
- && cp -r /tmp/asio/asio/include/asio /usr/local/include/asio \
- && echo 'set(Asio_FOUND TRUE)' > /usr/local/share/cmake/Modules/FindAsio.cmake \
- && echo 'set(Asio_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/FindAsio.cmake
-
-# Install QRCodeGen
-RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
- && mkdir -p /usr/local/include/qrcodegen \
- && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen \
- && echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
- && echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake
-
-# Install WebSocket++ headers
-RUN git clone https://github.com/zaphoyd/websocketpp.git /tmp/websocketpp \
- && mkdir -p /usr/local/include/websocketpp \
- && cp -r /tmp/websocketpp/websocketpp /usr/local/include/ \
- && echo 'set(Websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/FindWebsocketpp.cmake \
- && echo 'set(Websocketpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/FindWebsocketpp.cmake
-
-# Clone and patch obs-websocket
-RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
- && { printf 'cmake_minimum_required(VERSION 3.10)\nproject(obs_websocket)\n' \
-      > /tmp/obs-websocket/CMakeLists.txt.patched; \
-      printf '\n# Patch for missing command\nmacro(target_export)\nendmacro()\n' \
-      >> /tmp/obs-websocket/CMakeLists.txt.patched; \
-      cat /tmp/obs-websocket/CMakeLists.txt >> /tmp/obs-websocket/CMakeLists.txt.patched; } \
- && mv /tmp/obs-websocket/CMakeLists.txt.patched /tmp/obs-websocket/CMakeLists.txt \
- && cd /tmp/obs-websocket \
- && cmake -S . -B build \
-      -DBUILD_OUT_OF_TREE=On \
-      -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH} \
-      -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} \
- && cmake --build build \
- && find /tmp/obs-websocket/build -type f
-
-# --------------------------------------------
-# Stage 4: Final runtime
+# Stage 1: Runtime only (NO building)
+# All plugins now built upstream in cdaprod/obs-runtime:latest
 # --------------------------------------------
 FROM cdaprod/obs-runtime:latest AS runtime
+
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy 3D‑Effect plugin
-COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/ /usr/lib/obs-plugins/obs-3d-effect/
-# Copy Websocket plugin
-COPY --from=builder-websocket /tmp/obs-websocket/build/ /usr/lib/obs-plugins/obs-websocket/
-
-# noVNC (if not already in obs-runtime)
+# Add noVNC if not included already
 RUN [ ! -d /opt/novnc ] && \
     git clone https://github.com/novnc/noVNC /opt/novnc && \
     ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
     git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
-# Setup OBS runtime environment
+# Create necessary runtime directories
 RUN mkdir -p \
-  /root/.config/obs-studio/plugin_config \
-  /root/assets \
-  /root/scripts \
-  /opt/novnc/utils/websockify
+    /root/.config/obs-studio/plugin_config \
+    /root/assets \
+    /root/scripts \
+    /opt/novnc/utils/websockify
 
-# Install noVNC
-RUN git clone https://github.com/novnc/noVNC /opt/novnc && \
-    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
-    git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
-
-# OBS config and scripts
+# OBS configuration and assets
 COPY config/basic/profiles/ /root/.config/obs-studio/basic/profiles/
 COPY config/basic/scenes/ /root/.config/obs-studio/basic/scenes/
 COPY config/plugin_config/ /root/.config/obs-studio/plugin_config/
@@ -106,9 +27,10 @@ COPY config/global.ini /root/.config/obs-studio/global.ini
 COPY config/user.ini /root/.config/obs-studio/user.ini
 COPY scripts/ /root/scripts/
 COPY assets/ /root/assets/
+
+# Entrypoint and Supervisor
 COPY entrypoint.sh /entrypoint.sh
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 5800 5900 4455 6080

@@ -222,6 +222,39 @@ RUN git clone --recursive https://github.com/DistroAV/DistroAV.git /tmp/DistroAV
 RUN git clone https://github.com/novnc/noVNC.git /opt/novnc && \
     ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
     git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
+    
+# Install standalone Asio (header-only)
+RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
+    mkdir -p /usr/local/include/asio && \
+    cp -r /tmp/asio/asio/include/asio /usr/local/include/asio && \
+    rm -rf /tmp/asio
+
+# --- Install qrcodegencpp headers ---
+RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen && \
+    mkdir -p /usr/local/include/qrcodegen && \
+    cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen && \
+    echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake && \
+    echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake && \
+    rm -rf /tmp/qrcodegen
+
+# --- Build obs-3d-effect plugin ---
+RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect && \
+    cd /tmp/obs-3d-effect && \
+    cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_INSTALL_PREFIX=/usr && \
+    cmake --build build && cmake --install build && \
+    rm -rf /tmp/obs-3d-effect
+
+# --- Build obs-websocket plugin ---
+RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket && \
+    cd /tmp/obs-websocket && \
+    cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=Off \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_PREFIX_PATH="/usr;/usr/local" \
+      -DCMAKE_MODULE_PATH="/usr/local/share/cmake/Modules" && \
+    cmake --build build -j$(nproc) && \
+    cmake --install build && \
+    rm -rf /tmp/obs-websocket
 
 # ---------------------------------------------
 # Stage 3: Runtime - Slim OBS runtime image
