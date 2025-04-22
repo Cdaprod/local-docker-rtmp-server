@@ -2,15 +2,9 @@
 # Stage 1: Runtime only (NO building)
 # All plugins now built upstream in cdaprod/obs-runtime:latest
 # --------------------------------------------
-FROM cdaprod/obs-runtime:latest AS runtime
+FROM cdaprod/obs-runtime:v1.2.2 AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
-
-# Add noVNC if not included already
-RUN [ ! -d /opt/novnc ] && \
-    git clone https://github.com/novnc/noVNC /opt/novnc && \
-    ln -sf /opt/novnc/vnc_lite.html /opt/novnc/index.html && \
-    git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify
 
 # Create necessary runtime directories
 RUN mkdir -p \
