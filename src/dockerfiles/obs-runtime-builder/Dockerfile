@@ -230,13 +230,15 @@ RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
     cp -r /tmp/asio/asio/include/asio /usr/local/include/asio && \
     rm -rf /tmp/asio
 
-# --- Install qrcodegencpp headers ---
-RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
- && mkdir -p /usr/local/include/qrcodegen \
- && mkdir -p /usr/local/share/cmake/Modules \
- && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen \
- && echo 'set(qrcodegencpp_FOUND TRUE)' >  /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
- && echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
+# --- Install qrcodegencpp headers and fake CMake module ---
+RUN mkdir -p /usr/local/share/cmake/Modules \
+ && git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
+ && mkdir -p /usr/local/include/qrcodegencpp \
+ && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegencpp \
+ && echo 'set(qrcodegencpp_FOUND TRUE)'                                        \
+      > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
+ && echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include/qrcodegencpp)'        \
+      >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
  && rm -rf /tmp/qrcodegen
     
 # --------------------------------------------
