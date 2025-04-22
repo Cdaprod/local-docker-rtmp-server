@@ -267,7 +267,7 @@ RUN git clone --recursive https://github.com/fzwoch/obs-gstreamer.git /tmp/obs-g
 # --------------------------------------------
 # Stage N+1: Builder for obs‑v4l2sink plugin
 # --------------------------------------------
-FROM builder AS builder‑v4l2sink
+FROM builder AS builder-v4l2sink
 
 # bring in the OBS headers so find_package(Libobs) works
 RUN apt-get update \
