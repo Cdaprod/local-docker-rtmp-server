@@ -232,10 +232,53 @@ RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
 # --- Install qrcodegencpp headers ---
 RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen && \
     mkdir -p /usr/local/include/qrcodegen && \
+    mkdir -p /usr/local/share/cmake/Modules && \
     cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen && \
     echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake && \
     echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake && \
     rm -rf /tmp/qrcodegen
+    
+# --------------------------------------------
+# Stage N: Builder for obs-gstreamer plugin
+# --------------------------------------------
+FROM builder AS builder-gstreamer
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    v4l2loopback-dkms \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN git clone --recursive https://github.com/fzwoch/obs-gstreamer.git /tmp/obs-gstreamer && \
+    cd /tmp/obs-gstreamer && \
+    cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
+      -DCMAKE_INSTALL_PREFIX=/usr && \
+    cmake --build build -j$(nproc) && \
+    cmake --install build && \
+    rm -rf /tmp/obs-gstreamer
+
+# --------------------------------------------
+# Stage N+1: Builder for obs-v4l2sink plugin
+# --------------------------------------------
+FROM builder AS builder-v4l2sink
+
+RUN git clone --recursive https://github.com/CatxFish/obs-v4l2sink.git /tmp/obs-v4l2sink && \
+    cd /tmp/obs-v4l2sink && \
+    cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
+      -DCMAKE_INSTALL_PREFIX=/usr && \
+    cmake --build build -j$(nproc) && \
+    cmake --install build && \
+    rm -rf /tmp/obs-v4l2sink
+
+# --------------------------------------------
+# Stage N: Builder for obs-3d-effect plugin
+# --------------------------------------------
+FROM builder AS builder-3d-effect
 
 # --- Build obs-3d-effect plugin ---
 RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect && \
@@ -243,6 +286,11 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect &&
     cmake -S . -B build -DBUILD_OUT_OF_TREE=On -DCMAKE_INSTALL_PREFIX=/usr && \
     cmake --build build && cmake --install build && \
     rm -rf /tmp/obs-3d-effect
+
+# --------------------------------------------
+# Stage N: Builder for obs-websocket plugin
+# --------------------------------------------
+FROM builder AS builder-websocket
 
 # --- Build obs-websocket plugin ---
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket && \
@@ -279,8 +327,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip openbox fluxbox && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy plugin builder artifacts
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
+
+# Copy 3D‑Effect plugin artifacts
+COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/ /usr/lib/obs-plugins/obs-3d-effect/
+
+# Copy Websocket plugin artifacts
+COPY --from=builder-websocket /tmp/obs-websocket/build/ /usr/lib/obs-plugins/obs-websocket/
+
+# Copy obs-gstreamer plugin artifacts
+COPY --from=builder-gstreamer /usr/lib/obs-plugins/ /usr/lib/obs-plugins/
+COPY --from=builder-gstreamer /usr/share/obs/obs-plugins/ /usr/share/obs/obs-plugins/
+
+# Copy obs-v4l2sink plugin artifacts
+COPY --from=builder-v4l2sink /usr/lib/obs-plugins/ /usr/lib/obs-plugins/
+COPY --from=builder-v4l2sink /usr/share/obs/obs-plugins/ /usr/share/obs/obs-plugins/
 
 RUN mkdir -p \
     /root/.config/obs-studio \

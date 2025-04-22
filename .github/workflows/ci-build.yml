@@ -1,4 +1,4 @@
-name: CI-Build
+name: CI-Build Root Compose
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
         with:
           version: '2.14.2' # Specify the desired version
 
-      # Step 3: Build and run services with graceful error handling
+      # Step 3: Build and run root compose services with graceful error handling
       - name: Build and run services
         run: |
           set -e
