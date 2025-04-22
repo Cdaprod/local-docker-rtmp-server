@@ -263,18 +263,24 @@ RUN git clone --recursive https://github.com/fzwoch/obs-gstreamer.git /tmp/obs-g
     rm -rf /tmp/obs-gstreamer
 
 # --------------------------------------------
-# Stage N+1: Builder for obs-v4l2sink plugin
+# Stage N+1: Builder for obs‑v4l2sink plugin
 # --------------------------------------------
-FROM builder AS builder-v4l2sink
+FROM builder AS builder‑v4l2sink
 
-RUN git clone --recursive https://github.com/CatxFish/obs-v4l2sink.git /tmp/obs-v4l2sink && \
-    cd /tmp/obs-v4l2sink && \
-    cmake -S . -B build \
+# bring in the OBS headers so find_package(Libobs) works
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libobs-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --recursive https://github.com/CatxFish/obs-v4l2sink.git /tmp/obs-v4l2sink \
+ && cd /tmp/obs-v4l2sink \
+ && cmake -S . -B build \
       -DBUILD_OUT_OF_TREE=On \
-      -DCMAKE_INSTALL_PREFIX=/usr && \
-    cmake --build build -j$(nproc) && \
-    cmake --install build && \
-    rm -rf /tmp/obs-v4l2sink
+      -DCMAKE_INSTALL_PREFIX=/usr \
+ && cmake --build build -j$(nproc) \
+ && cmake --install build \
+ && rm -rf /tmp/obs-v4l2sink
 
 # --------------------------------------------
 # Stage N: Builder for obs-3d-effect plugin
