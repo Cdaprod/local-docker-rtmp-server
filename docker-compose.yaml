@@ -55,10 +55,11 @@ services:
  ################################################
 
   obs-pi:
-    build:
-      context: ./pi-obs-container
-      # dockerfile: Dockerfile.arm64
-      dockerfile: Dockerfile-v2.arm64
+    image: cdaprod/obs-pi:v1.2.2
+    #build:
+      #context: ./pi-obs-container
+      #dockerfile: Dockerfile.arm64
+      #dockerfile: Dockerfile-v2.arm64
     container_name: obs-pi
     privileged: true
     restart: unless-stopped
@@ -99,7 +100,8 @@ services:
  ################################################
 
   rtmp-server:
-    build: ./rtmp-server
+    image: cdaprod/rtmp-server:v1.2.2
+    #build: ./rtmp-server
     container_name: rtmp-pi
     restart: unless-stopped
     ports:
@@ -241,9 +243,10 @@ services:
 
 
   metadata-service:
-    build:
-      context: ./metadata-service
-      dockerfile: Dockerfile
+    image: cdaprod/metadata-service:v1.2.2
+    #build:
+      #context: ./metadata-service
+      #dockerfile: Dockerfile
     container_name: metadata-service
     restart: unless-stopped
     volumes:
