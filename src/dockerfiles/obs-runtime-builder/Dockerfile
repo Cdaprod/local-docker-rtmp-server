@@ -174,12 +174,11 @@ RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c && \
     
 # Install WebSocket++ from source
 RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocketpp && \
-    mkdir -p /usr/local/include/websocketpp && \
+    mkdir -p /usr/local/include/websocketpp /usr/local/share/cmake/Modules && \
     cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
     rm -rf /tmp/websocketpp && \
-    mkdir -p /usr/local/share/cmake/Modules && \
     echo 'set(websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findwebsocketpp.cmake && \
-    echo 'set(websocketpp_INCLUDE_DIR /usr/local/include/websocketpp)' >> /usr/local/share/cmake/Modules/Findwebsocketpp.cmake
+    echo 'set(websocketpp_INCLUDE_DIR /usr/local/include/websocketpp)' >> /usr/local/share/cmake/Modules/Findwebsocketpp.cmake 
     
 # Install standalone Asio (header-only)
 RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
