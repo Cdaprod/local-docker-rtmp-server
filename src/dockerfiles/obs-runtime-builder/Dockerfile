@@ -310,21 +310,16 @@ ENV CMAKE_MODULE_PATH=/usr/local/share/cmake/Modules
 # Clone & patch obs‑websocket
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
  && cd /tmp/obs-websocket \
- \
- # 1) Prepend a dummy project() + target_export macro  
- && { printf 'cmake_minimum_required(VERSION 3.10)\n'   \
-          'project(obs_websocket)\n'                   \
-          'macro(target_export _)\nendmacro()\n\n'     \
-      > CMakeLists.txt.patched;                        \
-    cat CMakeLists.txt >> CMakeLists.txt.patched;      \
-    mv CMakeLists.txt.patched CMakeLists.txt; }        \
- \
- # 2) now configure & build as usual  
- && cmake -S . -B build        \
-      -DBUILD_OUT_OF_TREE=On   \
+ && bash -c "echo -e 'cmake_minimum_required(VERSION 3.10)\n\
+project(obs_websocket)\n\
+macro(target_export _)\nendmacro()\n' > CMakeLists.txt.patched" \
+ && cat CMakeLists.txt >> CMakeLists.txt.patched \
+ && mv CMakeLists.txt.patched CMakeLists.txt \
+ && cmake -S . -B build \
+      -DBUILD_OUT_OF_TREE=On \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}"      \
-      -DCMAKE_MODULE_PATH="${CMAKE_MODULE_PATH}"      \
+      -DCMAKE_PREFIX_PATH=\${CMAKE_PREFIX_PATH} \
+      -DCMAKE_MODULE_PATH=\${CMAKE_MODULE_PATH} \
  && cmake --build build -j$(nproc) \
  && cmake --install build \
  && rm -rf /tmp/obs-websocket
