@@ -177,6 +177,7 @@ RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocke
     mkdir -p /usr/local/include/websocketpp && \
     cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
     rm -rf /tmp/websocketpp && \
+    mkdir -p /usr/local/share/cmake/Modules && \
     echo 'set(websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findwebsocketpp.cmake && \
     echo 'set(websocketpp_INCLUDE_DIR /usr/local/include/websocketpp)' >> /usr/local/share/cmake/Modules/Findwebsocketpp.cmake
     
