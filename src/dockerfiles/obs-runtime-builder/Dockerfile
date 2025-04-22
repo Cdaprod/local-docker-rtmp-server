@@ -39,7 +39,8 @@ ENV DEV_DEPS="\
       libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
       libjansson-dev libpulse-dev libxkbcommon-dev \
       libxcb1-dev libxcb-xinput-dev libxcb-shm0-dev libxcb-xinerama0-dev \
-      libxcb-randr0-dev libxcomposite-dev libxcursor-dev"
+      libxcb-randr0-dev libxcomposite-dev libxcursor-dev \
+      libobs-dev"
 
 RUN apt-get update && apt-get install -y --no-install-recommends $DEV_DEPS \
   && rm -rf /var/lib/apt/lists/*
@@ -230,13 +231,13 @@ RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio && \
     rm -rf /tmp/asio
 
 # --- Install qrcodegencpp headers ---
-RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen && \
-    mkdir -p /usr/local/include/qrcodegen && \
-    mkdir -p /usr/local/share/cmake/Modules && \
-    cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen && \
-    echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake && \
-    echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake && \
-    rm -rf /tmp/qrcodegen
+RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
+ && mkdir -p /usr/local/include/qrcodegen \
+ && mkdir -p /usr/local/share/cmake/Modules \
+ && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen \
+ && echo 'set(qrcodegencpp_FOUND TRUE)' >  /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
+ && echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
+ && rm -rf /tmp/qrcodegen
     
 # --------------------------------------------
 # Stage N: Builder for obs-gstreamer plugin
