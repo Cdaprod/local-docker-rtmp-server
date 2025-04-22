@@ -176,7 +176,7 @@ RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c && \
 RUN git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/websocketpp && \
     mkdir -p /usr/local/include/websocketpp && \
     cp -r /tmp/websocketpp/websocketpp /usr/local/include/ && \
-    rm -rf /tmp/websocketpp \
+    rm -rf /tmp/websocketpp && \
     echo 'set(websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findwebsocketpp.cmake && \
     echo 'set(websocketpp_INCLUDE_DIR /usr/local/include/websocketpp)' >> /usr/local/share/cmake/Modules/Findwebsocketpp.cmake
     
