@@ -351,20 +351,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /usr /usr
 COPY --from=builder /opt/novnc /opt/novnc
 
-# Copy 3D‑Effect plugin artifacts
-COPY --from=builder-3d-effect /tmp/obs-3d-effect/build/ /usr/lib/obs-plugins/obs-3d-effect/
-
-# Copy Websocket plugin artifacts
-COPY --from=builder-websocket /tmp/obs-websocket/build/ /usr/lib/obs-plugins/obs-websocket/
-
-# Copy obs-gstreamer plugin artifacts
-COPY --from=builder-gstreamer /usr/lib/obs-plugins/ /usr/lib/obs-plugins/
-COPY --from=builder-gstreamer /usr/share/obs/obs-plugins/ /usr/share/obs/obs-plugins/
-
-# Copy obs-v4l2sink plugin artifacts
-COPY --from=builder-v4l2sink /usr/lib/obs-plugins/ /usr/lib/obs-plugins/
-COPY --from=builder-v4l2sink /usr/share/obs/obs-plugins/ /usr/share/obs/obs-plugins/
-
 RUN mkdir -p \
     /root/.config/obs-studio \
     /opt/obs/plugins \
