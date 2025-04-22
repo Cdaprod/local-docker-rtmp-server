@@ -301,13 +301,10 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect &&
 # --------------------------------------------
 FROM builder AS builder-websocket
 
-# make sure our fake Find*.cmake modules are already in place
-ENV CMAKE_PREFIX_PATH=/usr;/usr/local
-ENV CMAKE_MODULE_PATH=/usr/local/share/cmake/Modules
+ENV CMAKE_PREFIX_PATH="/usr;/usr/local"
+ENV CMAKE_MODULE_PATH="/usr/local/share/cmake/Modules"
 
-# (uses Asio, websocketpp, qrcodegencpp installs from above builder stage)
-
-# Clone & patch obs‑websocket
+# Clone & patch obs-websocket
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
  && cd /tmp/obs-websocket \
  && bash -c "echo -e 'cmake_minimum_required(VERSION 3.10)\n\
@@ -318,12 +315,13 @@ macro(target_export _)\nendmacro()\n' > CMakeLists.txt.patched" \
  && cmake -S . -B build \
       -DBUILD_OUT_OF_TREE=On \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_PREFIX_PATH=\${CMAKE_PREFIX_PATH} \
-      -DCMAKE_MODULE_PATH=\${CMAKE_MODULE_PATH} \
+      -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH} \
+      -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} \
+ && cmake -LAH build | grep -i qrcode \
  && cmake --build build -j$(nproc) \
  && cmake --install build \
  && rm -rf /tmp/obs-websocket
-
+ 
 # ---------------------------------------------
 # Stage 3: Runtime - Slim OBS runtime image
 # ---------------------------------------------
