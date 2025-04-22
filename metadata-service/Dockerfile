@@ -1,33 +1,47 @@
-# Use official Python runtime as a parent image
-FROM python:3.9-slim
+# --------------------------------------------
+# Stage 1: Python Builder (for caching pip)
+# --------------------------------------------
+FROM python:3.9-slim AS metadata-builder
 
-# Set the working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install system tools
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
 
-# Copy the requirements.txt and install Python dependencies
-COPY ./requirements.txt /app/requirements.txt
-RUN pip3 install --no-cache-dir -r /app/requirements.txt
+# Copy and install Python deps
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# --------------------------------------------
+# Stage 2: Final Runtime
+# --------------------------------------------
+FROM python:3.9-slim
+
+LABEL org.opencontainers.image.title="metadata-service" \
+      org.opencontainers.image.description="Python FastAPI service for event-driven metadata processing" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.authors="David Cannan <Cdaprod@Cdaprod.dev>" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/Cdaprod/local-docker-rtmp-server" \
+      com.cdaprod.role="RabbitMQ Metadata Consumer" \
+      com.cdaprod.module="FastAPI, Metadata Queue, Sanity pipeline" \
+      com.cdaprod.env="production"
+
+WORKDIR /app
+
+# Copy dependencies from builder
+COPY --from=metadata-builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=metadata-builder /usr/local/bin /usr/local/bin
+
+# Copy your code
 COPY app.py .
 COPY healthcheck.sh .
-
-# Ensure healthcheck script is executable
 RUN chmod +x healthcheck.sh
 
-# Expose FastAPI port
 EXPOSE 5000
 
-# Define environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Run the application using Uvicorn (Development Mode)
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "4"]
-# Run the application using Uvicorn (Production Mode)
-#CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "4"]
