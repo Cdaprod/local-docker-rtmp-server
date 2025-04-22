@@ -22,37 +22,36 @@ RUN git clone https://github.com/exeldro/obs-3d-effect.git /tmp/obs-3d-effect \
       -DCMAKE_PREFIX_PATH=/usr \
  && cmake --build build \
  && echo "Built files:" && find /tmp/obs-3d-effect/build -type f
- 
+
 # --------------------------------------------
 # Stage 3: Builder for obs‑websocket
 # --------------------------------------------
 FROM builder-base AS builder-websocket
 
+# Configure custom CMake prefix/module paths
 ENV CMAKE_PREFIX_PATH=/usr/local
 ENV CMAKE_MODULE_PATH=/usr/local/share/cmake/Modules
 
-# Install Asio headers (standalone version, not Boost)
+# Install Asio (standalone version)
 RUN git clone https://github.com/chriskohlhoff/asio.git /tmp/asio \
- && mkdir -p /usr/local/include/asio \
+ && mkdir -p /usr/local/include/asio /usr/local/share/cmake/Modules \
  && cp -r /tmp/asio/asio/include/asio /usr/local/include/asio \
- && echo 'find_package(Asio REQUIRED)' > /usr/local/share/cmake/Modules/FindAsio.cmake \
- && echo 'set(Asio_FOUND TRUE)' >> /usr/local/share/cmake/Modules/FindAsio.cmake \
+ && echo 'set(Asio_FOUND TRUE)' > /usr/local/share/cmake/Modules/FindAsio.cmake \
  && echo 'set(Asio_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/FindAsio.cmake
- 
-# Install qrcodegen
+
+# Install QRCodeGen
 RUN git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcodegen \
  && mkdir -p /usr/local/include/qrcodegen \
- && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen
+ && cp /tmp/qrcodegen/cpp/*.hpp /usr/local/include/qrcodegen \
+ && echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
+ && echo 'set(qrcodegencpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake
 
-# Install websocketpp
+# Install WebSocket++ headers
 RUN git clone https://github.com/zaphoyd/websocketpp.git /tmp/websocketpp \
  && mkdir -p /usr/local/include/websocketpp \
- && cp -r /tmp/websocketpp/websocketpp /usr/local/include/
-
-# Add dummy CMake modules
-RUN mkdir -p /usr/local/share/cmake/Modules \
- && echo 'set(qrcodegencpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/Findqrcodegencpp.cmake \
- && echo 'set(Websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/FindWebsocketpp.cmake
+ && cp -r /tmp/websocketpp/websocketpp /usr/local/include/ \
+ && echo 'set(Websocketpp_FOUND TRUE)' > /usr/local/share/cmake/Modules/FindWebsocketpp.cmake \
+ && echo 'set(Websocketpp_INCLUDE_DIR /usr/local/include)' >> /usr/local/share/cmake/Modules/FindWebsocketpp.cmake
 
 # Clone and patch obs-websocket
 RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/obs-websocket \
@@ -65,9 +64,10 @@ RUN git clone --recursive https://github.com/obsproject/obs-websocket.git /tmp/o
  && cd /tmp/obs-websocket \
  && cmake -S . -B build \
       -DBUILD_OUT_OF_TREE=On \
-      -DCMAKE_PREFIX_PATH=/usr/local \
-      -DCMAKE_MODULE_PATH=/usr/local/share/cmake/Modules \
- && cmake --build build
+      -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH} \
+      -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH} \
+ && cmake --build build \
+ && find /tmp/obs-websocket/build -type f
 
 # --------------------------------------------
 # Stage 4: Final runtime
