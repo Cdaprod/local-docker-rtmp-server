@@ -33,7 +33,7 @@ services:
       - "16080:6080"  # web VNC
     privileged: true
     devices:
-      - /dev/video0
+      - ${VIDEO_DEVICE:-/dev/video0}:/dev/video0
     volumes:
       - ./config:/root/.config/obs-studio:rw
       - ./assets:/root/assets:rw
