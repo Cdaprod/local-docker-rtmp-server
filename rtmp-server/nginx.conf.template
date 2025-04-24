@@ -14,6 +14,11 @@ env TWITCH_CHANNEL_NAME;
 env DEVICE1_STREAM_KEY;
 env DEVICE2_STREAM_KEY;
 env DEVICE3_STREAM_KEY;
+env FFMPEG_HWACCEL;
+env FFMPEG_ENCODER;
+env FFMPEG_BITRATE;
+env FFMPEG_AUDIO_BITRATE;
+env FFMPEG_THREADS;
 
 events {
     worker_connections ${NGINX_WORKER_CONNECTIONS};
@@ -66,21 +71,26 @@ rtmp {
         listen 1935;
         chunk_size 4096;
 
-        ### 1. LIVE INGEST (from iPhone / LiveNow) ###
+        ### 1. LIVE INGEST (iPhone) ###
         application live {
             live on;
             allow publish all;
             deny play all;
-            
+
             record all;
             record_path /var/www/recordings/iphone;
             record_unique on;
             record_suffix _%Y-%m-%d_%H-%M.flv;
 
-            exec ffmpeg -loglevel debug -re \
+            exec ffmpeg -hide_banner -loglevel info -re \
+                -hwaccel ${FFMPEG_HWACCEL:-v4l2m2m} \
+                -c:v ${FFMPEG_ENCODER:-h264_v4l2m2m} \
                 -i rtmp://localhost/live/$name \
-                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -c:v ${FFMPEG_ENCODER:-h264_v4l2m2m} \
+                -b:v ${FFMPEG_BITRATE:-3000k} \
+                -threads ${FFMPEG_THREADS:-4} \
                 -c:a aac \
+                -b:a ${FFMPEG_AUDIO_BITRATE:-128k} \
                 -f flv rtmp://localhost/broadcast/$name;
 
             on_publish http://localhost:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;

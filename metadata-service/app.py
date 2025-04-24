@@ -61,28 +61,26 @@ async def health_check():
     return {"status": "healthy"}
 
 @app.get("/on_publish")
-async def on_publish(user: Optional[str] = Query(None), stream: Optional[str] = Query(None)):
-    """
-    Handle the 'on_publish' event.
-    """
-    try:
-        data = {"user": user, "stream": stream}
-        enriched_data = {
-            "event_type": "on_publish",
-            "timestamp": datetime.utcnow().isoformat(),
-            "data": data,
-            "provenance": {
-                "processed_by": "metadata_enricher",
-                "processed_at": datetime.utcnow().isoformat(),
-                "version": "1.0.0",
-            }
+async def on_publish(
+    app: Optional[str] = Query(None),
+    name: Optional[str] = Query(None),
+    addr: Optional[str] = Query(None),
+    clientid: Optional[str] = Query(None)
+):
+    data = {"app": app, "name": name, "addr": addr, "clientid": clientid}
+    enriched_data = {
+        "event_type": "on_publish",
+        "timestamp": datetime.utcnow().isoformat(),
+        "data": data,
+        "provenance": {
+            "processed_by": "metadata_enricher",
+            "processed_at": datetime.utcnow().isoformat(),
+            "version": "1.0.0",
         }
-        publish_message("stream_events", enriched_data)
-        logger.info(f"Processed 'on_publish' event with data: {data}")
-        return {"status": "success"}
-    except Exception as e:
-        logger.error(f"Error processing 'on_publish' event: {e}")
-        return {"status": "error", "message": str(e)}
+    }
+    publish_message("stream_events", enriched_data)
+    logger.info(f"Processed 'on_publish' event with data: {data}")
+    return {"status": "success"}
 
 @app.get("/on_publish_done")
 async def on_publish_done(user: Optional[str] = Query(None), stream: Optional[str] = Query(None)):

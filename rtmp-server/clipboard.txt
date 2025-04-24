@@ -1,0 +1,471 @@
+[0;36m[1m=== File Analysis for "rtmp-server" directory ===
+Found 5 all files (max depth: 1)[0m
+
+[0;33m[1mDirectory Structure:[0m
+.
+├── archived_confs
+├── Dockerfile
+├── .dockerignore
+├── entrypoint.sh
+├── nginx.conf-2.template.disabled
+├── nginx.conf.template
+├── public
+├── README.md
+└── scripts
+
+4 directories, 6 files
+
+[0;33m[1mDetailed File Analysis:[0m
+[0;34m"""[0m
+
+[0;36m=== Path: /home/cdaprod/Projects/local-docker-rtmp-server/rtmp-server
+=== File: Dockerfile
+
+# -----------------------------------------------
+# Stage 1: Builder – For Python and system deps
+# -----------------------------------------------
+FROM python:3.9-slim AS rtmp-builder
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cifs-utils \
+    curl \
+    streamlink \
+    ffmpeg \
+    gettext-base \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for cache efficiency
+COPY ./scripts/requirements.txt ./scripts/requirements.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r ./scripts/requirements.txt
+
+# Copy scripts into place
+COPY ./scripts /app/scripts
+RUN chmod +x /app/scripts/*
+
+# -----------------------------------------------
+# Stage 2: Final Runtime – Based on nginx-rtmp
+# -----------------------------------------------
+FROM tiangolo/nginx-rtmp
+
+LABEL org.opencontainers.image.title="rtmp-server" \
+      org.opencontainers.image.description="Enhanced RTMP streaming server with FFmpeg, Streamlink, and Python scripting support" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.authors="David Cannan <Cdaprod@Cdaprod.dev>" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/Cdaprod/local-docker-rtmp-server" \
+      com.cdaprod.role="RTMP Streaming Server" \
+      com.cdaprod.module="FFmpeg, Python overlay, web dashboard, auto-record" \
+      com.cdaprod.env="production" 
+
+# Copy dependencies and tools from builder
+COPY --from=rtmp-builder /app/scripts /app/scripts
+
+# Install runtime tools needed in container
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    cifs-utils \
+    streamlink \
+    curl \
+    gettext-base \
+    jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create persistent directories
+RUN mkdir -p \
+    /var/www/recordings \
+    /usr/share/nginx/html/assets \
+    /tmp/hls \
+    && chmod -R 755 /var/www/recordings /usr/share/nginx/html/assets /tmp/hls
+
+# Copy static assets
+COPY ./public/assets/*.jpeg /usr/share/nginx/html/assets/
+COPY ./public/assets/stream-viewer.html /usr/share/nginx/html/assets/
+
+# Copy entrypoint and config
+COPY ./nginx.conf.template /etc/nginx/nginx.conf.template
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 1935 8080
+
+HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"][0m
+
+
+[0;33m[1m=== Directory Structure (for reference) ===[0m
+.
+├── archived_confs
+├── Dockerfile
+├── .dockerignore
+├── entrypoint.sh
+├── nginx.conf-2.template.disabled
+├── nginx.conf.template
+├── public
+├── README.md
+└── scripts
+
+4 directories, 6 files
+
+[0;36m=== Path: /home/cdaprod/Projects/local-docker-rtmp-server/rtmp-server
+=== File: entrypoint.sh
+
+#!/bin/bash
+set -euo pipefail
+
+# NAS mount details
+NAS_IP_OR_HOSTNAME=${NAS_IP_OR_HOSTNAME:-"192.168.0.19"}
+NAS_SHARE_NAME=${NAS_SHARE_NAME:-"volume1/videos"}
+NAS_USERNAME=${NAS_USERNAME:-""}
+NAS_PASSWORD=${NAS_PASSWORD:-""}
+NAS_MOUNT_PATH=${NAS_MOUNT_PATH:-"/var/www/recordings"}
+
+# Function to verify SSL certificates
+check_ssl_certificates() {
+    if [ ! -f "/etc/nginx/ssl/cert.pem" ] || [ ! -f "/etc/nginx/ssl/key.pem" ]; then
+        echo "Warning: SSL certificates not found. Generating self-signed certificates..."
+        mkdir -p /etc/nginx/ssl
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout /etc/nginx/ssl/key.pem \
+            -out /etc/nginx/ssl/cert.pem \
+            -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+    fi
+}
+
+# Function to verify and set up directories
+setup_directories() {
+    local dirs=("/var/www/recordings" "/tmp/hls" "/usr/share/nginx/html/assets")
+    for dir in "${dirs[@]}"; do
+        mkdir -p "$dir"
+    done
+    echo "Directories are set up."
+}
+
+# Mount NAS function
+mount_nas() {
+    echo "Checking NAS mount at ${NAS_MOUNT_PATH}..."
+    if mountpoint -q "${NAS_MOUNT_PATH}"; then
+        echo "NAS is already mounted at ${NAS_MOUNT_PATH}"
+        return 0
+    fi
+
+    echo "Attempting to mount NAS at ${NAS_MOUNT_PATH}..."
+    mkdir -p "${NAS_MOUNT_PATH}"
+
+    local mount_options="rw,vers=3.0,uid=1000,gid=1000"
+    if [ -n "${NAS_USERNAME}" ] && [ -n "${NAS_PASSWORD}" ]; then
+        mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" \
+            -o username="${NAS_USERNAME}",password="${NAS_PASSWORD}",${mount_options}
+    else
+        mount -t cifs "//${NAS_IP_OR_HOSTNAME}/${NAS_SHARE_NAME}" "${NAS_MOUNT_PATH}" -o "${mount_options}"
+    fi
+
+    if mountpoint -q "${NAS_MOUNT_PATH}"; then
+        echo "NAS mounted successfully at ${NAS_MOUNT_PATH}"
+    else
+        echo "Error: Failed to mount NAS at ${NAS_MOUNT_PATH}"
+        exit 1
+    fi
+}
+
+# Function to generate nginx configuration
+generate_nginx_conf() {
+    echo "Generating nginx configuration..."
+    if [ ! -f "/etc/nginx/nginx.conf.template" ]; then
+        echo "Error: nginx.conf.template not found!"
+        exit 1
+    fi
+
+    # Export additional variables for template substitution
+    export NGINX_WORKER_PROCESSES=${NGINX_WORKER_PROCESSES:-auto}
+    export NGINX_WORKER_CONNECTIONS=${NGINX_WORKER_CONNECTIONS:-2048}
+    export MAX_SEGMENT_DURATION=${MAX_SEGMENT_DURATION:-6}
+
+    envsubst '${NGINX_WORKER_PROCESSES} ${NGINX_WORKER_CONNECTIONS} ${MAX_SEGMENT_DURATION}' \
+        < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+
+    # Validate nginx configuration
+    if ! nginx -t -c /etc/nginx/nginx.conf; then
+        echo "Error: Nginx configuration validation failed!"
+        exit 1
+    fi
+}
+
+# Main execution
+main() {
+    echo "Starting RTMP server initialization..."
+
+    # Run setup functions
+    check_ssl_certificates
+    setup_directories
+    mount_nas
+    generate_nginx_conf
+
+    # Start nginx
+    echo "Starting nginx..."
+    exec nginx -g 'daemon off;'
+}
+
+# Execute main function
+main "$@"[0m
+
+[0;36m=== Path: /home/cdaprod/Projects/local-docker-rtmp-server/rtmp-server
+=== File: nginx.conf-2.template.disabled
+
+worker_processes ${NGINX_WORKER_PROCESSES};
+rtmp_auto_push on;
+rtmp_auto_push_reconnect 1s;
+
+# Define environment variables for dynamic substitution
+env NAS_IP_OR_HOSTNAME;
+env NAS_SHARE_NAME;
+env NAS_USERNAME;
+env NAS_PASSWORD;
+env YOUTUBE_VIDEO_ID;
+env YOUTUBE_STREAM_KEY;
+env FACEBOOK_STREAM_KEY;
+env TWITCH_STREAM_KEY;
+env TWITCH_CHANNEL_NAME;
+env DEVICE1_STREAM_KEY; # iphone..?
+env DEVICE2_STREAM_KEY;
+env DEVICE3_STREAM_KEY;
+env NAS_SHARE_NAME;
+
+events {
+    worker_connections ${NGINX_WORKER_CONNECTIONS};
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    tcp_nopush    on;
+
+    # Add logging for debugging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log debug;
+
+    server {
+        listen 8080;
+        server_name localhost;
+
+        # Enhanced CORS support
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+
+        # HLS config
+        location /hls {
+            types {
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            }
+            root /tmp/hls;
+            add_header Cache-Control no-cache;
+            add_header Access-Control-Allow-Origin *;
+        }
+
+        # Stats and monitoring
+        location /stat {
+            rtmp_stat all;
+            rtmp_stat_stylesheet stat.xsl;
+        }
+
+        location /stat.xsl {
+            root /usr/share/nginx/html;
+        }
+
+        # Health check
+        location /health {
+            return 200 "healthy
+";
+        }
+    }
+}
+
+rtmp {
+    server {
+        listen 1935;
+        chunk_size 4096;  # Optimized for mobile
+        
+        # Main ingest point for all devices
+        application ingest {
+            live on;
+            allow publish all;
+            allow play all;
+            
+            # HLS settings
+            hls on;
+            hls_path /tmp/hls;
+            hls_fragment 2s;
+            hls_playlist_length 16s;
+            # hls_flags delete_segments; # (Caused issue)
+            hls_cleanup on;
+            
+            exec ffmpeg -re \
+                -i rtmp://localhost/live/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -f flv rtmp://localhost/broadcast/$name;
+
+            #exec ffmpeg -re \
+                #-i rtmp://localhost/live/$name \
+                #-loop 1 -i /mnt/data/transparent_iphone_frame.png \
+                #-filter_complex "[0:v]scale=720:1080[scaled];[1:v]scale=1120:1280[frame];[frame][scaled]overlay=200:100[out]" \
+                #-map "[out]" -c:v libx264 -preset ultrafast -tune zerolatency -f flv \
+                #rtmp://localhost/processed/$name;
+            
+            # Push to social platforms
+            #push rtmp://a.rtmp.youtube.com/live/${YOUTUBE_STREAM_KEY};
+            #push rtmp://live-api.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
+            #push rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+            
+            # Record everything
+            #record all;
+            #record_path ${NAS_SHARE_NAME}/recordings/ingest;
+            #record_unique on;
+            #record_suffix _%Y-%m-%d_%H-%M.flv;
+            
+            # Metadata hooks
+            on_publish http://localhost:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://localhost:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            #on_publish http://127.0.0.1:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            #on_publish_done http://127.0.0.1:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+    }
+}[0m
+
+[0;36m=== Path: /home/cdaprod/Projects/local-docker-rtmp-server/rtmp-server
+=== File: nginx.conf.template
+
+worker_processes ${NGINX_WORKER_PROCESSES};
+rtmp_auto_push on;
+rtmp_auto_push_reconnect 1s;
+
+env NAS_IP_OR_HOSTNAME;
+env NAS_SHARE_NAME;
+env NAS_USERNAME;
+env NAS_PASSWORD;
+env YOUTUBE_VIDEO_ID;
+env YOUTUBE_STREAM_KEY;
+env FACEBOOK_STREAM_KEY;
+env TWITCH_STREAM_KEY;
+env TWITCH_CHANNEL_NAME;
+env DEVICE1_STREAM_KEY;
+env DEVICE2_STREAM_KEY;
+env DEVICE3_STREAM_KEY;
+
+events {
+    worker_connections ${NGINX_WORKER_CONNECTIONS};
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    tcp_nopush    on;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log debug;
+
+    server {
+        listen 8080;
+        server_name localhost;
+
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+
+        location /hls {
+            types {
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            }
+            root /tmp/hls;
+            add_header Cache-Control no-cache;
+            add_header Access-Control-Allow-Origin *;
+        }
+
+        location /stat {
+            rtmp_stat all;
+            rtmp_stat_stylesheet stat.xsl;
+        }
+
+        location /stat.xsl {
+            root /usr/share/nginx/html;
+        }
+
+        location /health {
+            return 200 "healthy
+";
+        }
+    }
+}
+
+rtmp {
+    server {
+        listen 1935;
+        chunk_size 4096;
+
+        ### 1. LIVE INGEST (from iPhone / LiveNow) ###
+        application live {
+            live on;
+            allow publish all;
+            deny play all;
+            
+            record all;
+            record_path /var/www/recordings/iphone;
+            record_unique on;
+            record_suffix _%Y-%m-%d_%H-%M.flv;
+
+            exec ffmpeg -loglevel debug -re \
+                -i rtmp://localhost/live/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -c:a aac \
+                -f flv rtmp://localhost/broadcast/$name;
+
+            on_publish http://localhost:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://localhost:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        ### 2. PUBLIC BROADCAST ###
+        application broadcast {
+            live on;
+            allow play all;
+
+            hls on;
+            hls_path /tmp/hls;
+            hls_fragment 2s;
+            hls_playlist_length 16s;
+            hls_cleanup on;
+
+            # Optional: Push to CDN
+            # push rtmp://a.rtmp.youtube.com/live/${YOUTUBE_STREAM_KEY};
+            # push rtmp://live-api.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
+            # push rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+
+            # Optional: Record all sessions
+            # record all;
+            # record_path /var/www/recordings;
+            # record_unique on;
+            # record_suffix _%Y-%m-%d_%H-%M.flv;
+        }
+    }
+}[0m
+
+[0;36m=== Path: /home/cdaprod/Projects/local-docker-rtmp-server/rtmp-server
+=== File: README.md
+
+[0m
+
+[0;34m"""[0m
+
+[0;35m[1m=== Analysis Summary ===
+Directory: rtmp-server
+Total Files Found: 5[0m
+

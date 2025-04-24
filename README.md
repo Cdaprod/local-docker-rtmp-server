@@ -155,6 +155,15 @@ Here’s a cinematic + DevOps-style analogy to explain what I’ve built:
 
 - **Placeholder**: Your custom "We’ll Be Right Back" image streams when idle. 🎨
 
+## RTMP Integration Webhooks
+
+The following endpoints are triggered by the RTMP server (`nginx.conf.template`):
+- `/on_publish?app=...&name=...&addr=...&clientid=...`
+- `/on_publish_done?app=...&name=...&addr=...&clientid=...`
+
+Both events are enriched and forwarded to RabbitMQ (`stream_events` queue).
+
+
 ---
 
 ## 🛠 Troubleshooting
