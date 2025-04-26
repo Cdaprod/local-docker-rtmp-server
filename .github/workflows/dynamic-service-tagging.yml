@@ -50,8 +50,13 @@ jobs:
 
       - name: Discover and build services
         run: |
+          set +e
           VERSION=${{ steps.gitversion.outputs.SemVer }}
           REPO=$(basename "${GITHUB_REPOSITORY}")
+          declare -A BUILD_STATUS
+
+          echo "" > build_report.txt
+          echo "========= BUILD REPORT =========" >> build_report.txt
 
           for dir in services/*; do
             if [ -f "$dir/Dockerfile" ]; then
@@ -66,9 +71,36 @@ jobs:
                 --tag ghcr.io/${{ github.repository }}/$NAME:$VERSION \
                 --tag ghcr.io/${{ github.repository }}/$NAME:latest
 
+              if [ $? -eq 0 ]; then
+                BUILD_STATUS[$NAME]="✅ Success"
+              else
+                BUILD_STATUS[$NAME]="❌ Failed"
+              fi
+
               echo "::endgroup::"
             fi
           done
+
+          echo "" >> build_report.txt
+          for service in "${!BUILD_STATUS[@]}"; do
+            echo "${service}: ${BUILD_STATUS[$service]}" | tee -a build_report.txt
+          done
+          echo "================================" >> build_report.txt
+          cat build_report.txt
+
+          # Fail the job if any service failed
+          for status in "${BUILD_STATUS[@]}"; do
+            if [[ "$status" == *"Failed"* ]]; then
+              echo "ERROR: One or more builds failed."
+              exit 1
+            fi
+          done
+
+      - name: Upload Build Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: build_report.txt
 
       - name: Create Git Tag and Release
         if: github.ref_type != 'tag'
