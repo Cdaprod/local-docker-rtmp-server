@@ -1,0 +1,133 @@
+---
+# test_camera_rig_deployment.yml
+# Ansible playbook to test the connectivity and functionality of the camera rig network
+
+- name: Test RPi5 Host Setup
+  hosts: rpi5_hosts
+  become: yes
+  tasks:
+    - name: Check Docker service
+      service_facts:
+      register: services_state
+
+    - name: Verify Docker is running
+      debug:
+        msg: "Docker service is {{ services_state.ansible_facts.services['docker.service'].state }}"
+      failed_when: services_state.ansible_facts.services['docker.service'].state != "running"
+
+    - name: Check Docker network existence
+      shell: docker network ls | grep camera_network
+      register: docker_network_check
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display Docker network status
+      debug:
+        msg: "Camera network exists: {{ docker_network_check.rc == 0 }}"
+
+    - name: Check WiFi AP status
+      service_facts:
+      register: hostapd_state
+
+    - name: Verify hostapd is running
+      debug:
+        msg: "WiFi AP service is {{ hostapd_state.ansible_facts.services['hostapd.service'].state }}"
+      failed_when: hostapd_state.ansible_facts.services['hostapd.service'].state != "running"
+
+    - name: Check VPN status
+      service_facts:
+      register: vpn_state
+
+    - name: Verify WireGuard is running
+      debug:
+        msg: "WireGuard VPN service is {{ vpn_state.ansible_facts.services['wg-quick@wg0.service'].state }}"
+      failed_when: vpn_state.ansible_facts.services['wg-quick@wg0.service'].state != "running"
+
+    - name: Check Docker containers
+      shell: docker ps --format "{{.Names}}" | grep -v "^$"
+      register: docker_containers
+      changed_when: false
+
+    - name: List running containers
+      debug:
+        msg: "Running containers: {{ docker_containers.stdout_lines }}"
+
+    - name: Get repository status
+      stat:
+        path: "/opt/camera-rig"
+      register: repo_status
+
+    - name: Verify repository exists
+      debug:
+        msg: "Repository exists: {{ repo_status.stat.exists }}"
+      failed_when: not repo_status.stat.exists
+
+- name: Test RPiZW2 Peripheral Setup
+  hosts: rpizw2_peripherals
+  become: yes
+  tasks:
+    - name: Check VPN connection to host
+      shell: ping -c 3 10.200.200.1
+      register: ping_result
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display VPN connectivity
+      debug:
+        msg: "VPN connection to host: {{ ping_result.rc == 0 }}"
+
+    - name: Check Avahi service
+      service_facts:
+      register: avahi_state
+
+    - name: Verify Avahi is running
+      debug:
+        msg: "Avahi service is {{ avahi_state.ansible_facts.services['avahi-daemon.service'].state }}"
+      failed_when: avahi_state.ansible_facts.services['avahi-daemon.service'].state != "running"
+
+    - name: Test service discovery
+      shell: avahi-browse -at | grep camera-rig
+      register: avahi_discovery
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display service discovery status
+      debug:
+        msg: "Camera rig service discovery: {{ avahi_discovery.rc == 0 }}"
+
+- name: Connectivity Test Between Devices
+  hosts: rpi5_hosts
+  become: yes
+  tasks:
+    - name: Collect peripheral IP addresses
+      set_fact:
+        peripheral_ips: "{{ groups['rpizw2_peripherals'] | map('extract', hostvars, ['ansible_host']) | list }}"
+
+    - name: Test connection to peripherals
+      shell: "ping -c 1 {{ item }} > /dev/null 2>&1"
+      register: ping_results
+      with_items: "{{ peripheral_ips }}"
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display connectivity results
+      debug:
+        msg: "Connection to {{ item.item }} {{ 'successful' if item.rc == 0 else 'failed' }}"
+      with_items: "{{ ping_results.results }}"
+
+    - name: Check Docker network connectivity
+      shell: |
+        container_id=$(docker ps -q | head -1)
+        if [ -n "$container_id" ]; then
+          docker exec $container_id ping -c 1 8.8.8.8
+        else
+          echo "No containers running"
+          exit 1
+        fi
+      register: container_network
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display container network connectivity
+      debug:
+        msg: "Container internet connectivity: {{ container_network.rc == 0 }}"

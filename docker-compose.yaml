@@ -74,6 +74,8 @@ services:
       #- /dev/video0 # Replaced symlinked video0 with direct dev/
       - /dev/nikon-capture:/dev/video0
       - /dev/video11:/dev/video11  # CSI Cam via v4l2loopback
+      #- /dev/dri
+      #- /dev/snd
     volumes:
       - ./pi-obs-container/config:/root/.config/obs-studio
       - ./pi-obs-container/assets:/root/assets

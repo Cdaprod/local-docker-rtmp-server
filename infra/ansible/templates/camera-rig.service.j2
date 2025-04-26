@@ -1,0 +1,17 @@
+# templates/camera-rig.service.j2
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">Camera Peripheral on %h</name>
+  <service>
+    <type>_camera-rig._tcp</type>
+    <port>5000</port>
+    <txt-record>model=rpizw2</txt-record>
+    <txt-record>role=peripheral</txt-record>
+    <txt-record>features=camera,sensor</txt-record>
+    <txt-record>version=1.0</txt-record>
+    <txt-record>device_id={{ ansible_hostname }}</txt-record>
+    <txt-record>ip_addr={{ ansible_default_ipv4.address }}</txt-record>
+    <txt-record>vpn_addr=10.200.200.2</txt-record>
+  </service>
+</service-group>

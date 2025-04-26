@@ -1,0 +1,15 @@
+# inventory.yml
+all:
+  children:
+    rpi5_hosts:
+      hosts:
+        camera-rig-host:
+          ansible_host: 192.168.1.100
+          ansible_user: pi
+          vpn_public_key: "{{ lookup('file', '/path/to/your/public/key') }}"
+          vpn_endpoint: "your.public.ip.or.domain"
+    rpizw2_peripherals:
+      hosts:
+        camera-rig-peripheral:
+          ansible_host: 192.168.1.101
+          ansible_user: pi

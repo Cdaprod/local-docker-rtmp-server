@@ -1,0 +1,67 @@
+# templates/hostapd.conf.j2
+interface=wlan0
+driver=nl80211
+ssid={{ wifi_ap_ssid }}
+hw_mode=g
+channel=7
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase={{ wifi_ap_password }}
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+# templates/dnsmasq.conf.j2
+interface=wlan0
+dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,24h
+domain=local
+address=/camera-rig.local/192.168.4.1
+
+# templates/wg0.conf.j2
+[Interface]
+Address = 10.200.200.1/24
+ListenPort = 51820
+PrivateKey = $(cat {{ vpn_config_dir }}/privatekey)
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# Add this section for each peripheral
+[Peer]
+# RPiZW2 public key will be added dynamically
+PublicKey = {{ hostvars[item]['peripheral_pubkey'] | default('placeholder_key') }}
+AllowedIPs = 10.200.200.2/32
+
+# templates/peripheral_wg0.conf.j2
+[Interface]
+Address = 10.200.200.2/24
+PrivateKey = $(cat {{ vpn_config_dir }}/privatekey)
+
+[Peer]
+PublicKey = {{ host_vpn_public_key }}
+Endpoint = {{ host_vpn_endpoint }}:51820
+AllowedIPs = 10.200.200.0/24, 172.20.0.0/16
+PersistentKeepalive = 25
+
+# templates/env.j2
+PROJECT_NAME=camera-rig
+DOCKER_NETWORK={{ docker_network_name }}
+VERSION={{ ansible_date_time.iso8601 | regex_replace('[-:TZ]', '') }}
+RTMP_PORT=1935
+HLS_PORT=8080
+HOST_IP={{ ansible_default_ipv4.address }}
+
+# templates/camera-rig.service.j2
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">Camera Peripheral on %h</name>
+  <service>
+    <type>_camera-rig._tcp</type>
+    <port>5000</port>
+    <txt-record>model=rpizw2</txt-record>
+    <txt-record>role=peripheral</txt-record>
+  </service>
+</service-group>
