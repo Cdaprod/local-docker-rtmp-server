@@ -1,0 +1,5 @@
+paths:
+  cambridge:
+    runOnDemand: >
+      libcamera-vid -t 0 --inline --width 1280 --height 720 --framerate 30 --codec h264 --listen -o udp://127.0.0.1:8554
+    runOnDemandRestart: yes
