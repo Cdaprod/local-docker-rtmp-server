@@ -1,0 +1,28 @@
+# RTSP Simple Server Configuration
+# Minimal config for edge camera peripherals
+# https://github.com/aler9/rtsp-simple-server
+
+# General server settings
+logLevel: info
+rtspPort: 8554
+rtmpDisable: yes
+hlsDisable: yes
+webrtcDisable: yes
+
+# Paths define incoming and outgoing streams
+paths:
+  all:
+    # Allow all connections without authentication
+    source: publisher
+    publishUser: ""
+    publishPass: ""
+    readUser: ""
+    readPass: ""
+
+# Read buffer size (increase if you have high bitrate MJPEG streams)
+readBufferCount: 512
+
+# Disable IP restrictions
+ipCameras:
+  any:
+    protocols: [tcp, udp]
