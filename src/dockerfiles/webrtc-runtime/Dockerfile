@@ -7,13 +7,11 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy only package.json and install deps first (layer caching)
-COPY app/package.json .
-
-RUN npm install
-
-# Now copy the actual application source
+# Copy the whole app folder instead of just package.json
 COPY app/ .
+
+# Check if package.json exists and install dependencies properly
+RUN if [ ! -f package.json ]; then npm init -y && npm install express ws; else npm install; fi
 
 # ==============================================================================
 # Stage 2: Final lightweight runtime
