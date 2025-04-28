@@ -1,4 +1,4 @@
-# metadata-service/app/services/finalizer_service.py
+# app/services/finalizer_service.py
 
 import os
 import json
@@ -7,12 +7,17 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from app.core.minio_client import MinIOClient
-from app.core.config import settings
-from app.core.logger import setup_logger
-from app.core.logging import log_streamer  # Import the singleton log_streamer
+from app.core.config import MINIO_METADATA_BUCKET, MINIO_ASSETS_BUCKET
+from app.core.logging import log_streamer
 from app.services.finalizer import finalize_video
 
-logger = setup_logger("finalizer_service")
+# Regular logger setup
+logger = logging.getLogger("finalizer_service")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 class FinalizerService:
     def __init__(self):
@@ -27,18 +32,18 @@ class FinalizerService:
             return
         
         self.is_running = True
-        logger.info("Finalizer service started")
-        
-        # Log to the LogStreamer as well
-        log_streamer.info("Finalizer service started")
+        msg = "Finalizer service started"
+        logger.info(msg)
+        log_streamer.info(msg)
         
         asyncio.create_task(self._process_queue())
     
     async def stop(self):
         """Stop the finalizer service"""
         self.is_running = False
-        logger.info("Finalizer service stopped")
-        log_streamer.info("Finalizer service stopped")
+        msg = "Finalizer service stopped"
+        logger.info(msg)
+        log_streamer.info(msg)
     
     async def queue_finalization(self, source: str, metadata: Dict[str, Any]) -> str:
         """Add a video to the finalization queue"""
@@ -56,14 +61,14 @@ class FinalizerService:
         
         # Save job to MinIO
         self.minio.upload_json(
-            bucket_name=settings.MINIO_METADATA_BUCKET,
+            bucket_name=MINIO_METADATA_BUCKET,
             object_name=f"jobs/{job_id}.json",
             data=job
         )
         
-        log_msg = f"Queued finalization job {job_id} for {source}"
-        logger.info(log_msg)
-        log_streamer.info(log_msg)
+        msg = f"Queued finalization job {job_id} for {source}"
+        logger.info(msg)
+        log_streamer.info(msg)
         
         return job_id
     
@@ -83,15 +88,15 @@ class FinalizerService:
         source = job["source"]
         
         try:
-            log_msg = f"Processing finalization job {job_id} for {source}"
-            logger.info(log_msg)
-            log_streamer.info(log_msg)
+            msg = f"Processing finalization job {job_id} for {source}"
+            logger.info(msg)
+            log_streamer.info(msg)
             
             # Update job status
             job["status"] = "processing"
             job["updated_at"] = datetime.utcnow().isoformat()
             self.minio.upload_json(
-                bucket_name=settings.MINIO_METADATA_BUCKET,
+                bucket_name=MINIO_METADATA_BUCKET,
                 object_name=f"jobs/{job_id}.json",
                 data=job
             )
@@ -106,8 +111,8 @@ class FinalizerService:
             metadata.update(job["metadata"])
             
             # Upload thumbnail
-            assets_bucket = settings.MINIO_ASSETS_BUCKET
-            metadata_bucket = settings.MINIO_METADATA_BUCKET
+            assets_bucket = MINIO_ASSETS_BUCKET
+            metadata_bucket = MINIO_METADATA_BUCKET
             thumb_key = os.path.basename(thumb_path)
             meta_key = f"{os.path.splitext(thumb_key)[0]}_metadata.json"
             
@@ -134,14 +139,14 @@ class FinalizerService:
             job["completed_at"] = datetime.utcnow().isoformat()
             
             self.minio.upload_json(
-                bucket_name=settings.MINIO_METADATA_BUCKET,
+                bucket_name=MINIO_METADATA_BUCKET,
                 object_name=f"jobs/{job_id}.json",
                 data=job
             )
             
-            log_msg = f"Completed finalization job {job_id}"
-            logger.info(log_msg)
-            log_streamer.info(log_msg)
+            msg = f"Completed finalization job {job_id}"
+            logger.info(msg)
+            log_streamer.info(msg)
             
             # Clean up temporary files
             if os.path.exists(thumb_path):
@@ -156,7 +161,7 @@ class FinalizerService:
             job["error"] = str(e)
             job["updated_at"] = datetime.utcnow().isoformat()
             self.minio.upload_json(
-                bucket_name=settings.MINIO_METADATA_BUCKET,
+                bucket_name=MINIO_METADATA_BUCKET,
                 object_name=f"jobs/{job_id}.json",
                 data=job
             )
@@ -165,7 +170,7 @@ class FinalizerService:
         """Get the status of a finalization job"""
         try:
             data = self.minio.download_json(
-                bucket_name=settings.MINIO_METADATA_BUCKET,
+                bucket_name=MINIO_METADATA_BUCKET,
                 object_name=f"jobs/{job_id}.json"
             )
             return data
@@ -179,14 +184,14 @@ class FinalizerService:
         """List finalization jobs"""
         try:
             objects = self.minio.list_objects(
-                bucket_name=settings.MINIO_METADATA_BUCKET,
+                bucket_name=MINIO_METADATA_BUCKET,
                 prefix="jobs/"
             )
             
             jobs = []
             for obj in objects:
                 job_data = self.minio.download_json(
-                    bucket_name=settings.MINIO_METADATA_BUCKET,
+                    bucket_name=MINIO_METADATA_BUCKET,
                     object_name=obj["name"]
                 )
                 

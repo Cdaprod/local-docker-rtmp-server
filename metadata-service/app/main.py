@@ -1,20 +1,30 @@
+# app/main.py
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import events, health, control, storage, finalizer  # Added finalizer import
-from app.core.config import settings
 from app.core.logger import setup_logger
 from app.services.minio_init import initialize_minio
 from app.core.logging import log_streamer
-from typing import Dict, Any
 import logging
+from typing import Dict, Any
 
 # Setup application logger
 logger = setup_logger("metadata_service")
 
+# Define constants for app
+PROJECT_NAME = "Cdaprod Metadata Service Control Plane"
+PROJECT_DESCRIPTION = "API for controlling metadata services and processing events"
+VERSION = "1.0.0"
+CORS_ORIGINS = ["http://localhost", "http://localhost:8080", "http://localhost:3000"]
+HOST = "0.0.0.0"
+PORT = 5000
+DEBUG = True
+
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    description=settings.PROJECT_DESCRIPTION,
-    version=settings.VERSION,
+    title=PROJECT_NAME,
+    description=PROJECT_DESCRIPTION,
+    version=VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -22,7 +32,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +47,7 @@ app.include_router(finalizer.router, prefix="/finalize", tags=["Finalizer"])  # 
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info(f"Starting {settings.PROJECT_NAME} v{settings.VERSION}")
+    logger.info(f"Starting {PROJECT_NAME} v{VERSION}")
     
     # Configure LogStreamer
     def callback(log: Dict[str, Any]):
@@ -76,8 +86,8 @@ async def shutdown_event():
     # Stop the LogStreamer
     log_streamer.stop()
     
-    logger.info(f"Shutting down {settings.PROJECT_NAME}")
+    logger.info(f"Shutting down {PROJECT_NAME}")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host=settings.HOST, port=settings.PORT, reload=settings.DEBUG)
+    uvicorn.run("app.main:app", host=HOST, port=PORT, reload=DEBUG)
