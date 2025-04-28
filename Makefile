@@ -21,16 +21,11 @@ ifeq ($(shell test -f $(OVERRIDE_FILE) && echo yes),yes)
 	COMPOSE_FILES += -f $(OVERRIDE_FILE)
 endif
 
-# All Dockerfiles used across services
-DOCKERFILES = \
-  pi-obs-container/Dockerfile.arm64 \
-  rtmp-server/Dockerfile \
-  metadata-service/Dockerfile \
-  services/nikon-control/Dockerfile \
-  services/rtmp-watcher/Dockerfile \
-  services/videos-relay/Dockerfile \
-  infra/Dockerfile.infra-node \
-  src/dockerfiles/obs-runtime-builder/Dockerfile
+# Automatically find all Dockerfiles
+DOCKERFILES := $(shell find . -type f -name 'Dockerfile*')
+
+# Pretty display name
+PROJECT_DISPLAY_NAME ?= CDA Cinematic Relay Stack
 
 # Enable colors
 BOLD    = \033[1m
@@ -68,6 +63,7 @@ help: ## Display this help text
 	@printf "$(BOLD)Usage:$(RESET)\n"
 	@printf "  make <target> <service>\n\n"
 	@printf "$(BOLD)Available targets:$(RESET)\n"
+	@echo "  video-only         Start only video protocol services"
 	@echo "  up                 Start all services"
 	@echo "  down               Stop all services"
 	@echo "  restart            Restart all services"
@@ -77,6 +73,7 @@ help: ## Display this help text
 	@echo "  rebuild            Rebuild all services and restart"
 	@echo "  prune              Remove all unused Docker resources"
 	@echo "  rebuild-images     Force rebuild all project images"
+	@echo "  networks           Build docker networks"
 	@echo "  inspect            Inspect running containers"
 	@echo "  check-env          Verify environment configuration"
 	@echo "  lint               Lint Dockerfiles for best practices"
@@ -91,12 +88,27 @@ help: ## Display this help text
 	@echo "  make push obs"
 
 # -----------------------------------------------------------------------------
+# Setup Video Protocol Services Only
+# -----------------------------------------------------------------------------
+
+.PHONY: dev video-only
+
+video-only: ## Start only the video relay services (no storage or event systems)
+	@printf "$(BOLD)$(MAGENTA)Starting video-only services for $(PROJECT_DISPLAY_NAME)...$(RESET)\n"
+	$(COMPOSE_CMD) $(COMPOSE_FILES) up -d \
+		obs-pi \
+		rtmp-server \
+		rtsp-pi \
+		webrtc-pi
+	@printf "$(BOLD)$(GREEN)Video-only services started.$(RESET)\n"
+
+# -----------------------------------------------------------------------------
 # Main Docker Compose Commands
 # -----------------------------------------------------------------------------
 .PHONY: up down restart status clean build rebuild
 
 up: ## Start all services (build if needed)
-	@printf "$(BOLD)$(GREEN)Starting services for $(PROJECT_NAME)...$(RESET)\n"
+	@printf "$(BOLD)$(GREEN)Starting services for $(PROJECT_DISPLAY_NAME)...$(RESET)\n"
 	$(COMPOSE_CMD) down && $(COMPOSE_CMD) $(COMPOSE_FILES) up -d --build
 	@printf "$(BOLD)$(GREEN)Services started.$(RESET)\n"
 
@@ -132,6 +144,22 @@ rebuild: ## Rebuild all services and restart
 	$(MAKE) up
 	@printf "$(BOLD)$(GREEN)Rebuild complete.$(RESET)\n"
 
+# -----------------------------------------------------------------------------
+# Docker Networks
+# -----------------------------------------------------------------------------
+
+# Network bootstrap
+.PHONY: networks
+networks:
+	@echo "$(BOLD)Creating Docker networks if they do not exist...$(RESET)"
+	-@docker network inspect capture_network >/dev/null 2>&1 || \
+	docker network create --driver=bridge --subnet=172.30.0.0/16 --gateway=172.30.0.1 capture_network
+	-@docker network inspect storage_network >/dev/null 2>&1 || \
+	docker network create --driver=bridge storage_network
+	-@docker network inspect event_network >/dev/null 2>&1 || \
+	docker network create --driver=bridge event_network
+	@echo "$(GREEN)Networks are ready.$(RESET)"
+	
 # -----------------------------------------------------------------------------
 # Docker Management Commands
 # -----------------------------------------------------------------------------

@@ -1,0 +1,20 @@
+services:
+  webrtc-pi:
+    build: .
+    image: cdaprod/webrtc-pi:latest
+    container_name: webrtc-pi
+    restart: unless-stopped
+    ports:
+      - "8088:8080"  # WebRTC signaling server
+      - "3478:3478"  # STUN
+      - "3478:3478/udp" # STUN/TURN UDP
+      - "49152-65535:49152-65535/udp" # TURN relay media ports
+    environment:
+      - NODE_ENV=production
+      - TURN_USERNAME=webrtc
+      - TURN_PASSWORD=webrtc123
+    volumes:
+      - ./app:/app
+      - ./turnserver.conf:/etc/coturn/turnserver.conf
+    networks:
+      - rtmp_network

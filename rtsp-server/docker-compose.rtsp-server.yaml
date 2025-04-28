@@ -1,0 +1,9 @@
+services:
+  rtsp-server:
+    build: .
+    image: cdaprod/rtsp-server:custom
+    ports:
+      - "8554:8554"
+      - "8000:8000"
+    volumes:
+      - ./rtsp-simple-server.yml:/rtsp-simple-server.yml:ro

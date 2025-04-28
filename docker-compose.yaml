@@ -29,7 +29,10 @@ services:
   #     - /var/run/docker.sock:/var/run/docker.sock:ro
   #     - ./letsencrypt:/letsencrypt
   #   networks:
-  #     - tailscale
+  #     - tailscale # tbd
+  #     - capture_network
+  #     - storage_network
+  #     - event_network
   
  ################################################
 ##                Video Pipeline                ##
@@ -43,7 +46,8 @@ services:
   #   volumes:
   #     - frames:/frames  # Optional: persistent frame cache
   #   networks:
-  #     - local-dev
+  #     #- local-dev
+  #     - capture_network
   #   ports:
   #     - "8081:8081"
   #   labels:
@@ -84,7 +88,8 @@ services:
       - /mnt/b:/mnt/b:rw
       #- frames:/frames
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - capture_network
     command: >
       bash -c "
         echo '[INIT] Ensuring v4l2loopback is loaded...' &&
@@ -97,6 +102,56 @@ services:
     #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
     #   - "traefik.tcp.routers.obsws.service=obsws"
     #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+
+          #### Core Relay Services ####
+ ################################################
+##                 WebRTC Server                ##
+ ################################################
+ 
+  webrtc-pi:
+    build: .
+    image: cdaprod/webrtc-pi:latest
+    container_name: webrtc-pi
+    restart: unless-stopped
+    ports:
+      - "8088:8080"  # WebRTC signaling server
+      - "3478:3478"  # STUN
+      - "3478:3478/udp" # STUN/TURN UDP
+      - "49152-65535:49152-65535/udp" # TURN relay media ports
+    environment:
+      - NODE_ENV=production
+      - TURN_USERNAME=webrtc
+      - TURN_PASSWORD=webrtc123
+    volumes:
+      - ./app:/app
+      - ./turnserver.conf:/etc/coturn/turnserver.conf
+    networks:
+      #- rtmp_network
+      - capture_network
+
+ ################################################
+##                  RTSP Server                 ##
+ ################################################
+
+  rtsp-pi:
+    # 1. Build from the ./rtsp-server folder (uses Dockerfile there by default)
+    build: ./rtsp-server
+
+    # 2. Tag the resulting image as cdaprod/rtsp-server:custom
+    image: cdaprod/rtsp-pi:latest
+
+    container_name: rtsp-server
+    restart: unless-stopped
+    ports:
+      - "8554:8554"
+      - "8000:8000"
+    networks:
+      #- rtmp_network
+      - capture_network
+    labels:
+      com.cdaprod.stack: "CDA Cinematic Relay"
+      com.cdaprod.role: "Relay Server"
+      com.cdaprod.module: "RTSP Transport"
 
  ################################################
 ##                  RTMP Server                 ##
@@ -159,7 +214,9 @@ services:
           cpus: "2.0"
           memory: "4g"
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - capture_network
+      - event_network
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
@@ -193,7 +250,8 @@ services:
       - /mnt/b/rpi_sync/minio/data:/data
       - /mnt/nas/
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - storage_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -212,7 +270,8 @@ services:
         mc mb -p localminio/assets
       "
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - storage_network
 
  ################################################
 ##              Event Broker Service            ##
@@ -238,7 +297,9 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - event_network
+      
 
  ################################################
 ##                Python Event API              ##
@@ -262,7 +323,9 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - METADATA_QUEUE=metadata_queue  # The queue to listen to
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - event_network
+      - storage_network
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -293,6 +356,9 @@ services:
   #       condition: service_healthy
   #   networks:
   #     - rtmp_network
+  #     - capture_network
+  #     - event_network
+  #     - storage_network
 
  ################################################
 ##                Docker Volumes                ##
@@ -306,15 +372,57 @@ volumes:
 ##                Docker Networks               ##
  ################################################
 
-networks:
+#networks:
   # tailscale:
   #   external: true
   #   name: tailscale 
-  rtmp_network:
-    external: true
-    name: rtmp_network
+  
+  # Old network
+  # rtmp_network:
+  #   external: true
+  #   name: rtmp_network
+  #   driver: bridge
+
+#################################################
+##                Docker Networks              ##
+#################################################
+networks:
+  capture_network:
+
     driver: bridge
-  #app_network: # <— This is just extra in case we need network abstraction or seperation later
-    #external: ?
-    #name: ?
-    #driver: ?
+    name: capture_network
+  # 
+  # external: true # (for peripheral access)
+  #
+  # for `external: true` create network with the following:
+  #  docker network create \
+  #      --driver=bridge \
+  #      --subnet=172.30.0.0/16 \
+  #      --gateway=172.30.0.1 \
+  #      capture_network
+  ########################
+  
+  event_network:
+    driver: bridge
+    name: event_network
+
+  storage_network:
+    driver: bridge
+    name: storage_network
+  
+  ########################
+  # macvlan network setup
+  # sudo ip link add capture0 link eth0 type macvlan mode bridge
+  # sudo ip addr add 192.168.1.2/24 dev capture0
+  # sudo ip link set capture0 up
+  #
+  #
+  # local_lan:
+  #   driver: macvlan
+  #   driver_opts:
+  #     parent: eth0  # adjust if your physical interface has a different name
+  #   ipam:
+  #     config:
+  #       - subnet: 192.168.1.0/24
+  #         gateway: 192.168.1.1
+  #         ip_range: 192.168.1.128/25
