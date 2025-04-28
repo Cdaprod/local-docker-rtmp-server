@@ -21,7 +21,7 @@ COPY app/ .
 FROM alpine:3.19
 
 # Install coturn and tini only
-RUN apk add --no-cache coturn tini nodejs
+RUN apk add --no-cache coturn tini nodejs npm
 
 # Copy the TURN server config
 COPY turnserver.conf /etc/coturn/turnserver.conf
