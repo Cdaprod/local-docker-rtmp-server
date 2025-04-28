@@ -6,12 +6,9 @@
 !/.example.env
 .env
 credentials.json
-<<<<<<< Updated upstream
-/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak
 
-.disabled
+*/.disabled
 
 letsencrypt/
-=======
-/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bakletsencrypt/
->>>>>>> Stashed changes
+
+/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak

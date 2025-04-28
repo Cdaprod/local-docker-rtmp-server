@@ -6,7 +6,9 @@
 !/.example.env
 .env
 credentials.json
-/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak
 
-.disabled
+*/.disabled
+
 letsencrypt/
+
+/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak
