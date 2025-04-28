@@ -7,7 +7,10 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from app.core.minio_client import MinIOClient
-from app.core.config import MINIO_METADATA_BUCKET, MINIO_ASSETS_BUCKET
+from app.core.config import (
+    MINIO_METADATA_BUCKET, THUMBNAIL_OBJECT_PREFIX, 
+    METADATA_OBJECT_PREFIX, JOBS_OBJECT_PREFIX
+)
 from app.core.logging import log_streamer
 from app.services.finalizer import finalize_video
 
@@ -59,10 +62,11 @@ class FinalizerService:
         
         self.pending_queue.append(job)
         
-        # Save job to MinIO
+        # Save job to MinIO using the proper job prefix
+        job_key = f"{JOBS_OBJECT_PREFIX}{job_id}.json"
         self.minio.upload_json(
             bucket_name=MINIO_METADATA_BUCKET,
-            object_name=f"jobs/{job_id}.json",
+            object_name=job_key,
             data=job
         )
         
@@ -95,9 +99,10 @@ class FinalizerService:
             # Update job status
             job["status"] = "processing"
             job["updated_at"] = datetime.utcnow().isoformat()
+            job_key = f"{JOBS_OBJECT_PREFIX}{job_id}.json"
             self.minio.upload_json(
                 bucket_name=MINIO_METADATA_BUCKET,
-                object_name=f"jobs/{job_id}.json",
+                object_name=job_key,
                 data=job
             )
             
@@ -110,22 +115,23 @@ class FinalizerService:
             # Merge with provided metadata
             metadata.update(job["metadata"])
             
-            # Upload thumbnail
-            assets_bucket = MINIO_ASSETS_BUCKET
-            metadata_bucket = MINIO_METADATA_BUCKET
-            thumb_key = os.path.basename(thumb_path)
-            meta_key = f"{os.path.splitext(thumb_key)[0]}_metadata.json"
+            # Upload thumbnail and metadata to the correct paths
+            base_name = os.path.basename(thumb_path)
+            file_name = os.path.splitext(base_name)[0]
+            
+            thumb_key = f"{THUMBNAIL_OBJECT_PREFIX}{base_name}"
+            meta_key = f"{METADATA_OBJECT_PREFIX}{file_name}.json"
             
             with open(thumb_path, "rb") as f:
                 self.minio.upload_file(
-                    bucket_name=assets_bucket,
+                    bucket_name=MINIO_METADATA_BUCKET,
                     object_name=thumb_key,
                     file_data=f,
                     content_type="image/jpeg"
                 )
             
             self.minio.upload_json(
-                bucket_name=metadata_bucket,
+                bucket_name=MINIO_METADATA_BUCKET,
                 object_name=meta_key,
                 data=metadata
             )
@@ -133,14 +139,14 @@ class FinalizerService:
             # Update job status
             job["status"] = "completed"
             job["results"] = {
-                "thumbnail": f"s3://{assets_bucket}/{thumb_key}",
-                "metadata": f"s3://{metadata_bucket}/{meta_key}"
+                "thumbnail": f"s3://{MINIO_METADATA_BUCKET}/{thumb_key}",
+                "metadata": f"s3://{MINIO_METADATA_BUCKET}/{meta_key}"
             }
             job["completed_at"] = datetime.utcnow().isoformat()
             
             self.minio.upload_json(
                 bucket_name=MINIO_METADATA_BUCKET,
-                object_name=f"jobs/{job_id}.json",
+                object_name=job_key,
                 data=job
             )
             
@@ -162,16 +168,17 @@ class FinalizerService:
             job["updated_at"] = datetime.utcnow().isoformat()
             self.minio.upload_json(
                 bucket_name=MINIO_METADATA_BUCKET,
-                object_name=f"jobs/{job_id}.json",
+                object_name=job_key,
                 data=job
             )
     
     async def get_job_status(self, job_id: str) -> Optional[Dict[str, Any]]:
         """Get the status of a finalization job"""
         try:
+            job_key = f"{JOBS_OBJECT_PREFIX}{job_id}.json"
             data = self.minio.download_json(
                 bucket_name=MINIO_METADATA_BUCKET,
-                object_name=f"jobs/{job_id}.json"
+                object_name=job_key
             )
             return data
         except Exception as e:
@@ -185,7 +192,7 @@ class FinalizerService:
         try:
             objects = self.minio.list_objects(
                 bucket_name=MINIO_METADATA_BUCKET,
-                prefix="jobs/"
+                prefix=JOBS_OBJECT_PREFIX
             )
             
             jobs = []

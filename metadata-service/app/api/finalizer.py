@@ -8,9 +8,13 @@ from pydantic import BaseModel, Field
 from app.services.finalizer import finalize_video
 from app.services.finalizer_service import finalizer_service
 from app.core.minio_client import MinIOClient
-from app.core.config import MINIO_ASSETS_BUCKET, MINIO_METADATA_BUCKET
+from app.core.config import (
+    MINIO_METADATA_BUCKET, THUMBNAIL_OBJECT_PREFIX, 
+    METADATA_OBJECT_PREFIX, MINIO_ASSETS_BUCKET
+)
+from app.core.logging import log_streamer
 
-router = APIRouter(prefix="/finalize", tags=["Finalizer"])
+router = APIRouter(tags=["Finalizer"])
 minio = MinIOClient()
 
 class FinalizationResponse(BaseModel):
@@ -49,37 +53,44 @@ async def finalize(
                 f.write(await upload.read())
             source = tmp_path
 
+        # Log the finalization attempt
+        log_streamer.info(f"Starting synchronous finalization for {source}")
+        
         thumb_path, metadata = finalize_video(source)
 
-        # upload thumbnail
-        assets_bucket = MINIO_ASSETS_BUCKET
-        metadata_bucket = MINIO_METADATA_BUCKET
-        thumb_key = os.path.basename(thumb_path)
-        meta_key = f"{os.path.splitext(thumb_key)[0]}_metadata.json"
+        # Upload thumbnail to the correct path
+        thumb_key = f"{THUMBNAIL_OBJECT_PREFIX}{os.path.basename(thumb_path)}"
+        meta_key = f"{METADATA_OBJECT_PREFIX}{os.path.splitext(os.path.basename(thumb_path))[0]}.json"
 
         with open(thumb_path, "rb") as f:
             minio.upload_file(
-                bucket_name=assets_bucket,
+                bucket_name=MINIO_METADATA_BUCKET,
                 object_name=thumb_key,
                 file_data=f,
                 content_type="image/jpeg"
             )
             
         minio.upload_json(
-            bucket_name=metadata_bucket,
+            bucket_name=MINIO_METADATA_BUCKET,
             object_name=meta_key,
             data=metadata
         )
 
+        # Clean up the temporary thumbnail file
+        if os.path.exists(thumb_path):
+            os.unlink(thumb_path)
+
+        log_streamer.info(f"Completed synchronous finalization for {source}")
         return {
             "status": "success",
             "results": {
-                "thumbnail": f"s3://{assets_bucket}/{thumb_key}",
-                "metadata": f"s3://{metadata_bucket}/{meta_key}"
+                "thumbnail": f"s3://{MINIO_METADATA_BUCKET}/{thumb_key}",
+                "metadata": f"s3://{MINIO_METADATA_BUCKET}/{meta_key}"
             },
             "timestamp": datetime.utcnow()
         }
     except Exception as e:
+        log_streamer.error(f"Error in synchronous finalization: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/async", response_model=FinalizationResponse)
@@ -88,6 +99,7 @@ async def finalize_async(
 ) -> Dict:
     """Queue a video for asynchronous finalization"""
     try:
+        log_streamer.info(f"Queueing asynchronous finalization for {request.source}")
         job_id = await finalizer_service.queue_finalization(
             source=request.source,
             metadata=request.metadata
@@ -98,6 +110,7 @@ async def finalize_async(
             "timestamp": datetime.utcnow()
         }
     except Exception as e:
+        log_streamer.error(f"Error queueing finalization job: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/job/{job_id}", response_model=JobStatusResponse)
@@ -114,6 +127,20 @@ async def list_jobs(status: Optional[str] = Query(None)) -> List:
     return await finalizer_service.list_jobs(status)
 
 @router.post("/complete")
-async def finalize_event():
+async def finalize_event(
+    stream_name: str = Form(..., description="Stream name to finalize")
+):
     """Finalize recorded stream: Move to S3, clean up temp files."""
-    return {"status": "finalizer pending implementation"}
+    try:
+        log_streamer.info(f"Received finalize event for stream: {stream_name}")
+        # This endpoint will be implemented to handle the end of stream recording
+        # For now, just return acknowledgment
+        return {
+            "status": "acknowledged", 
+            "message": f"Finalization event received for stream {stream_name}",
+            "stream": stream_name,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        log_streamer.error(f"Error processing finalize event: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
