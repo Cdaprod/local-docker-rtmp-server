@@ -58,7 +58,7 @@ services:
       - "15900:5900"  # native VNC
       - "14455:4455"  # OBS WebSocket
       - "16080:6080"
-    devices:
+    #devices:
       #- /dev/video0 # Replaced symlinked video0 with direct dev/
       #- /dev/nikon-capture:/dev/video0
       #- /dev/video11:/dev/video11  # CSI Cam via v4l2loopback
