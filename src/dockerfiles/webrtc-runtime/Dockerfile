@@ -5,23 +5,20 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy the entire app folder (not just package.json)
-COPY app/ .
+# Copy only package.json and install deps first (layer caching)
+COPY app/package.json .
 
-# If package.json exists, install dependencies
-# Otherwise, auto-generate it and install express, ws manually
-RUN if [ -f package.json ]; then \
-      npm install; \
-    else \
-      npm init -y && npm install express ws; \
-    fi
+RUN npm install
+
+# Now copy the actual application source
+COPY app/ .
 
 # ==============================================================================
 # Stage 2: Final lightweight runtime
 # ==============================================================================
 FROM alpine:3.19
 
-# Install coturn, tini, nodejs, npm
+# Install coturn and tini only
 RUN apk add --no-cache coturn tini nodejs npm
 
 # Copy the TURN server config

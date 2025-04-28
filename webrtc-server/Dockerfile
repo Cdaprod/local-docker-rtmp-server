@@ -2,10 +2,11 @@ FROM cdaprod/webrtc-runtime:latest
 
 WORKDIR /app
 
-COPY app/package.json .
-RUN npm install
+# No need to COPY package.json or run npm install again!
 
-COPY app/ .
+# Optional: if you want to override app files (otherwise comment out)
+# COPY app/ .
+
 COPY config/turnserver.conf /etc/coturn/turnserver.conf
 COPY scripts/startup.sh /startup.sh
 
@@ -16,4 +17,4 @@ EXPOSE 3478
 EXPOSE 3478/udp
 EXPOSE 49152-65535/udp
 
-ENTRYPOINT ["/bin/sh", "/scripts/startup.sh"]
+ENTRYPOINT ["/bin/sh", "/startup.sh"]
