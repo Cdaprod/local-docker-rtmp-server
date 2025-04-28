@@ -1,0 +1,66 @@
+09:57:34.095: Command Line Arguments: --minimize-to-tray --startstreaming --profile CdaprodOBS --collection Laptop OBS Scenes
+09:57:34.095: Physical Cores: 4, Logical Cores: 4
+09:57:34.095: Physical Memory: 7937MB Total, 2260MB Free
+09:57:34.095: Kernel Version: Linux 6.8.0-1020-raspi
+09:57:34.095: Distribution: "Debian GNU/Linux" "11"
+09:57:34.097: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.20.11
+09:57:34.111: Portable mode: false
+09:57:36.577: OBS 26.1.2+dfsg1-2 (linux)
+09:57:36.577: ---------------------------------
+09:57:36.580: ---------------------------------
+09:57:36.580: audio settings reset:
+09:57:36.580: 	samples per sec: 48000
+09:57:36.580: 	speakers:        2
+09:57:36.592: ---------------------------------
+09:57:36.592: Initializing OpenGL...
+09:57:36.792: Loading up OpenGL on adapter Mesa/X.org llvmpipe (LLVM 11.0.1, 128 bits)
+09:57:36.792: OpenGL loaded successfully, version 4.5 (Core Profile) Mesa 20.3.5, shading language 4.50
+09:57:36.878: ---------------------------------
+09:57:36.878: video settings reset:
+09:57:36.878: 	base resolution:   1919x1079
+09:57:36.878: 	output resolution: 1276x718
+09:57:36.878: 	downscale filter:  Bicubic
+09:57:36.878: 	fps:               30/1
+09:57:36.878: 	format:            NV12
+09:57:36.878: 	YUV mode:          709/Partial
+09:57:36.878: NV12 texture support not available
+09:57:36.895: Audio monitoring device:
+09:57:36.895: 	name: Default
+09:57:36.895: 	id: default
+09:57:36.895: ---------------------------------
+09:57:36.901: Failed to load 'en-US' text for module: 'decklink-captions.so'
+09:57:36.904: Failed to load 'en-US' text for module: 'decklink-ouput-ui.so'
+09:57:36.976: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+09:57:36.976: No blackmagic support
+09:57:36.985: v4l2loopback not installed, virtual camera disabled
+09:57:37.054: FFMPEG VAAPI supported
+09:57:37.080: VLC found, VLC video source enabled
+09:57:37.080: ---------------------------------
+09:57:37.080:   Loaded Modules:
+09:57:37.080:     vlc-video.so
+09:57:37.080:     text-freetype2.so
+09:57:37.080:     rtmp-services.so
+09:57:37.080:     obs-x264.so
+09:57:37.080:     obs-transitions.so
+09:57:37.080:     obs-outputs.so
+09:57:37.080:     obs-filters.so
+09:57:37.080:     obs-ffmpeg.so
+09:57:37.080:     linux-v4l2.so
+09:57:37.080:     linux-pulseaudio.so
+09:57:37.080:     linux-jack.so
+09:57:37.080:     linux-decklink.so
+09:57:37.080:     linux-capture.so
+09:57:37.080:     linux-alsa.so
+09:57:37.080:     image-source.so
+09:57:37.080:     frontend-tools.so
+09:57:37.080:     decklink-ouput-ui.so
+09:57:37.080:     decklink-captions.so
+09:57:37.080: ---------------------------------
+09:57:37.080: ==== Startup complete ===============================================
+09:57:37.084: No scene file found, creating default scene
+09:57:37.084: All scene data cleared
+09:57:37.084: ------------------------------------------------
+09:57:37.088: Switched to scene 'Scene'
+09:57:37.088: Failed to glob scene collections
+09:57:37.406: [rtmp-services plugin] Successfully updated file 'services.json' (version 201)
+09:57:37.406: [rtmp-services plugin] Successfully updated package (version 201)

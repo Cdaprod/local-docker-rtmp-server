@@ -1,0 +1,199 @@
+14:44:49.986: Command Line Arguments: --minimize-to-tray --startstreaming --profile CdaprodOBS --collection Laptop OBS Scenes
+14:44:49.986: Physical Cores: 4, Logical Cores: 4
+14:44:49.986: Physical Memory: 7937MB Total, 5778MB Free
+14:44:49.986: Kernel Version: Linux 6.8.0-1020-raspi
+14:44:49.986: Distribution: "Debian GNU/Linux" "11"
+14:44:49.987: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.20.11
+14:44:49.988: Portable mode: false
+14:44:50.063: OBS 26.1.2+dfsg1-2 (linux)
+14:44:50.063: ---------------------------------
+14:44:50.274: ---------------------------------
+14:44:50.274: audio settings reset:
+14:44:50.274: 	samples per sec: 48000
+14:44:50.274: 	speakers:        2
+14:44:50.290: ---------------------------------
+14:44:50.290: Initializing OpenGL...
+14:44:50.361: Loading up OpenGL on adapter Mesa/X.org llvmpipe (LLVM 11.0.1, 128 bits)
+14:44:50.361: OpenGL loaded successfully, version 4.5 (Core Profile) Mesa 20.3.5, shading language 4.50
+14:44:50.391: ---------------------------------
+14:44:50.391: video settings reset:
+14:44:50.391: 	base resolution:   1920x1080
+14:44:50.391: 	output resolution: 1920x1080
+14:44:50.391: 	downscale filter:  Bilinear
+14:44:50.391: 	fps:               60/1
+14:44:50.391: 	format:            NV12
+14:44:50.391: 	YUV mode:          709/Partial
+14:44:50.391: NV12 texture support not available
+14:44:50.427: Audio monitoring device:
+14:44:50.427: 	name: Default
+14:44:50.427: 	id: default
+14:44:50.427: ---------------------------------
+14:44:50.432: Failed to load 'en-US' text for module: 'decklink-captions.so'
+14:44:50.436: Failed to load 'en-US' text for module: 'decklink-ouput-ui.so'
+14:44:50.517: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+14:44:50.517: No blackmagic support
+14:44:50.525: v4l2loopback not installed, virtual camera disabled
+14:44:50.605: FFMPEG VAAPI supported
+14:44:50.635: VLC found, VLC video source enabled
+14:44:50.635: ---------------------------------
+14:44:50.635:   Loaded Modules:
+14:44:50.635:     vlc-video.so
+14:44:50.635:     text-freetype2.so
+14:44:50.635:     rtmp-services.so
+14:44:50.635:     obs-x264.so
+14:44:50.635:     obs-transitions.so
+14:44:50.635:     obs-outputs.so
+14:44:50.635:     obs-filters.so
+14:44:50.635:     obs-ffmpeg.so
+14:44:50.635:     linux-v4l2.so
+14:44:50.635:     linux-pulseaudio.so
+14:44:50.635:     linux-jack.so
+14:44:50.635:     linux-decklink.so
+14:44:50.635:     linux-capture.so
+14:44:50.635:     linux-alsa.so
+14:44:50.635:     image-source.so
+14:44:50.635:     frontend-tools.so
+14:44:50.635:     decklink-ouput-ui.so
+14:44:50.635:     decklink-captions.so
+14:44:50.635: ---------------------------------
+14:44:50.635: ==== Startup complete ===============================================
+14:44:50.655: Switched to Preview/Program mode
+14:44:50.655: ------------------------------------------------
+14:44:50.664: All scene data cleared
+14:44:50.664: ------------------------------------------------
+14:44:50.682: Source ID 'wasapi_output_capture' not found
+14:44:50.682: Failed to create source 'Desktop Audio'!
+14:44:50.682: [Loaded global audio device]: 'Desktop Audio'
+14:44:50.682: Source ID 'wasapi_output_capture' not found
+14:44:50.682: Failed to create source 'Desktop Audio 2'!
+14:44:50.683: [Loaded global audio device]: 'Desktop Audio 2'
+14:44:50.683: Source ID 'wasapi_input_capture' not found
+14:44:50.683: Failed to create source 'Mic/Aux'!
+14:44:50.683: [Loaded global audio device]: 'Mic/Aux'
+14:44:50.684: [Media Source 'Media Source']: settings:
+14:44:50.684: 	input:                   http://192.168.0.21:8080/stream.m3u8
+14:44:50.684: 	input_format:            HLS
+14:44:50.684: 	speed:                   100
+14:44:50.684: 	is_looping:              no
+14:44:50.684: 	is_hw_decoding:          no
+14:44:50.684: 	is_clear_on_media_end:   yes
+14:44:50.684: 	restart_on_activate:     yes
+14:44:50.684: 	close_when_inactive:     no
+14:44:50.688: Source ID 'monitor_capture' not found
+14:44:50.688: Failed to create source 'Display Capture'!
+14:44:50.693: Source ID 'color_filter_v2' not found
+14:44:50.693: Failed to create source 'Color Correction'!
+14:44:50.693: Source ID 'browser_source' not found
+14:44:50.693: Failed to create source 'Browser'!
+14:44:50.694: Source ID 'color_filter_v2' not found
+14:44:50.694: Failed to create source 'Color Correction'!
+14:44:50.694: Source ID 'hdr_tonemap_filter' not found
+14:44:50.695: Failed to create source 'HDR Tone Mapping (Override)'!
+14:44:50.695: Source ID 'color_filter_v2' not found
+14:44:50.695: Failed to create source 'Color Correction'!
+14:44:50.695: Source ID 'dshow_input' not found
+14:44:50.695: Failed to create source 'OBSBot Tiny 2 Lite'!
+14:44:50.695: Source ID 'color_filter_v2' not found
+14:44:50.695: Failed to create source 'Color Correction'!
+14:44:50.695: Source ID 'hdr_tonemap_filter' not found
+14:44:50.695: Failed to create source 'HDR Tone Mapping (Override)'!
+14:44:50.696: [Media Source 'ios (sourcing rtmp)']: settings:
+14:44:50.696: 	input:                   rtmp://192.168.0.10:
+14:44:50.696: 	input_format:            rtmp
+14:44:50.696: 	speed:                   100
+14:44:50.696: 	is_looping:              no
+14:44:50.696: 	is_hw_decoding:          no
+14:44:50.696: 	is_clear_on_media_end:   yes
+14:44:50.696: 	restart_on_activate:     yes
+14:44:50.696: 	close_when_inactive:     no
+14:44:50.696: Source ID 'dshow_input' not found
+14:44:50.696: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+14:44:50.696: Failed to create source 'cda_ios PRISM Lens 3'!
+14:44:50.696: Source ID 'hdr_tonemap_filter' not found
+14:44:50.696: MP: Failed to open media: 'rtmp://192.168.0.10:'
+14:44:50.696: Failed to create source 'HDR Tone Mapping (Override)'!
+14:44:50.696: Source ID 'dshow_input' not found
+14:44:50.696: Failed to create source 'Capture Card 3.0'!
+14:44:50.696: Source ID 'hdr_tonemap_filter' not found
+14:44:50.697: Failed to create source 'HDR Tone Mapping (Override)'!
+14:44:50.697: Source ID 'monitor_capture' not found
+14:44:50.697: Failed to create source 'Laptop Screen'!
+14:44:50.697: v4l2-input: Start capture from /dev/video0
+14:44:50.701: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:44:50.793: v4l2-input: Input: 0
+14:44:50.794: v4l2-input: Resolution: 1920x1080
+14:44:50.794: v4l2-input: Pixelformat: YU12
+14:44:50.794: v4l2-input: Linesize: 1920 Bytes
+14:44:50.794: v4l2-input: Framerate: 60.00 fps
+14:44:50.813: [Media Source 'Stinger (Stinger)']: settings:
+14:44:50.813: 	input:                   
+14:44:50.813: 	input_format:            (null)
+14:44:50.813: 	speed:                   100
+14:44:50.813: 	is_looping:              no
+14:44:50.813: 	is_hw_decoding:          yes
+14:44:50.813: 	is_clear_on_media_end:   yes
+14:44:50.813: 	restart_on_activate:     yes
+14:44:50.813: 	close_when_inactive:     no
+14:44:50.813: Switched to scene '3-Nikon'
+14:44:50.821: Starting stream due to command line parameter
+14:44:50.822: ------------------------------------------------
+14:44:50.822: Loaded scenes:
+14:44:50.822: - scene '0-Browser':
+14:44:50.822:     - source: 'Display Capture' (monitor_capture)
+14:44:50.822: - scene '1-iPhone':
+14:44:50.822:     - source: 'cda_ios PRISM Lens 3' (dshow_input)
+14:44:50.822: - scene '2-MacBook':
+14:44:50.822: - scene '3-Nikon':
+14:44:50.822:     - source: 'Capture Card 3.0' (dshow_input)
+14:44:50.822:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:44:50.822:     - source: 'Video Capture Device (V4L2)' (v4l2_input)
+14:44:50.822: - scene '7-Standby':
+14:44:50.822:     - source: 'Standby Image' (image_source)
+14:44:50.822:         - filter: 'Render Delay' (gpu_delay)
+14:44:50.822: - scene '4-OBSBot':
+14:44:50.822:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+14:44:50.822:         - filter: 'Color Correction' (color_filter_v2)
+14:44:50.822:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:44:50.822: - scene 'RPI5-1':
+14:44:50.822:     - source: 'Media Source' (ffmpeg_source)
+14:44:50.822: - scene '6-All Cameras':
+14:44:50.822:     - source: 'Capture Card 3.0' (dshow_input)
+14:44:50.822:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:44:50.822:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+14:44:50.822:         - filter: 'Color Correction' (color_filter_v2)
+14:44:50.822:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:44:50.822: - scene '5-All Scenes+Browser WIndow':
+14:44:50.822:     - source: 'Laptop Screen' (monitor_capture)
+14:44:50.822:     - source: 'cda_ios PRISM Lens 3' (dshow_input)
+14:44:50.822:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+14:44:50.822:     - source: 'Capture Card 3.0' (dshow_input)
+14:44:50.822:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:44:50.822:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+14:44:50.822:         - filter: 'Color Correction' (color_filter_v2)
+14:44:50.822:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:44:50.822:     - source: 'Browser' (browser_source)
+14:44:50.822:         - monitoring: monitor and output
+14:44:50.822:         - filter: 'Color Correction' (color_filter_v2)
+14:44:50.822:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+14:44:50.822: - scene '8-BLANK':
+14:44:50.822: - scene '9-IOS_MOBILE':
+14:44:50.822:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+14:44:50.822: ------------------------------------------------
+14:44:50.916: rtmp-common.c: [initialize_output] Could not find service 'YouTube - RTMPS'
+14:44:50.947: ---------------------------------
+14:44:50.947: [x264 encoder: 'simple_h264_stream'] preset: veryfast
+14:44:50.947: [x264 encoder: 'simple_h264_stream'] settings:
+14:44:50.947: 	rate_control: CBR
+14:44:50.947: 	bitrate:      6000
+14:44:50.947: 	buffer size:  6000
+14:44:50.947: 	crf:          0
+14:44:50.947: 	fps_num:      60
+14:44:50.947: 	fps_den:      1
+14:44:50.947: 	width:        1920
+14:44:50.947: 	height:       1080
+14:44:50.947: 	keyint:       250
+14:44:50.947: 
+14:44:50.955: ---------------------------------
+14:44:50.957: [FFmpeg aac encoder: 'simple_aac'] bitrate: 160, channels: 2, channel_layout: 3
+14:44:50.957: 
+14:44:50.959: Output 'simple_stream': 20 second delay active, preserve on disconnect is on

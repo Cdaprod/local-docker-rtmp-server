@@ -1,0 +1,136 @@
+16:08:36.455: Command Line Arguments: --minimize-to-tray --startstreaming --profile CdaprodOBS --collection Laptop OBS Scenes
+16:08:36.456: Physical Cores: 4, Logical Cores: 4
+16:08:36.456: Physical Memory: 7937MB Total, 1146MB Free
+16:08:36.456: Kernel Version: Linux 6.8.0-1020-raspi
+16:08:36.456: Distribution: "Debian GNU/Linux" "11"
+16:08:36.463: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.20.11
+16:08:36.465: Portable mode: false
+16:08:39.060: OBS 26.1.2+dfsg1-2 (linux)
+16:08:39.060: ---------------------------------
+16:08:39.061: ---------------------------------
+16:08:39.061: audio settings reset:
+16:08:39.061: 	samples per sec: 48000
+16:08:39.061: 	speakers:        2
+16:08:39.072: ---------------------------------
+16:08:39.072: Initializing OpenGL...
+16:08:39.267: Loading up OpenGL on adapter Mesa/X.org llvmpipe (LLVM 11.0.1, 128 bits)
+16:08:39.268: OpenGL loaded successfully, version 4.5 (Core Profile) Mesa 20.3.5, shading language 4.50
+16:08:39.360: ---------------------------------
+16:08:39.360: video settings reset:
+16:08:39.360: 	base resolution:   1919x1079
+16:08:39.360: 	output resolution: 1276x718
+16:08:39.360: 	downscale filter:  Bicubic
+16:08:39.360: 	fps:               30/1
+16:08:39.360: 	format:            NV12
+16:08:39.360: 	YUV mode:          709/Partial
+16:08:39.361: NV12 texture support not available
+16:08:39.380: Audio monitoring device:
+16:08:39.380: 	name: Default
+16:08:39.380: 	id: default
+16:08:39.380: ---------------------------------
+16:08:39.385: Failed to load 'en-US' text for module: 'decklink-captions.so'
+16:08:39.388: Failed to load 'en-US' text for module: 'decklink-ouput-ui.so'
+16:08:39.453: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+16:08:39.454: No blackmagic support
+16:08:39.462: v4l2loopback not installed, virtual camera disabled
+16:08:39.518: FFMPEG VAAPI supported
+16:08:39.536: VLC found, VLC video source enabled
+16:08:39.536: ---------------------------------
+16:08:39.536:   Loaded Modules:
+16:08:39.536:     vlc-video.so
+16:08:39.536:     text-freetype2.so
+16:08:39.537:     rtmp-services.so
+16:08:39.537:     obs-x264.so
+16:08:39.537:     obs-transitions.so
+16:08:39.537:     obs-outputs.so
+16:08:39.537:     obs-filters.so
+16:08:39.537:     obs-ffmpeg.so
+16:08:39.537:     linux-v4l2.so
+16:08:39.537:     linux-pulseaudio.so
+16:08:39.537:     linux-jack.so
+16:08:39.537:     linux-decklink.so
+16:08:39.537:     linux-capture.so
+16:08:39.537:     linux-alsa.so
+16:08:39.537:     image-source.so
+16:08:39.537:     frontend-tools.so
+16:08:39.537:     decklink-ouput-ui.so
+16:08:39.537:     decklink-captions.so
+16:08:39.537: ---------------------------------
+16:08:39.537: ==== Startup complete ===============================================
+16:08:39.541: All scene data cleared
+16:08:39.541: ------------------------------------------------
+16:08:39.560: Switched to scene 'Scene'
+16:08:39.561: Starting stream due to command line parameter
+16:08:39.561: ------------------------------------------------
+16:08:39.561: Loaded scenes:
+16:08:39.561: - scene 'Scene':
+16:08:39.561: ------------------------------------------------
+16:08:39.666: ---------------------------------
+16:08:39.666: [x264 encoder: 'simple_h264_stream'] preset: veryfast
+16:08:39.666: [x264 encoder: 'simple_h264_stream'] settings:
+16:08:39.666: 	rate_control: CBR
+16:08:39.666: 	bitrate:      2500
+16:08:39.666: 	buffer size:  2500
+16:08:39.666: 	crf:          0
+16:08:39.666: 	fps_num:      30
+16:08:39.666: 	fps_den:      1
+16:08:39.666: 	width:        1276
+16:08:39.666: 	height:       718
+16:08:39.666: 	keyint:       250
+16:08:39.666: 
+16:08:39.671: ---------------------------------
+16:08:39.671: [FFmpeg aac encoder: 'simple_aac'] bitrate: 160, channels: 2, channel_layout: 3
+16:08:39.671: 
+16:08:39.673: [rtmp stream: 'simple_stream'] URL is empty
+16:08:39.673: [rtmp stream: 'simple_stream'] Connection to (null) failed: -1
+16:08:39.728: ==== Streaming Stop ================================================
+16:17:21.011: [Media Source 'Media Source']: settings:
+16:17:21.011: 	input:                   
+16:17:21.011: 	input_format:            (null)
+16:17:21.011: 	speed:                   100
+16:17:21.011: 	is_looping:              no
+16:17:21.011: 	is_hw_decoding:          no
+16:17:21.011: 	is_clear_on_media_end:   yes
+16:17:21.011: 	restart_on_activate:     yes
+16:17:21.011: 	close_when_inactive:     no
+16:17:21.017: User added source 'Media Source' (ffmpeg_source) to scene 'Scene'
+16:18:58.947: [Media Source 'Media Source']: settings:
+16:18:58.947: 	input:                   rtmp://192.168.0.22:1935/live/iphone
+16:18:58.947: 	input_format:            
+16:18:58.947: 	speed:                   100
+16:18:58.947: 	is_looping:              no
+16:18:58.947: 	is_hw_decoding:          no
+16:18:58.947: 	is_clear_on_media_end:   yes
+16:18:58.947: 	restart_on_activate:     yes
+16:18:58.947: 	close_when_inactive:     no
+16:18:59.122: MP: Failed to open media: 'rtmp://192.168.0.22:1935/live/iphone'
+16:21:38.780: [Media Source 'Media Source']: settings:
+16:21:38.780: 	input:                   rtmp://192.168.0.22:1935/live/iphone
+16:21:38.780: 	input_format:            
+16:21:38.780: 	speed:                   100
+16:21:38.780: 	is_looping:              no
+16:21:38.780: 	is_hw_decoding:          no
+16:21:38.780: 	is_clear_on_media_end:   yes
+16:21:38.780: 	restart_on_activate:     yes
+16:21:38.780: 	close_when_inactive:     no
+16:21:38.950: MP: Failed to open media: 'rtmp://192.168.0.22:1935/live/iphone'
+16:25:05.680: [Media Source 'Media Source']: settings:
+16:25:05.680: 	input:                   rtmp://192.168.0.22:1935/broadcast/iphone
+16:25:05.680: 	input_format:            
+16:25:05.680: 	speed:                   100
+16:25:05.680: 	is_looping:              no
+16:25:05.680: 	is_hw_decoding:          no
+16:25:05.680: 	is_clear_on_media_end:   yes
+16:25:05.680: 	restart_on_activate:     yes
+16:25:05.680: 	close_when_inactive:     no
+16:25:27.221: MP: Failed to open media: 'rtmp://192.168.0.22:1935/broadcast/iphone'
+16:25:27.222: [Media Source 'Media Source']: settings:
+16:25:27.222: 	input:                   rtmp://192.168.0.22:1935/broadcast/iphone
+16:25:27.222: 	input_format:            
+16:25:27.222: 	speed:                   100
+16:25:27.222: 	is_looping:              no
+16:25:27.222: 	is_hw_decoding:          no
+16:25:27.222: 	is_clear_on_media_end:   yes
+16:25:27.222: 	restart_on_activate:     yes
+16:25:27.222: 	close_when_inactive:     no
+23:08:20.983: MP: Failed to open media: 'rtmp://192.168.0.22:1935/broadcast/iphone'
