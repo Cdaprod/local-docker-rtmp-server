@@ -17,4 +17,4 @@ services:
       - ./app:/app
       - ./turnserver.conf:/etc/coturn/turnserver.conf
     networks:
-      - rtmp_network
+      - capture_network
