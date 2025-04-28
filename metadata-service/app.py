@@ -1,3 +1,7 @@
+# DEPRECATED
+# Moved to app/main.py
+raise DeprecationWarning("Use app/main.py instead of app.py")
+
 import os
 import json
 import logging

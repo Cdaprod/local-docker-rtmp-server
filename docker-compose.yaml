@@ -1,5 +1,7 @@
 services:
  ################################################
+##        Core VPN & Reverse Proxy Services     ##
+##              --------------------            ##
 ##            Reverse Proxy (Optional)          ##
  ################################################
 
@@ -35,27 +37,9 @@ services:
   #     - event_network
   
  ################################################
-##                Video Pipeline                ##
- ################################################
-  
-  # video-pipeline:  # << This container runs hand detection, warping, and compositing
-  #   container_name: video-pipeline-pi
-  #   build: ./services/video-pipeline
-  #   devices:
-  #     - /dev/bus/usb   # For Edge TPU
-  #   volumes:
-  #     - frames:/frames  # Optional: persistent frame cache
-  #   networks:
-  #     #- local-dev
-  #     - capture_network
-  #   ports:
-  #     - "8081:8081"
-  #   labels:
-  #     com.cdaprod.role: "Live HUD Overlay Inference"
-  #     com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
-  
- ################################################
-##                 OBS Server                   ##
+##          Core Capture & Relay Services       ##
+##             ---------------------            ##
+##                  OBS Server                  ##
  ################################################
 
   obs-pi:
@@ -102,14 +86,21 @@ services:
     #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
     #   - "traefik.tcp.routers.obsws.service=obsws"
     #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
-
-          #### Core Relay Services ####
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "4455"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+ 
  ################################################
 ##                 WebRTC Server                ##
  ################################################
  
   webrtc-pi:
-    build: .
+    build:
+      context: ./webrtc-server
+      dockerfile: Dockerfile
     image: cdaprod/webrtc-pi:latest
     container_name: webrtc-pi
     restart: unless-stopped
@@ -123,11 +114,16 @@ services:
       - TURN_USERNAME=webrtc
       - TURN_PASSWORD=webrtc123
     volumes:
-      - ./app:/app
-      - ./turnserver.conf:/etc/coturn/turnserver.conf
+      - ./webrtc-server/app:/app
+      - ./webrtc-server/config/turnserver.conf:/etc/coturn/turnserver.conf
     networks:
-      #- rtmp_network
       - capture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
  ################################################
 ##                  RTSP Server                 ##
@@ -152,6 +148,12 @@ services:
       com.cdaprod.stack: "CDA Cinematic Relay"
       com.cdaprod.role: "Relay Server"
       com.cdaprod.module: "RTSP Transport"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8554"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
  ################################################
 ##                  RTMP Server                 ##
@@ -234,6 +236,29 @@ services:
     #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
 
  ################################################
+##                Video Pipeline                ##
+ ################################################
+  
+  # video-pipeline:  # << This container runs hand detection, warping, and compositing
+  #   container_name: video-pipeline-pi
+  #   build: ./services/video-pipeline
+  #   devices:
+  #     - /dev/bus/usb   # For Edge TPU
+  #   volumes:
+  #     - frames:/frames  # Optional: persistent frame cache
+  #   networks:
+  #     #- local-dev
+  #     - capture_network
+  #   ports:
+  #     - "8081:8081"
+  #   labels:
+  #     com.cdaprod.role: "Live HUD Overlay Inference"
+  #     com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
+  
+
+ ################################################
+##            Core S3 & Storage Services        ##
+##              --------------------            ##
 ##             MinIO S3 Storage Server          ##
  ################################################
   minio:
@@ -272,8 +297,35 @@ services:
     networks:
       #- rtmp_network
       - storage_network
+    depends_on:
+      minio:
+        condition: service_healthy
+ ################################################
+##              (To be determined...)           ##
+ ################################################
+
+  # rtmp-processor:
+  #   build:
+  #     context: ./rtmp-processor
+  #     dockerfile: Dockerfile
+  #   container_name: rtmp-processor
+  #   restart: unless-stopped
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - rtmp_network
+  #     - capture_network
+  #     - event_network
+  #     - storage_network
 
  ################################################
+##          Core Event & Metadata Services       ##
+##              --------------------            ##
 ##              Event Broker Service            ##
  ################################################
 
@@ -329,36 +381,18 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-        
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
     #   - "traefik.http.routers.metadata.entrypoints=websecure"
     #   - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
     #   - "traefik.http.services.metadata.loadbalancer.server.port=5000"
-
- ################################################
-##              (To be determined...)           ##
- ################################################
-
-  # rtmp-processor:
-  #   build:
-  #     context: ./rtmp-processor
-  #     dockerfile: Dockerfile
-  #   container_name: rtmp-processor
-  #   restart: unless-stopped
-  #   environment:
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   networks:
-  #     - rtmp_network
-  #     - capture_network
-  #     - event_network
-  #     - storage_network
 
  ################################################
 ##                Docker Volumes                ##
