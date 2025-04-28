@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # ==============================================================================
 # Stage 1: Build the Node.js app
 # ==============================================================================
@@ -7,18 +5,23 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy the whole app folder instead of just package.json
+# Copy the entire app folder (not just package.json)
 COPY app/ .
 
-# Check if package.json exists and install dependencies properly
-RUN if [ ! -f package.json ]; then npm init -y && npm install express ws; else npm install; fi
+# If package.json exists, install dependencies
+# Otherwise, auto-generate it and install express, ws manually
+RUN if [ -f package.json ]; then \
+      npm install; \
+    else \
+      npm init -y && npm install express ws; \
+    fi
 
 # ==============================================================================
 # Stage 2: Final lightweight runtime
 # ==============================================================================
 FROM alpine:3.19
 
-# Install coturn and tini only
+# Install coturn, tini, nodejs, npm
 RUN apk add --no-cache coturn tini nodejs npm
 
 # Copy the TURN server config
