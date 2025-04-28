@@ -41,6 +41,4 @@ EXPOSE 49152-65535/udp
 ENTRYPOINT ["/sbin/tini", "--"]
 
 # Start both coturn and signaling server
-CMD sh -c "\
-  turnserver -c /etc/coturn/turnserver.conf & \
-  node server.js"
+CMD ["sh", "-c", "turnserver -c /etc/coturn/turnserver.conf & node server.js"]
