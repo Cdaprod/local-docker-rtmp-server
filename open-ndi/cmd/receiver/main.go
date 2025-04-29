@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/youruser/open-ndi/internal/control"
-	"github.com/youruser/open-ndi/internal/discovery"
-	"github.com/youruser/open-ndi/internal/streaming"
+	"github.com/Cdaprod/open-ndi/internal/control"
+	"github.com/Cdaprod/open-ndi/internal/discovery"
+	"github.com/Cdaprod/open-ndi/internal/streaming"
 )
 
 const (

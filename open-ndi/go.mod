@@ -1,4 +1,4 @@
-module github.com/youruser/open-ndi
+module github.com/Cdaprod/open-ndi
 
 go 1.20
 

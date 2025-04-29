@@ -3,7 +3,7 @@
 The `internal/` directory contains shared, non-exported libraries for the open-ndi project.
 
 Each package here follows Go's `internal` visibility rule: 
-> Code in `internal/` can only be imported by the top-level module (e.g., `github.com/youruser/open-ndi`), protecting implementation details from being imported externally.
+> Code in `internal/` can only be imported by the top-level module (e.g., `github.com/Cdaprod/open-ndi`), protecting implementation details from being imported externally.
 
 ## Structure
 

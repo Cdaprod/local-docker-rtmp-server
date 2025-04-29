@@ -9,7 +9,7 @@
 ## Run
 
 ```bash
-go run github.com/youruser/open-ndi/cmd/sender
+go run github.com/Cdaprod/open-ndi/cmd/sender
 ```
 
 ### Or after build:

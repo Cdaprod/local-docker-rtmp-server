@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/youruser/open-ndi/internal/control"
+	"github.com/Cdaprod/open-ndi/internal/control"
 )
 
 // StartSender streams dummy UDP packets to cfg.ReceiverAddr until ctx is done.
