@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.sender
+    image: cdaprod/open-ndi-sender:latest
     networks:
       - ndi-net
     ports:
@@ -13,6 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.receiver
+    image: cdaprod/open-ndi-receiver:latest
     networks:
       - ndi-net
 

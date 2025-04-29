@@ -1,4 +1,4 @@
-# Build stage
+# Stage 1: Build binary
 FROM golang:1.20-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -6,7 +6,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /open-ndi-sender ./cmd/sender
 
-# Final image
-FROM alpine:3.16
+# Stage 2: Final minimal runtime
+FROM alpine:3.19
 COPY --from=builder /open-ndi-sender /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/open-ndi-sender"]
