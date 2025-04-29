@@ -8,5 +8,7 @@ RUN CGO_ENABLED=0 go build -o /open-ndi-sender ./cmd/sender
 
 # Stage 2: Final minimal runtime
 FROM alpine:3.19
-COPY --from=builder /open-ndi-sender /usr/local/bin/
+RUN apk add --no-cache ffmpeg
+
+COPY --from=builder /open-ndi-sender /usr/local/bin/open-ndi-sender
 ENTRYPOINT ["/usr/local/bin/open-ndi-sender"]
