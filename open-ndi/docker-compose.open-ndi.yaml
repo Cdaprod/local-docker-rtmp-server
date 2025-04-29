@@ -1,0 +1,21 @@
+services:
+  ndi-sender:
+    build:
+      context: .
+      dockerfile: Dockerfile.sender
+    networks:
+      - ndi-net
+    ports:
+      - "9000:9000"       # control TCP
+      - "5000:5000/udp"   # media UDP
+
+  ndi-receiver:
+    build:
+      context: .
+      dockerfile: Dockerfile.receiver
+    networks:
+      - ndi-net
+
+networks:
+  ndi-net:
+    driver: bridge
