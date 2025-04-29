@@ -6,4 +6,5 @@ require github.com/grandcat/zeroconf v1.0.0 // for mDNS
 
 require (
     github.com/grandcat/zeroconf v1.0.0   // for mDNS
+    gocv.io/x/gocv v0.33.0
 )

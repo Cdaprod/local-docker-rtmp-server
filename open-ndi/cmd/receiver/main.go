@@ -2,33 +2,44 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"time"
 
 	"github.com/Cdaprod/open-ndi/internal/control"
 	"github.com/Cdaprod/open-ndi/internal/discovery"
 	"github.com/Cdaprod/open-ndi/internal/streaming"
+	"github.com/Cdaprod/open-ndi/internal/video"
 )
 
 const (
-	mdnsService    = "_openndi._udp"
-	controlPort    = "9000"
+	mdnsService      = "_openndi._udp"
+	controlPort      = "9000"
 	discoveryTimeout = 5 * time.Second
 )
 
 func main() {
-	// 1) Find sender via mDNS
+	preview := flag.Bool("preview", false, "Enable local video preview window")
+	flag.Parse()
+
 	senderAddr, err := discovery.Find(mdnsService, discoveryTimeout)
 	if err != nil {
 		log.Fatalf("mDNS lookup failed: %v", err)
 	}
-	log.Printf("Found sender at %s\n", senderAddr)
+	log.Printf("Found sender at %s", senderAddr)
 
-	// 2) Connect & negotiate via TCP
 	cfg := control.Connect(senderAddr + ":" + controlPort)
-	log.Printf("Negotiated local UDP listen at %s\n", cfg.ReceiverAddr)
+	log.Printf("Negotiated UDP listen at %s", cfg.ReceiverAddr)
 
-	// 3) Start listening for UDP packets
+	if *preview {
+		// decode via gocv directly from UDP stream
+		err = video.PreviewStream("udp://" + cfg.ReceiverAddr)
+		if err != nil {
+			log.Fatalf("preview failed: %v", err)
+		}
+		return
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

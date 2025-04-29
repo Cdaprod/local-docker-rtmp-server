@@ -7,11 +7,13 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"time"
 
 	"github.com/Cdaprod/open-ndi/internal/control"
+	"github.com/Cdaprod/open-ndi/internal/rudp"
 )
 
-// StartSender streams dummy UDP packets to cfg.ReceiverAddr until ctx is done.
+// StartSender streams video using reliable UDP
 func StartSender(ctx context.Context, cfg control.Config) error {
 	udpAddr, err := net.ResolveUDPAddr("udp", cfg.ReceiverAddr)
 	if err != nil {
@@ -23,16 +25,27 @@ func StartSender(ctx context.Context, cfg control.Config) error {
 	}
 	defer conn.Close()
 
-	buf := make([]byte, 1024)
+	seq := uint32(0)
+	ticker := time.NewTicker(33 * time.Millisecond) // ~30fps
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		default:
+		case <-ticker.C:
+			payload := make([]byte, 1024) // dummy payload
+			pkt := rudp.Packet{
+				Seq:   seq,
+				Ack:   0,
+				Flags: rudp.FlagData,
+				Data:  payload,
+			}
+			buf, _ := rudp.Encode(pkt)
 			if _, err := conn.Write(buf); err != nil {
 				log.Printf("UDP send error: %v", err)
-				return err
 			}
+			seq++
 		}
 	}
 }
@@ -58,9 +71,14 @@ func StartReceiver(ctx context.Context, cfg control.Config) error {
 			n, addr, err := conn.ReadFromUDP(buf)
 			if err != nil {
 				log.Printf("UDP receive error: %v", err)
-				return err
+				continue
 			}
-			log.Printf("Received %d bytes from %s", n, addr)
+			pkt, err := rudp.Decode(buf[:n])
+			if err != nil {
+				log.Printf("Decode error from %s: %v", addr, err)
+				continue
+			}
+			log.Printf("Received packet %d (%d bytes) from %s", pkt.Seq, len(pkt.Data), addr)
 		}
 	}
 }

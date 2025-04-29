@@ -17,7 +17,21 @@ services:
     image: cdaprod/open-ndi-receiver:latest
     networks:
       - ndi-net
+    environment:
+      - DISPLAY=:0
+    devices:
+      - /dev/video0  # Only needed if decoding from camera
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    command: ["/usr/local/bin/open-ndi-receiver", "--preview"]
 
+  open-ndi-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile.cli
+    image: cdaprod/open-ndi-cli:latest
+    entrypoint: ["/usr/local/bin/open-ndi-cli"]
+    
 networks:
   ndi-net:
     driver: bridge

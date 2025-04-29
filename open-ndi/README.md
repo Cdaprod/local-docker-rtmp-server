@@ -85,6 +85,38 @@ cd cmd/sender   && go run .
 cd cmd/receiver && go run .
 ```
 
+---
+
+## open-ndi-cli
+
+A simple Go CLI tool for discovering open-ndi senders via mDNS.
+
+### Usage
+
+```bash
+go run ./cmd/cli
+``` 
+
+Or with output format:
+
+```bash
+go run ./cmd/cli -o json
+``` 
+
+---
+
+## Next Milestones
+
+### Versions / Features:
+
+- v1.1 Configurable transport port range
+- v1.2 Stream quality presets (480p, 720p, 1080p)
+- v1.3 TLS/DTLS transport layer
+- v1.4 In-Go H.264 encoding (if GStreamer or OpenCV permits)
+- v2.0 Multi-cast / multi-peer streaming
+
+Here’s a suggested roadmap:
+
 ## Join the Journey
 
 I’m on a quest to wrap cloud-native DevOps principles around real-world cinema workflows. If you:

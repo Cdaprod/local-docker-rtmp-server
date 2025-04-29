@@ -1,0 +1,10 @@
+FROM golang:1.20-alpine AS builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o /open-ndi-cli ./cmd/cli
+
+FROM alpine:3.16
+COPY --from=builder /open-ndi-cli /usr/local/bin/
+ENTRYPOINT ["/usr/local/bin/open-ndi-cli"]
