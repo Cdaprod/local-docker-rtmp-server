@@ -68,8 +68,8 @@ jobs:
                 --push \
                 --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
                 --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest \
-                --tag ghcr.io/${{ github.repository }}/$NAME:$VERSION \
-                --tag ghcr.io/${{ github.repository }}/$NAME:latest
+                --tag ghcr.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
+                --tag ghcr.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest
 
               if [ $? -eq 0 ]; then
                 BUILD_STATUS[$NAME]="✅ Success"
