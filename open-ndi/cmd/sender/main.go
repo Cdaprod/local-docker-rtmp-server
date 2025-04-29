@@ -3,7 +3,7 @@ package main
 import (
     "context"
     "log"
-    "time"
+    //"time"
 
     "github.com/Cdaprod/open-ndi/internal/control"
     "github.com/Cdaprod/open-ndi/internal/discovery"
