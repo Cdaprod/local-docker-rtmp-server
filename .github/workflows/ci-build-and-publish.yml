@@ -59,26 +59,40 @@ jobs:
           echo "========= BUILD REPORT =========" >> build_report.txt
 
           for dir in services/*; do
-            if [ -f "$dir/Dockerfile" ]; then
-              NAME=$(basename "$dir")
-              echo "::group::Building service $NAME"
-
-              docker buildx build "$dir" \
-                --platform linux/amd64,linux/arm64 \
-                --push \
-                --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
-                --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest \
-                --tag ghcr.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
-                --tag ghcr.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest
-
-              if [ $? -eq 0 ]; then
-                BUILD_STATUS[$NAME]="✅ Success"
-              else
-                BUILD_STATUS[$NAME]="❌ Failed"
-              fi
-
-              echo "::endgroup::"
+            if [[ "$dir" == *".disabled"* ]]; then
+              echo "ERROR: '$dir' is marked as disabled. Refusing to build."
+              continue  # or `exit 1` if you want to hard-fail the pipeline
             fi
+
+            if [ ! -d "$dir" ]; then
+              echo "Skipping '$dir' -- not a directory."
+              continue
+            fi
+
+            DOCKERFILE="$dir/Dockerfile"
+            if [ ! -f "$DOCKERFILE" ]; then
+              echo "Skipping '$dir' -- no Dockerfile found."
+              continue
+            fi
+
+            NAME=$(basename "$dir")
+            echo "::group::Building service '$NAME'"
+
+            docker buildx build "$dir" \
+              --platform linux/amd64,linux/arm64 \
+              --push \
+              --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
+              --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest \
+              --tag ghcr.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
+              --tag ghcr.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest
+
+            if [ $? -eq 0 ]; then
+              BUILD_STATUS[$NAME]="✅ Success"
+            else
+              BUILD_STATUS[$NAME]="❌ Failed"
+            fi
+
+            echo "::endgroup::"
           done
 
           echo "" >> build_report.txt
