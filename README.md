@@ -4,6 +4,8 @@
 
 [![CI-Build](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build.yml)
 
+[![CI-Build-and-Publish](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build-and-publish.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build-and-publish.yml)
+
 [![Generate NodeProp Configuration](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml)
 
 ---
