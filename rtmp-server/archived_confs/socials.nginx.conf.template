@@ -1,0 +1,43 @@
+        # YouTube
+        application youtube {
+            live on;
+            allow publish 127.0.0.1;
+            deny publish all;
+            allow play all;
+            
+            exec_push ffmpeg -i rtmp://localhost/youtube/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -b:v 2500k -maxrate 2500k -bufsize 5000k \
+                -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" \
+                -c:a aac -b:a 128k -ar 44100 \
+                -f flv rtmps://a.rtmp.youtube.com/live2/${YOUTUBE_STREAM_KEY};
+        }
+
+        # Facebook
+        application facebook {
+            live on;
+            allow publish 127.0.0.1;
+            deny publish all;
+            allow play all;
+            
+            exec_push ffmpeg -i rtmp://localhost/facebook/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -b:v 2500k -maxrate 2500k -bufsize 5000k \
+                -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" \
+                -c:a aac -b:a 128k -ar 44100 \
+                -f flv rtmps://live-api-s.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
+        }
+
+        # Twitch
+        application twitch {
+            live on;
+            allow publish 127.0.0.1;
+            deny publish all;
+            allow play all;
+            
+            exec_push ffmpeg -i rtmp://localhost/twitch/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -b:v 2500k -maxrate 2500k -bufsize 5000k \
+                -c:a aac -b:a 128k -ar 44100 \
+                -f flv rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+        }

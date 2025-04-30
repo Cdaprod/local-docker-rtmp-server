@@ -1,0 +1,9 @@
+networks:
+  ingress:
+    driver: bridge        # public-facing network (Traefik + exposed services)
+  streaming:
+    driver: bridge
+    internal: true        # internal network for RTMP/RTSP services
+  webrtc:
+    driver: bridge
+    internal: true        # internal network for WebRTC signaling & TURN

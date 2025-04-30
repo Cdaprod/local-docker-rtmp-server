@@ -1,0 +1,40 @@
+Nikon Type0023 Module SDK Revision 9
+  === [Mac OS] Module SDK 使用時の注意 ===
+
+■概要
+
+    Macintosh版の Type0023 Module と PTP ドライバには制限事項があるため、
+    Mac OS で Module SDK をご使用の際は下記にご注意ください。
+
+■動作環境
+
+  ※ReadMe_Jpn.txtをご参照ください。
+
+■用語の説明
+
+  ・新SDK ... Type0023 Module SDK Revision 9  ※本Module SDK
+  ・旧SDK ... 新SDKより以前の Module SDK
+
+  ※その他の用語についての詳細は、ReadMe_Jpn.txtをご参照ください。
+
+■注意事項
+    
+    ・Macintosh版の Type0023 Module には制限事項があります。
+      以下のドキュメントをご参照の上、ご注意ください。
+
+        - Usage of Type0023 Module(J).pdf
+          「Module SDK を使用するアプリケーションについて」
+          「Macintoshでの 使用時について」
+
+    　旧SDK用に作成したアプリケーションから、新SDK の Type0023 Module を使用する場合も、
+      上記の制限事項にご注意ください。
+
+    ・新/旧SDK の Module を混在させてロードしないでください。
+      SDK が正常に動作しなくなります。
+
+    ・新SDKを使用する場合、Royalmile.frameworkが必要となります。
+      以下のドキュメントをご参照の上、ご注意ください。
+
+        - Type0023 Sample Guide(J).pdf
+          「ファイル - Macintosh」
+

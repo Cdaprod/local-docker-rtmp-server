@@ -1,0 +1,116 @@
+version: "3.9"
+
+services:
+  metadata-service:
+    build:
+      context: ./metadata-service
+      dockerfile: Dockerfile
+    container_name: metadata-service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./metadata-service:/app:rw
+    environment:
+      METADATA_QUEUE: metadata_queue
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    networks:
+      - rtmp_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  obs:
+    build:
+      context: ./pi-obs-container
+      dockerfile: Dockerfile.arm64
+    container_name: obs-pi
+    ports:
+      - "15800:5800"  # noVNC
+      - "15900:5900"  # native VNC
+      - "14455:4455"  # OBS WebSocket
+      - "16080:6080"  # web VNC
+    privileged: true
+    devices:
+      - ${VIDEO_DEVICE:-/dev/video0}:/dev/video0
+    volumes:
+      - ./config:/root/.config/obs-studio:rw
+      - ./assets:/root/assets:rw
+      - ./scripts:/root/scripts:rw
+    environment:
+      TZ: America/New_York
+    networks:
+      - rtmp_network
+    command: >
+      bash -c "
+        echo '[INIT] Ensuring v4l2loopback is loaded...' &&
+        modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 2>/dev/null || echo '[WARN] Failed to modprobe v4l2loopback' &&
+        /entrypoint.sh
+      "
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./event-broker/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - rtmp_network
+
+  rtmp-server:
+    build: ./rtmp-server
+    container_name: rtmp_server
+    ports:
+      - "1935:1935"
+      - "18080:8080"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+      TZ: UTC
+      NAS_IP_OR_HOSTNAME: 192.168.0.19
+      NAS_SHARE_NAME: volume1/videos
+      NAS_USERNAME: cda
+      NAS_PASSWORD: Mbcw3364.
+    volumes:
+      - ./public/assets:/usr/share/nginx/html/assets:ro
+      - ./credentials.json:/etc/credentials.json:ro
+      - /tmp/rtmp-recordings:/tmp/hls:rw
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    security_opt:
+      - apparmor:unconfined
+    networks:
+      - rtmp_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  rtmp_network:
+    name: rtmp_network
+    external: true
+
+volumes:
+  rabbitmq_data: {}

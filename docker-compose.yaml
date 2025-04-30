@@ -1,23 +1,317 @@
-version: "3.9"
-
 services:
+ ################################################
+##            Reverse Proxy (Optional)          ##
+ ################################################
+
+  # traefik:
+  #   container_name: tailscale-traefik-pi
+  #   image: traefik:v2.10
+  #   restart: always
+  #   command:
+  #     - "--providers.docker=true"
+  #     - "--providers.docker.exposedbydefault=false"
+  #     - "--entrypoints.web.address=:80"
+  #     - "--entrypoints.websecure.address=:443"
+  #     - "--entrypoints.rtmp.address=:1935"
+  #     - "--entrypoints.ws.address=:4455"  # for obs-websocket
+  #     - "--api.dashboard=true"
+  #     - "--log.level=INFO"
+  #     - "--accesslog=true"
+  #     - "--certificatesresolvers.tsresolver.acme.tlschallenge=true"
+  #     - "--certificatesresolvers.tsresolver.acme.email=admin@cdaprod.dev"
+  #     - "--certificatesresolvers.tsresolver.acme.storage=/letsencrypt/acme.json"
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "1935:1935"     # Optional: for RTMP
+  #     - "4455:4455"     # Optional: for OBS WebSocket
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./letsencrypt:/letsencrypt
+  #   networks:
+  #     - tailscale
+  
+ ################################################
+##                Video Pipeline                ##
+ ################################################
+  
+  # video-pipeline:  # << This container runs hand detection, warping, and compositing
+  #   container_name: video-pipeline-pi
+  #   build: ./services/video-pipeline
+  #   devices:
+  #     - /dev/bus/usb   # For Edge TPU
+  #   volumes:
+  #     - frames:/frames  # Optional: persistent frame cache
+  #   networks:
+  #     - local-dev
+  #   ports:
+  #     - "8081:8081"
+  #   labels:
+  #     com.cdaprod.role: "Live HUD Overlay Inference"
+  #     com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
+  
+ ################################################
+##                 OBS Server                   ##
+ ################################################
+
+  obs-pi:
+    image: cdaprod/obs-pi:v1.2.2
+    #build:
+      #context: ./pi-obs-container
+      #dockerfile: Dockerfile.arm64
+      #dockerfile: Dockerfile-v2.arm64
+    container_name: obs-pi
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+    ports:
+      - "15800:5800"  # noVNC
+      - "15900:5900"  # native VNC
+      - "14455:4455"  # OBS WebSocket
+      - "16080:6080"
+    devices:
+      #- /dev/video0 # Replaced symlinked video0 with direct dev/
+      - /dev/nikon-capture:/dev/video0
+    volumes:
+      - ./pi-obs-container/config:/root/.config/obs-studio
+      - ./pi-obs-container/assets:/root/assets
+      - ./pi-obs-container/scripts:/root/scripts
+      # - ./pi-obs-container/recordings:/recordings
+      - /mnt/b:/mnt/b:rw
+      #- frames:/frames
+    networks:
+      - rtmp_network
+    command: >
+      bash -c "
+        echo '[INIT] Ensuring v4l2loopback is loaded...' &&
+        modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 2>/dev/null || echo '[WARN] Failed to modprobe v4l2loopback' &&
+        /entrypoint.sh
+      "
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
+    #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
+    #   - "traefik.tcp.routers.obsws.service=obsws"
+    #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+
+ ################################################
+##                  RTMP Server                 ##
+ ################################################
+
   rtmp-server:
-    build:
-      context: ./app  # Adjust if your Dockerfile is in a different location
-    container_name: rtmp_server
+    image: cdaprod/rtmp-server:v1.2.2
+    #build: ./rtmp-server
+    container_name: rtmp-pi
     restart: unless-stopped
     ports:
-      - "1935:1935"  # RTMP port
-      - "18080:8080"  # HTTP port for health check, stats, and assets
+      - "1935:1935"   # RTMP
+      - "18080:8080"  # HTTP
     volumes:
-      - /mnt/nas:/mnt/nas  # Mount NAS share to container
-      - ./public/assets:/usr/share/nginx/html/assets  # Serve placeholder assets
-      - ./recordings:/var/www/recordings  # Local backup for stream recordings
-      - /tmp/hls:/tmp/hls  # HLS fragments
+      - type: bind
+        source: /mnt/b  # Host path where NAS is mounted
+        target: /var/www/recordings  # Path in the container
+        read_only: false
+      - ./public/assets:/usr/share/nginx/html/assets:ro  # Static assets
+      - ./credentials.json:/etc/credentials.json:ro  # Credentials for other services
+      - /tmp/rtmp-recordings:/tmp/hls:rw  # Local HLS temp files (optional, mapped to host)
+      #- frames:/frames
     env_file:
-      - .env  # Securely load environment variables
+      - .env
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - TZ=UTC
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=2048
+      - MAX_SEGMENT_DURATION=6
+      - NAS_IP_OR_HOSTNAME=${NAS_IP_OR_HOSTNAME}    # NAS IP or Hostname
+      - NAS_SHARE_NAME=${NAS_SHARE_NAME}           # NAS Share Path
+      - NAS_USERNAME=${NAS_USERNAME}              # NAS Username
+      - NAS_PASSWORD=${NAS_PASSWORD}              # NAS Password
+    cap_add:
+      - SYS_ADMIN  # Required for mounting
+    devices:
+      - /dev/fuse  # FUSE support for mounting
+    security_opt:
+      - apparmor:unconfined  # Disable AppArmor for mounting
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "4g"
+    networks:
+      - rtmp_network
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
+    #   - "traefik.http.routers.rtmp.entrypoints=websecure"
+    #   - "traefik.http.routers.rtmp.tls.certresolver=tsresolver"
+    #   - "traefik.tcp.routers.rtmp-tcp.rule=HostSNI(`*`)"
+    #   - "traefik.tcp.routers.rtmp-tcp.entrypoints=rtmp"
+    #   - "traefik.tcp.routers.rtmp-tcp.service=rtmp-service"
+    #   - "traefik.tcp.services.rtmp-service.loadbalancer.server.port=1935"
+    # labels:
+    #   com.cdaprod.project: "RTMP Streaming Server"
+    #   com.cdaprod.version: "1.1.0"
+    #   com.cdaprod.env: "${ENVIRONMENT:-production}"
+    #   com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
+    #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+
+ ################################################
+##             MinIO S3 Storage Server          ##
+ ################################################
+  minio:
+    image: cdaprod/cda-minio:latest
+    container_name: minio-pi
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data --console-address ":9001"
+    volumes:
+      - /mnt/b/rpi_sync/minio/data:/data
+      - /mnt/nas/
+    networks:
+      - rtmp_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set localminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+        mc mb -p localminio/recordings &&
+        mc mb -p localminio/assets
+      "
+    networks:
+      - rtmp_network
+
+ ################################################
+##              Event Broker Service            ##
+ ################################################
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-pi
+    restart: unless-stopped
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./event-broker/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - rtmp_network
+
+ ################################################
+##                Python Event API              ##
+ ################################################
+
+
+  metadata-service:
+    image: cdaprod/metadata-service:v1.2.2
+    #build:
+      #context: ./metadata-service
+      #dockerfile: Dockerfile
+    container_name: metadata-service
+    restart: unless-stopped
+    volumes:
+     - ./metadata-service:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - METADATA_QUEUE=metadata_queue  # The queue to listen to
+    networks:
+      - rtmp_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
+    #   - "traefik.http.routers.metadata.entrypoints=websecure"
+    #   - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
+    #   - "traefik.http.services.metadata.loadbalancer.server.port=5000"
+
+ ################################################
+##              (To be determined...)           ##
+ ################################################
+
+  # rtmp-processor:
+  #   build:
+  #     context: ./rtmp-processor
+  #     dockerfile: Dockerfile
+  #   container_name: rtmp-processor
+  #   restart: unless-stopped
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - rtmp_network
+
+ ################################################
+##                Docker Volumes                ##
+ ################################################
+
+volumes:
+  rabbitmq_data:
+  #frames:
+
+ ################################################
+##                Docker Networks               ##
+ ################################################
+
+networks:
+  # tailscale:
+  #   external: true
+  #   name: tailscale 
+  rtmp_network:
+    external: true
+    name: rtmp_network
+    driver: bridge
+  #app_network: # <— This is just extra in case we need network abstraction or seperation later
+    #external: ?
+    #name: ?
+    #driver: ?

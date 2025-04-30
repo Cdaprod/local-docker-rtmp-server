@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  infra-node:
+    build:
+      context: ../
+      dockerfile: infra/Dockerfile.infra-node
+    container_name: infra-node
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./devtools:/usr/local/bin/
+    networks:
+      - core_net
+      - tailscale
+
+networks:
+  core_net:
+    external: true
+  tailscale:
+    external: true

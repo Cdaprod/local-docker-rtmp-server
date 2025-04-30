@@ -1,0 +1,80 @@
+name: CI-Build-and-Publish
+
+on:
+  push:
+    branches: [ "**" ]
+    tags: [ "**" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      DOCKERHUB_USERNAME: cdaprod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v0.10.2
+        with:
+          versionSpec: '5.x'
+
+      - name: Run GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.10.2
+        with:
+          useConfigFile: true
+          configFilePath: './.github/GitVersion.yml'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Discover and build services
+        run: |
+          VERSION=${{ steps.gitversion.outputs.SemVer }}
+          REPO=$(basename "${GITHUB_REPOSITORY}")
+
+          for dir in services/*; do
+            if [ -f "$dir/Dockerfile" ]; then
+              NAME=$(basename "$dir")
+              echo "::group::Building service $NAME"
+
+              docker buildx build "$dir" \
+                --platform linux/amd64,linux/arm64 \
+                --push \
+                --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:$VERSION \
+                --tag docker.io/${{ env.DOCKERHUB_USERNAME }}/$NAME:latest \
+                --tag ghcr.io/${{ github.repository }}/$NAME:$VERSION \
+                --tag ghcr.io/${{ github.repository }}/$NAME:latest
+
+              echo "::endgroup::"
+            fi
+          done
+
+      - name: Create Git Tag and Release
+        if: github.ref_type != 'tag'
+        run: |
+          TAG=${{ steps.gitversion.outputs.SemVer }}
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"

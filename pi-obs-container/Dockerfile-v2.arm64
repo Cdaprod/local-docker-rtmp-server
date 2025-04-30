@@ -1,0 +1,33 @@
+# --------------------------------------------
+# Stage 1: Runtime only (NO building)
+# All plugins now built upstream in cdaprod/obs-runtime:latest
+# --------------------------------------------
+FROM cdaprod/obs-runtime:v1.2.2 AS runtime
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Create necessary runtime directories
+RUN mkdir -p \
+    /root/.config/obs-studio/plugin_config \
+    /root/assets \
+    /root/scripts \
+    /opt/novnc/utils/websockify
+
+# OBS configuration and assets
+COPY config/basic/profiles/ /root/.config/obs-studio/basic/profiles/
+COPY config/basic/scenes/ /root/.config/obs-studio/basic/scenes/
+COPY config/plugin_config/ /root/.config/obs-studio/plugin_config/
+COPY config/global.ini /root/.config/obs-studio/global.ini
+COPY config/user.ini /root/.config/obs-studio/user.ini
+COPY scripts/ /root/scripts/
+COPY assets/ /root/assets/
+
+# Entrypoint and Supervisor
+COPY entrypoint.sh /entrypoint.sh
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 5800 5900 4455 6080
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/bin/supervisord"]

@@ -1,0 +1,113 @@
+worker_processes ${NGINX_WORKER_PROCESSES};
+rtmp_auto_push on;
+rtmp_auto_push_reconnect 1s;
+
+env NAS_IP_OR_HOSTNAME;
+env NAS_SHARE_NAME;
+env NAS_USERNAME;
+env NAS_PASSWORD;
+env YOUTUBE_VIDEO_ID;
+env YOUTUBE_STREAM_KEY;
+env FACEBOOK_STREAM_KEY;
+env TWITCH_STREAM_KEY;
+env TWITCH_CHANNEL_NAME;
+env DEVICE1_STREAM_KEY;
+env DEVICE2_STREAM_KEY;
+env DEVICE3_STREAM_KEY;
+
+events {
+    worker_connections ${NGINX_WORKER_CONNECTIONS};
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    tcp_nopush    on;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log debug;
+
+    server {
+        listen 8080;
+        server_name localhost;
+
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+
+        location /hls {
+            types {
+                application/vnd.apple.mpegurl m3u8;
+                video/mp2t ts;
+            }
+            root /tmp/hls;
+            add_header Cache-Control no-cache;
+            add_header Access-Control-Allow-Origin *;
+        }
+
+        location /stat {
+            rtmp_stat all;
+            rtmp_stat_stylesheet stat.xsl;
+        }
+
+        location /stat.xsl {
+            root /usr/share/nginx/html;
+        }
+
+        location /health {
+            return 200 "healthy\n";
+        }
+    }
+}
+
+rtmp {
+    server {
+        listen 1935;
+        chunk_size 4096;
+
+        ### 1. LIVE INGEST (from iPhone / LiveNow) ###
+        application live {
+            live on;
+            allow publish all;
+            deny play all;
+            
+            record all;
+            record_path /var/www/recordings/iphone;
+            record_unique on;
+            record_suffix _%Y-%m-%d_%H-%M.flv;
+
+            exec ffmpeg -loglevel debug -re \
+                -i rtmp://localhost/live/$name \
+                -c:v libx264 -preset ultrafast -tune zerolatency \
+                -c:a aac \
+                -f flv rtmp://localhost/broadcast/$name;
+
+            on_publish http://localhost:5000/on_publish?app=$app&name=$name&addr=$addr&clientid=$clientid;
+            on_publish_done http://localhost:5000/on_publish_done?app=$app&name=$name&addr=$addr&clientid=$clientid;
+        }
+
+        ### 2. PUBLIC BROADCAST ###
+        application broadcast {
+            live on;
+            allow play all;
+
+            hls on;
+            hls_path /tmp/hls;
+            hls_fragment 2s;
+            hls_playlist_length 16s;
+            hls_cleanup on;
+
+            # Optional: Push to CDN
+            # push rtmp://a.rtmp.youtube.com/live/${YOUTUBE_STREAM_KEY};
+            # push rtmp://live-api.facebook.com:443/rtmp/${FACEBOOK_STREAM_KEY};
+            # push rtmp://live.twitch.tv/app/${TWITCH_STREAM_KEY};
+
+            # Optional: Record all sessions
+            # record all;
+            # record_path /var/www/recordings;
+            # record_unique on;
+            # record_suffix _%Y-%m-%d_%H-%M.flv;
+        }
+    }
+}

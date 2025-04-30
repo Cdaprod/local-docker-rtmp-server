@@ -1,0 +1,12 @@
+# Cdaprod Local Dev Hosts Template
+
+127.0.0.1       localhost
+127.0.0.1       rtmp.cdaprod.dev
+127.0.0.1       meta.cdaprod.dev
+127.0.0.1       obs.cdaprod.dev
+127.0.0.1       signaling.cdaprod.dev
+127.0.0.1       studio.cdaprod.dev
+127.0.0.1       webrtc.cdaprod.dev
+
+# Add any Tailscale IPs below as needed
+# 100.x.x.x     tailscale-peer-name.cdaprod.dev

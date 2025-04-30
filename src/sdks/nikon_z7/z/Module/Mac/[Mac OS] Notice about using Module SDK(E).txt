@@ -1,0 +1,39 @@
+Nikon Type0023 Module SDK Revision 9
+  === [Mac OS] Notice about using Module SDK ===
+
+[Summary]
+
+    There are restrictions on Type0023 Module and PTP Driver for Macintosh.
+    Please notice the following when you use Module SDK on Mac OS.
+
+[Environment]
+
+  * Please refer to ReadMe_Eng.txt.
+
+[Glossary]
+
+  - New SDK ... Type0023 Module SDK Revision 9  * This Module SDK
+  - Old SDK ... SDK older than New SDK
+
+  * Please refer to ReadMe_Eng.txt for the details about other words.
+
+[Notice]
+
+  - There are restrictions on Type0023 Module for Macintosh.
+    Please refer the following document and notice.
+
+      - Usage of Type0023 Module(E).pdf
+       "About applications using Module SDK"
+       "The restriction on Macintosh"
+
+    Also when you use Type0023 Module of New SDK from the application that you made for Old SDK,
+    please notice the restrictions above.
+
+  - Do not load mixed New SDK and Old SDK.
+    The SDK is incorrectly executed.
+
+  - When using the New SDK, Royalmile.framework is required.
+    Please refer the following document and notice.
+
+      - Type0023 Sample Guide(E).pdf
+       "Files - Macintosh"

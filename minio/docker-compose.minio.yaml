@@ -1,0 +1,14 @@
+services:
+  minio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minio
+    ports:
+      - "9000-9001:9000-9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./minio/scripts:/scripts
+      - ./minio/data:/data

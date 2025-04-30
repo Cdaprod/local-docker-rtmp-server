@@ -1,0 +1,9 @@
+paths:
+  cam01:
+    source: rtsp://192.168.1.201:554/stream1
+    sourceProtocol: tcp
+
+  # Add more streams like this
+  cam02:
+    source: rtsp://192.168.1.202:554/stream1
+    sourceProtocol: tcp

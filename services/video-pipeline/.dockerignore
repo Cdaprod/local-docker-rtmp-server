@@ -1,0 +1,9 @@
+*.o
+*.a
+*.so
+build/
+.vscode/
+*.log
+*.mp4
+__pycache__/
+*.pyc

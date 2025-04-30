@@ -1,0 +1,10 @@
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+COPY . .
+RUN go build -o infra-node ./infra/src/cmd/infra-node
+
+FROM alpine:3.19
+RUN apk add --no-cache bash curl docker-cli
+COPY --from=builder /app/infra-node /usr/local/bin/infra-node
+CMD ["/usr/local/bin/infra-node"]

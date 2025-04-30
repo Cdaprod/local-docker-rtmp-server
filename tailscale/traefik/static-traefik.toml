@@ -1,0 +1,32 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = false
+
+[log]
+  level = "INFO"
+
+[accessLog]
+
+[api]
+  dashboard = true
+  insecure = false
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+  [entryPoints.websecure]
+    address = ":443"
+  [entryPoints.rtmp]
+    address = ":1935"
+  [entryPoints.obsws]
+    address = ":4455"
+
+[providers]
+  [providers.docker]
+    exposedByDefault = false
+    network = "tailscale"
+
+[certificatesResolvers.tsresolver.acme]
+  email = "admin@cdaprod.dev"
+  storage = "/letsencrypt/acme.json"
+  [certificatesResolvers.tsresolver.acme.tlsChallenge]

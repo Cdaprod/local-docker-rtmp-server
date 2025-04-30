@@ -1,0 +1,215 @@
+version: "3.9"
+
+services:
+  traefik:
+    container_name: tailscale-traefik
+    image: traefik:v2.10
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.rtmp.address=:1935"
+      - "--entrypoints.ws.address=:4455"  # for obs-websocket
+      - "--api.dashboard=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--certificatesresolvers.tsresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.tsresolver.acme.email=admin@cdaprod.dev"
+      - "--certificatesresolvers.tsresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "1935:1935"     # Optional: for RTMP
+      - "4455:4455"     # Optional: for OBS WebSocket
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - tailscale
+
+  obs:
+    build:
+      context: ./pi-obs-container
+      dockerfile: Dockerfile.arm64
+    container_name: obs-pi
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+    ports:
+      - "5800:5800"  # noVNC
+      - "5900:5900"  # native VNC
+      - "4455:4455"  # OBS WebSocket
+      - "6080:6080"
+    devices:
+      - /dev/video0
+    volumes:
+      - ./config:/root/.config/obs-studio
+      - ./assets:/root/assets
+      #- ./recordings:/recordings
+      - ./scripts:/root/scripts
+    networks:
+      - rtmp_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.obsws.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.obsws.entrypoints=obsws"
+      - "traefik.tcp.routers.obsws.service=obsws"
+      - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+    command: >
+      bash -c "
+        echo '[INIT] Ensuring v4l2loopback is loaded...' &&
+        modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 2>/dev/null || echo '[WARN] Failed to modprobe v4l2loopback' &&
+        /entrypoint.sh
+      "
+      
+  rtmp-server:
+    build: ./rtmp-server
+    container_name: rtmp_server
+    restart: unless-stopped
+    ports:
+      # - "1935:1935"  # RTMP
+      - "18080:8080"  # HTTP
+    volumes:
+      # - type: bind
+      #   source: /mnt/nas  # Host path where NAS is mounted
+      #   target: /var/www/recordings  # Path in the container
+      #   read_only: false
+      - ./public/assets:/usr/share/nginx/html/assets:ro  # Static assets
+      - ./credentials.json:/etc/credentials.json:ro  # Credentials for other services
+      - /tmp/rtmp-recordings:/tmp/hls:rw  # Local HLS temp files (optional, mapped to host)
+    env_file:
+      - .env
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - TZ=UTC
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=2048
+      - MAX_SEGMENT_DURATION=6
+      - NAS_IP_OR_HOSTNAME=${NAS_IP_OR_HOSTNAME}    # NAS IP or Hostname
+      - NAS_SHARE_NAME=${NAS_SHARE_NAME}           # NAS Share Path
+      - NAS_USERNAME=${NAS_USERNAME}              # NAS Username
+      - NAS_PASSWORD=${NAS_PASSWORD}              # NAS Password
+    cap_add:
+      - SYS_ADMIN  # Required for mounting
+    devices:
+      - /dev/fuse  # FUSE support for mounting
+    security_opt:
+      - apparmor:unconfined  # Disable AppArmor for mounting
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "4g"
+    networks:
+      - rtmp_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
+      - "traefik.http.routers.rtmp.entrypoints=websecure"
+      - "traefik.http.routers.rtmp.tls.certresolver=tsresolver"
+      - "traefik.tcp.routers.rtmp-tcp.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.rtmp-tcp.entrypoints=rtmp"
+      - "traefik.tcp.routers.rtmp-tcp.service=rtmp-service"
+      - "traefik.tcp.services.rtmp-service.loadbalancer.server.port=1935"
+    # labels:
+    #   com.cdaprod.project: "RTMP Streaming Server"
+    #   com.cdaprod.version: "1.1.0"
+    #   com.cdaprod.env: "${ENVIRONMENT:-production}"
+    #   com.cdaprod.description: "Enhanced RTMP server with multi-source streaming"
+    #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+ 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./event-broker/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - rtmp_network
+
+  metadata-service:
+    build:
+      context: ./metadata-service
+      dockerfile: Dockerfile
+    container_name: metadata-service
+    restart: unless-stopped
+    volumes:
+     - ./metadata-service:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - METADATA_QUEUE=metadata_queue  # The queue to listen to
+    networks:
+      - rtmp_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
+      - "traefik.http.routers.metadata.entrypoints=websecure"
+      - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
+      - "traefik.http.services.metadata.loadbalancer.server.port=5000"
+
+  # rtmp-processor:
+  #   build:
+  #     context: ./rtmp-processor
+  #     dockerfile: Dockerfile
+  #   container_name: rtmp_processor
+  #   restart: unless-stopped
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - rtmp_network
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  tailscale:
+    external: true
+    name: tailscale 
+  rtmp_network:
+    external: true
+    name: rtmp_network
+    driver: bridge

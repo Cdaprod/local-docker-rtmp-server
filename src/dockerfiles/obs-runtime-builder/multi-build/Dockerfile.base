@@ -1,0 +1,112 @@
+# Dockerfile.base
+# ── builds ffmpeg, core libs & header‑only deps into a slim runtime
+
+# Stage 1: Compile all core dependencies (FFmpeg, NDI, LuaJIT…)
+FROM ubuntu:24.04 AS builder
+LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 1) Build tools + dev headers
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential cmake git curl wget \
+      pkg-config autoconf automake gettext texinfo \
+      yasm nasm python3 python3-pip \
+      libx264-dev libx265-dev libvpx-dev libaom-dev \
+      libmp3lame-dev libopus-dev libvorbis-dev libass-dev \
+      libfreetype6-dev libfontconfig1-dev \
+      libssl-dev libmbedtls-dev \
+      libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+      libpulse-dev libxkbcommon-dev \
+      libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev \
+      libxcb-randr0-dev libxcomposite-dev libxcursor-dev \
+      libdrm-dev libv4l-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# 2) LAME
+RUN git clone https://github.com/rbrito/lame.git /tmp/lame \
+ && cd /tmp/lame \
+ && ./configure --prefix=/usr --enable-shared --disable-static \
+ && make -j$(nproc) && make install \
+ && ldconfig && rm -rf /tmp/lame
+
+# 3) FreeType
+RUN git clone --depth=1 https://gitlab.freedesktop.org/freetype/freetype.git /tmp/freetype \
+ && cd /tmp/freetype \
+ && ./autogen.sh && ./configure --prefix=/usr \
+ && make -j$(nproc) && make install \
+ && ldconfig && rm -rf /tmp/freetype
+
+# 4) FFmpeg 6.1
+RUN git clone --depth=1 -b release/6.1 https://github.com/FFmpeg/FFmpeg.git /tmp/ffmpeg \
+ && cd /tmp/ffmpeg \
+ && ./configure \
+      --prefix=/usr/local \
+      --enable-gpl --enable-nonfree \
+      --enable-shared \
+      --enable-libx264 --enable-libx265 \
+      --enable-libvpx --enable-libaom \
+      --enable-libmp3lame --enable-libopus \
+      --enable-libvorbis --enable-libass \
+      --enable-libfreetype --enable-libfontconfig \
+      --extra-libs="-lpthread -lm" \
+ && make -j$(nproc) && make install \
+ && ldconfig && rm -rf /tmp/ffmpeg
+
+# 5) LuaJIT
+RUN git clone https://github.com/LuaJIT/LuaJIT.git /tmp/luajit \
+ && cd /tmp/luajit \
+ && make && make install \
+ && rm -rf /tmp/luajit
+
+# 6) Core C‑libs: libdatachannel, crc32c
+RUN git clone --recursive https://github.com/paullouisageneau/libdatachannel.git /tmp/libdatachannel \
+ && cd /tmp/libdatachannel && mkdir build && cd build \
+ && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+ && make -j$(nproc) && make install \
+ && ldconfig && rm -rf /tmp/libdatachannel
+
+RUN git clone --recursive https://github.com/google/crc32c.git /tmp/crc32c \
+ && cd /tmp/crc32c && mkdir build && cd build \
+ && cmake -DCRC32C_BUILD_TESTS=OFF -DCRC32C_BUILD_BENCHMARKS=OFF -DCMAKE_INSTALL_PREFIX=/usr .. \
+ && make -j$(nproc) && make install \
+ && ldconfig && rm -rf /tmp/crc32c
+
+# 7) Header‑only: Asio, WebSocket++, uthash, qrcodegen
+RUN git clone --depth=1 https://github.com/chriskohlhoff/asio.git /tmp/asio \
+ && mkdir -p /usr/local/include/asio \
+ && cp -r /tmp/asio/asio/include/asio /usr/local/include \
+ && rm -rf /tmp/asio \
+ && git clone --depth=1 https://github.com/zaphoyd/websocketpp.git /tmp/wspp \
+ && mkdir -p /usr/local/include/websocketpp \
+ && cp -r /tmp/wspp/websocketpp /usr/local/include \
+ && rm -rf /tmp/wspp \
+ && git clone --depth=1 https://github.com/troydhanson/uthash.git /tmp/uthash \
+ && cp /tmp/uthash/src/uthash.h /usr/local/include && rm -rf /tmp/uthash \
+ && git clone https://github.com/nayuki/QR-Code-generator.git /tmp/qrcode \
+ && mkdir -p /usr/local/include/qrcodegen \
+ && cp /tmp/qrcode/cpp/*.hpp /usr/local/include/qrcodegen \
+ && rm -rf /tmp/qrcode
+
+# Stage 2: Slim runtime containing everything /usr/local
+FROM debian:bookworm AS runtime
+LABEL org.opencontainers.image.title="obs-runtime-base"
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# runtime deps for gstreamer, v4l2, graphics, etc
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libx264-160 libx265-199 libvpx6 libaom0 \
+      libmp3lame0 libopus0 libvorbis0a libass9 \
+      libfreetype6 libfontconfig1 \
+      libssl3 libmbedtls14 \
+      libdrm2 libv4l-0 \
+      libpulse0 libxkbcommon0 \
+      libxcb1 libxcb-shm0 libxcb-xfixes0 libxcb-randr0 libxcomposite1 \
+      gstreamer1.0-plugins-base gstreamer1.0-tools \
+      lua5.1 \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local /usr/local
+
+CMD ["bash"]

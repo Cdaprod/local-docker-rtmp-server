@@ -1,0 +1,182 @@
+Perfect -- using RabbitMQ as the message broker for coordination between the master and slaves in the wifi-hdmi-transmission service is a powerful move. It gives you a decoupled, event-driven architecture ideal for commanding streaming workflows, requesting frame syncs, reporting device status, and broadcasting stream readiness or shutdown.
+
+⸻
+
+Design Pattern: Master-Slave via RabbitMQ
+
+We will treat the master as a command emitter + service status listener, and the slaves as subscribers and telemetry emitters.
+
+⸻
+
+RabbitMQ Queues
+
+Here’s how we’ll organize queues and exchanges:
+
+Queue/Exchange	Type	Used by	Description
+hdmi.command.broadcast	fanout	Master	Fanout broadcast to all slaves (e.g., start-stream, stop-stream, switch-mode)
+hdmi.response.master	direct	Slaves	Targeted messages back to master from specific slave
+hdmi.telemetry	topic	Slaves	Reports on status, stream health, latency, errors
+hdmi.announce.slave	fanout	Slaves	When a slave comes online, it announces itself here
+
+
+
+⸻
+
+Master Behavior
+	•	Publishes commands to hdmi.command.broadcast
+	•	Listens to:
+	•	hdmi.response.master (ACKs, errors)
+	•	hdmi.announce.slave (dynamic slave registration)
+	•	hdmi.telemetry (status/metrics)
+
+⸻
+
+Slave Behavior
+	•	Subscribes to hdmi.command.broadcast and filters on its own identity (if needed)
+	•	Responds to commands via hdmi.response.master
+	•	Emits telemetry to hdmi.telemetry
+	•	On boot, emits presence to hdmi.announce.slave
+
+⸻
+
+Directory Setup in dev/master and dev/slave
+
+We’ll use the existing structure like this:
+
+services/
+└── wifi-hdmi-transmission/
+    ├── dev/
+    │   ├── master/
+    │   │   ├── main.py
+    │   │   ├── rabbitmq.py
+    │   │   └── requirements.txt
+    │   └── slave/
+    │       ├── main.py
+    │       ├── rabbitmq.py
+    │       └── requirements.txt
+
+
+
+⸻
+
+Shared Requirements (Minimal)
+
+# dev/master/requirements.txt or dev/slave/requirements.txt
+pika
+
+
+
+⸻
+
+Skeleton: rabbitmq.py (Shared Between Master/Slave)
+
+# rabbitmq.py
+import pika
+import json
+import os
+
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
+RABBITMQ_USER = os.getenv("RABBITMQ_DEFAULT_USER", "guest")
+RABBITMQ_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", "guest")
+
+def get_connection():
+    credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
+    params = pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+    return pika.BlockingConnection(params)
+
+def publish(exchange: str, routing_key: str, body: dict):
+    with get_connection() as connection:
+        channel = connection.channel()
+        channel.exchange_declare(exchange=exchange, exchange_type='fanout', durable=True)
+        channel.basic_publish(
+            exchange=exchange,
+            routing_key=routing_key,
+            body=json.dumps(body),
+            properties=pika.BasicProperties(delivery_mode=2)
+        )
+
+def subscribe(exchange: str, callback, exchange_type='fanout', queue_name=''):
+    connection = get_connection()
+    channel = connection.channel()
+    channel.exchange_declare(exchange=exchange, exchange_type=exchange_type, durable=True)
+    result = channel.queue_declare(queue=queue_name, exclusive=True)
+    queue_name = result.method.queue
+    channel.queue_bind(exchange=exchange, queue=queue_name)
+
+    def _callback(ch, method, properties, body):
+        callback(json.loads(body))
+
+    channel.basic_consume(queue=queue_name, on_message_callback=_callback, auto_ack=True)
+    print(f"Listening to {exchange}...")
+    channel.start_consuming()
+
+
+
+⸻
+
+Master main.py
+
+# master/main.py
+from rabbitmq import publish, subscribe
+import time
+
+def on_slave_response(data):
+    print("[MASTER] Received response:", data)
+
+def on_telemetry(data):
+    print("[TELEMETRY]", data)
+
+def announce_and_command():
+    print("[MASTER] Broadcasting command to start stream...")
+    publish("hdmi.command.broadcast", "", {"action": "start_stream"})
+
+subscribe("hdmi.response.master", on_slave_response, exchange_type="direct")
+subscribe("hdmi.telemetry", on_telemetry, exchange_type="topic")
+
+announce_and_command()
+
+while True:
+    time.sleep(5)
+
+
+
+⸻
+
+Slave main.py
+
+# slave/main.py
+from rabbitmq import publish, subscribe
+import socket
+import time
+
+slave_id = socket.gethostname()
+
+def on_command(data):
+    print(f"[{slave_id}] Received Command:", data)
+    if data["action"] == "start_stream":
+        print(f"[{slave_id}] Starting HDMI stream...")
+        publish("hdmi.response.master", "", {
+            "slave_id": slave_id,
+            "status": "started",
+            "timestamp": time.time()
+        })
+        publish("hdmi.telemetry", "", {
+            "slave_id": slave_id,
+            "fps": 30,
+            "latency_ms": 12,
+            "signal": "good"
+        })
+
+# Announce presence
+publish("hdmi.announce.slave", "", {"slave_id": slave_id, "status": "online"})
+
+# Listen for commands
+subscribe("hdmi.command.broadcast", on_command)
+
+
+
+⸻
+
+Want Me to Wrap This as Sudo Tee Files Too?
+
+If you give the green light, I’ll convert all of this into a sudo tee-ready script that generates each file inside services/wifi-hdmi-transmission/dev/{master,slave} so it’s commit-ready and consistent with your style.

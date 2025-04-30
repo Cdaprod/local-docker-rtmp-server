@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  rtsp-relay:
+    image: aler9/rtsp-simple-server:latest
+    container_name: rtsp-relay
+    restart: unless-stopped
+    volumes:
+      - ./rtsp-simple-server.yml:/rtsp-simple-server.yml:ro
+    networks:
+      - media_net
+      - tailscale
+
+  ffmpeg-relay:
+    image: jrottenberg/ffmpeg:4.4-ubuntu
+    container_name: ffmpeg-relay
+    depends_on:
+      - rtsp-relay
+    command: >
+      -re -rtsp_transport tcp -i rtsp://rtsp-relay:8554/cam01
+      -c:v copy -f flv rtmp://rtmp-service/live/cam01
+    networks:
+      - media_net
+    restart: unless-stopped
+
+networks:
+  media_net:
+    external: true
+  tailscale:
+    external: true

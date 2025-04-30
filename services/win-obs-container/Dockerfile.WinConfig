@@ -1,0 +1,24 @@
+# win-obs-container/Dockerfile
+FROM debian:bullseye
+
+LABEL maintainer="David Cannan <Cdaprod@Cdaprod.dev>"
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Basic utilities
+RUN apt-get update && apt-get install -y \
+    curl git jq unzip bash rsync && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Working directories inside the container
+WORKDIR /workspace
+
+# Copy everything from this context only
+COPY config/ /workspace/config/
+COPY assets/ /workspace/assets/
+COPY data/ /workspace/data/
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+VOLUME ["/workspace/config", "/workspace/assets", "/workspace/data"]
+ENTRYPOINT ["/entrypoint.sh"]

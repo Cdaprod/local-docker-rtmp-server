@@ -1,0 +1,78 @@
+services:
+  obs:
+    build:
+      context: ./pi-obs-container
+      dockerfile: Dockerfile.arm64
+    container_name: obs-pi
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+    ports:
+      - "5800:5800"  # noVNC
+      - "5900:5900"  # native VNC
+      - "4455:4455"  # OBS WebSocket
+      - "6080:6080"  # web-browser VNC
+    devices:
+      - /dev/video0       # your real camera
+      - /dev/video10      # virtual GUI loopback
+    volumes:
+      - ./config:/root/.config/obs-studio
+      - ./assets:/root/assets
+      #- ./recordings:/recordings
+      - ./scripts:/root/scripts
+    networks:
+      - rtmp_network
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    tmpfs:
+      - /tmp
+    command: >
+      bash -c "modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 || true && /entrypoint.sh"
+#    command: ["bash", "/root/scripts/detect-devices.sh"] # If centralized fallback
+
+# # === Shared OBS Config Template Version ===
+# x-obs-template: &obs_base
+#   build:
+#     context: ./pi-obs-container
+#     dockerfile: Dockerfile.arm64
+#   privileged: true
+#   cap_add:
+#     - SYS_ADMIN
+#   security_opt:
+#     - apparmor:unconfined
+#   tmpfs:
+#     - /tmp
+#   environment:
+#     - TZ=America/New_York
+#   devices:
+#     - /dev/video0     # physical camera
+#     - /dev/video10    # virtual GUI loopback
+#   ports:
+#     - "5800:5800"     # noVNC
+#     - "5900:5900"     # native VNC
+#     - "4455:4455"     # OBS WebSocket
+#     - "6080:6080"  # web-browser VNC
+#   volumes:
+#     - ./config:/root/.config/obs-studio
+#     - ./assets:/root/assets
+#     - ./scripts:/root/scripts
+#   networks:
+#     - rtmp_network
+#   command: >
+#     bash -c "modprobe v4l2loopback devices=1 video_nr=10 card_label='obs_gui_stream' exclusive_caps=1 || true && /entrypoint.sh"
+
+# services:
+#   # === Main OBS Container ===
+#   obs:
+#     <<: *obs_base
+#     container_name: obs-pi
+#     restart: unless-stopped
+
+# # === Networks ===
+# networks:
+#   rtmp_network:
+#     external: true
+#     name: rtmp_network
