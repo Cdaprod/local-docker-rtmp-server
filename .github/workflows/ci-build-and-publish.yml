@@ -78,61 +78,73 @@ jobs:
               echo "⚠️  Skipping disabled directory: $dir"
               continue
             }
-            # 2. Must be a directory
+          
             [ ! -d "$dir" ] && {
               echo "⚠️  Skipping non-directory: $dir"
               continue
             }
-            # 3. Must have a Dockerfile
-            DOCKERFILE="$dir/Dockerfile"
-            [ ! -f "$DOCKERFILE" ] && {
-              echo "⚠️  Skipping missing Dockerfile in: $dir"
-              continue
-            }
-
-            # 4. Normalize service name to lowercase
+          
+            # 2. Normalize base name
             NAME=$(basename "$dir")
             NAME=${NAME,,}
-
-            echo "::group::Building service '$NAME'"
-
-            # 5. Detect duplicate version tag; if exists, fallback to SHORT_SHA suffix
-            TAG="$VERSION"
-            if ! $DRY_RUN; then
-              for REG in "docker.io/${DOCKERHUB_USERNAME}/$NAME" "ghcr.io/${DOCKERHUB_USERNAME}/$NAME"; do
-                if docker manifest inspect ${REG}:$TAG >/dev/null 2>&1; then
-                  FALLBACK="${VERSION}-${SHORT_SHA}"
-                  echo "⚠️  Version tag $TAG exists in $REG, using fallback tag $FALLBACK"
-                  TAG="$FALLBACK"
-                  break
+          
+            # 3. Handle all Dockerfiles: Dockerfile, Dockerfile.sender, etc.
+            for dockerfile in "$dir"/Dockerfile*; do
+              [ ! -f "$dockerfile" ] && continue
+          
+              # Extract suffix, or empty string
+              suffix=$(basename "$dockerfile" | cut -d. -f2)
+              IMAGE_NAME="$NAME"
+              [ -n "$suffix" ] && IMAGE_NAME="${NAME}-${suffix//./-}"
+          
+              echo "::group::Building image '$IMAGE_NAME' from $(basename "$dockerfile")"
+          
+              # 4. Check tag collision
+              TAG="$VERSION"
+              if ! $DRY_RUN; then
+                for REG in "docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME" "ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME"; do
+                  if docker manifest inspect ${REG}:$TAG >/dev/null 2>&1; then
+                    FALLBACK="${VERSION}-${SHORT_SHA}"
+                    echo "⚠️  Tag $TAG exists in $REG for $IMAGE_NAME, fallback to $FALLBACK"
+                    TAG="$FALLBACK"
+                    break
+                  fi
+                done
+              fi
+              
+              echo "⏳ Would build image: $IMAGE_NAME"
+              echo "    - docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG"
+              echo "    - docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest"
+              echo "    - ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG"
+              echo "    - ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest"
+          
+              # 5. Construct build command
+              BUILD_CMD="docker buildx build $dir \
+                --file $dockerfile \
+                --platform linux/amd64,linux/arm64 \
+                --tag docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG \
+                --tag docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest \
+                --tag ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG \
+                --tag ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest"
+          
+              $DRY_RUN || BUILD_CMD="$BUILD_CMD --push"
+          
+              # 6. Execute
+              if $DRY_RUN; then
+                echo "✅ [DRY-RUN] Skipped build for $IMAGE_NAME"
+                BUILD_STATUS[$IMAGE_NAME]="⏸️ Dry-run"
+              else
+                eval "$BUILD_CMD"
+                if [ $? -eq 0 ]; then
+                  BUILD_STATUS[$IMAGE_NAME]="✅ Success"
+                else
+                  echo "❌ Build failed for $IMAGE_NAME"
+                  BUILD_STATUS[$IMAGE_NAME]="❌ Failed"
                 fi
-              done
-            fi
-
-            # 6. Build (and push unless dry-run)
-            BUILD_CMD="docker buildx build $dir \
-              --platform linux/amd64,linux/arm64 \
-              --tag docker.io/${DOCKERHUB_USERNAME}/$NAME:$TAG \
-              --tag docker.io/${DOCKERHUB_USERNAME}/$NAME:latest \
-              --tag ghcr.io/${DOCKERHUB_USERNAME}/$NAME:$TAG \
-              --tag ghcr.io/${DOCKERHUB_USERNAME}/$NAME:latest"
-
-            if ! $DRY_RUN; then
-              BUILD_CMD="$BUILD_CMD --push"
-            else
-              BUILD_CMD="$BUILD_CMD"
-            fi
-
-            # Execute build
-            eval "$BUILD_CMD"
-            if [ $? -eq 0 ]; then
-              BUILD_STATUS[$NAME]="✅ Success"
-            else
-              echo "❌ Build failed for $NAME"
-              BUILD_STATUS[$NAME]="❌ Failed"
-            fi
-
-            echo "::endgroup::"
+              fi
+          
+              echo "::endgroup::"
+            done
           done
 
           echo "" >> build_report.txt
