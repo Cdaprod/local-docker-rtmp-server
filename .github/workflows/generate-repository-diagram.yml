@@ -82,4 +82,4 @@ jobs:
         with:
           commit_message: "chore(diagram): update repository-docker-structure.svg"
           file_pattern: public/serve/repository-docker-structure.*
-          push_options: "--force"
+          push_options: --force
