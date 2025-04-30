@@ -1,0 +1,27 @@
+services:
+  webrtc-pi:
+    # Overrides the image with live bind mounts for dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+      - ./config/turnserver.conf:/etc/coturn/turnserver.conf
+      - ./scripts/startup.sh:/startup.sh
+    command: >
+      sh -c "
+        chmod +x /startup.sh &&
+        /startup.sh
+      "
+    environment:
+      - TURN_USERNAME=webrtc
+      - TURN_PASSWORD=webrtc123
+      - NODE_ENV=development
+    ports:
+      - "8088:8080"      # HTTP/WebSocket signaling
+      - "3478:3478"      # STUN/TURN TCP
+      - "3478:3478/udp"  # STUN/TURN UDP
+      - "49152-65535:49152-65535/udp" # TURN relayed media
+    restart: unless-stopped
+    networks:
+      - capture_network

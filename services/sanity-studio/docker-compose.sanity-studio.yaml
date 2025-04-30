@@ -1,0 +1,13 @@
+# services/sanity-studio/docker-compose.yaml
+
+version: '3.8'
+
+services:
+  sanity-studio:
+    build: .
+    ports:
+      - "3333:3333"
+    env_file:
+      - .env
+    volumes:
+      - .:/app

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline WebRTC Demo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    .connection-status {
+      text-align: center;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .connected {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .disconnected {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .connecting {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    .video-container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .video-box {
+      width: 45%;
+      min-width: 300px;
+      margin: 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .video-header {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    video {
+      width: 100%;
+      background-color: #222;
+      display: block;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    button {
+      margin: 5px 10px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+    button.danger {
+      background-color: #e74c3c;
+    }
+    button.danger:hover:not(:disabled) {
+      background-color: #c0392b;
+    }
+    button.success {
+      background-color: #2ecc71;
+    }
+    button.success:hover:not(:disabled) {
+      background-color: #27ae60;
+    }
+    .user-list {
+      margin: 20px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .user-list h3 {
+      margin-top: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    .user-item {
+      padding: 8px 12px;
+      margin: 5px 0;
+      background-color: #f1f1f1;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .user-item button {
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Offline WebRTC Demo</h1>
+    
+    <div id="connectionStatus" class="connection-status disconnected">
+      Not Connected
+    </div>
+    
+    <div class="video-container">
+      <div class="video-box">
+        <div class="video-header">
+          <h3>Local Video</h3>
+          <span id="localVideoStatus">Inactive</span>
+        </div>
+        <video id="localVideo" autoplay muted playsinline></video>
+      </div>
+      <div class="video-box">
+        <div class="video-header">
+          <h3>Remote Video</h3>
+          <span id="remoteVideoStatus">Inactive</span>
+        </div>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button id="startButton" class="success">Start Camera</button>
+      <button id="connectButton">Connect to Server</button>
+      <button id="hangupButton" class="danger" disabled>Hang Up</button>
+    </div>
+    
+    <div id="userList" class="user-list hidden">
+      <h3>Available Users</h3>
+      <div id="users"></div>
+    </div>
+  </div>
+
+  <script src="client.js"></script>
+</body>
+</html>

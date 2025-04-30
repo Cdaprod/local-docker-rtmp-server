@@ -1,0 +1,44 @@
+# open-ndi-cli
+
+A simple Go CLI tool for discovering open-ndi senders via mDNS.
+
+## Usage
+
+```bash
+go run ./cmd/cli
+``` 
+
+Or with output format:
+
+```bash
+go run ./cmd/cli -o json
+``` 
+
+Flags
+	•	-o plain (default)
+	•	-o json
+
+Example Output
+
+Plain:
+
+```text
+Found open-ndi sender at: 192.168.1.12:9000
+``` 
+
+JSON:
+
+```json
+{
+  "service": "_openndi._udp",
+  "address": "192.168.1.12:9000"
+}
+``` 
+
+---
+
+## **4. Build Binary**
+
+```bash
+go build -o dist/open-ndi-cli ./cmd/cli
+```

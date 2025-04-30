@@ -4,5 +4,11 @@
 !/tmp/docker_test/videos/.gitkeep
 
 !/.example.env
-/.env
-/credentials.json
+.env
+credentials.json
+
+*/.disabled
+
+letsencrypt/
+
+/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak

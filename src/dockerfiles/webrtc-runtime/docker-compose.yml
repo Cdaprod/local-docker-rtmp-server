@@ -1,0 +1,39 @@
+services:
+  # Coturn STUN/TURN server
+  coturn:
+    image: coturn/coturn:latest
+    container_name: webrtc-coturn
+    # Changed from host network mode to expose specific ports
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "49152-65535:49152-65535/udp"
+    volumes:
+      - ./turnserver.conf:/etc/coturn/turnserver.conf
+    command: -c /etc/coturn/turnserver.conf
+    restart: unless-stopped
+
+  # WebRTC signaling server
+  signaling:
+    image: node:18-alpine
+    container_name: webrtc-signaling
+    working_dir: /app
+    volumes:
+      - ./app:/app
+    ports:
+      - "8088:8080"  # Changed from 8080:8080 to 8088:8080
+    depends_on:
+      - coturn
+    command: sh -c "cd /app && npm install && npm start"
+    restart: unless-stopped
+    # Create a network alias for the signaling server
+    # This makes accessing by hostname more reliable
+    networks:
+      default:
+        aliases:
+          - webrtc-signaling
+
+# Define the default network with a custom name for easier reference
+networks:
+  default:
+    name: webrtc-network

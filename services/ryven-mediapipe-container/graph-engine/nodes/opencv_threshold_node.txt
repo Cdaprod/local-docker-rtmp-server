@@ -1,0 +1,130 @@
+What’s threshold node? Great question -- let me explain clearly:
+
+⸻
+
+What is a Threshold Node?
+
+In OpenCV (and computer vision in general), thresholding is:
+
+Turning a grayscale image into a binary image (black and white),
+based on a threshold value.
+
+Meaning:
+	•	If a pixel’s brightness is above the threshold → set it to white (255).
+	•	If a pixel’s brightness is below the threshold → set it to black (0).
+
+⸻
+
+How it works in OpenCV
+
+The OpenCV function behind it is:
+
+retval, dst = cv2.threshold(src, thresh, maxval, type)
+
+where:
+	•	src is the input image (usually grayscale).
+	•	thresh is the threshold value (like 127).
+	•	maxval is the value to set if the condition is met (like 255 for white).
+	•	type is the thresholding type (normal, inverse, etc.)
+
+Example in OpenCV plain code:
+
+import cv2
+
+img = cv2.imread('input.jpg', 0)  # read as grayscale
+_, binary = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+
+cv2.imwrite('output_binary.jpg', binary)
+
+
+
+⸻
+
+So in our Node System:
+
+ThresholdNode would:
+	•	Take an input image (from another node or manually fed).
+	•	Apply thresholding (e.g., at threshold value = 127).
+	•	Output the binary black/white image.
+
+⸻
+
+Concrete Example: ThresholdNode Class
+
+/services/graph-engine/nodes/opencv_threshold_node.py
+
+import cv2
+from services.graph_engine.graph import Node
+
+class ThresholdNode(Node):
+    def __init__(self, name, thresh_value=127):
+        super().__init__(name)
+        self.thresh_value = thresh_value
+
+    def compute(self):
+        img = self.inputs.get("input")
+        if img is not None:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # ensure grayscale
+            _, binary = cv2.threshold(gray, self.thresh_value, 255, cv2.THRESH_BINARY)
+            self.outputs["output"] = binary
+
+
+
+⸻
+
+Use case in the Graph:
+
+# Setup
+graph = Graph()
+
+# Nodes
+threshold_node = ThresholdNode(name="thresh1", thresh_value=100)
+
+# Add to graph
+graph.add_node(threshold_node)
+
+# Connect or feed input
+threshold_node.set_input("input", some_image)
+
+# Run
+graph.run()
+
+# Get output
+binary_image = threshold_node.get_output("output")
+
+
+
+⸻
+
+Visual Example
+
+If original grayscale looks like this:
+
+Pixel Value	Visible Result
+50	black
+120	black
+130	white
+200	white
+
+(assuming threshold at 127)
+
+⸻
+
+In simple terms:
+
+ThresholdNode = "separate light and dark areas in an image by a brightness cutoff".
+
+Useful for:
+	•	Creating masks
+	•	Detecting bright objects
+	•	Preprocessing for contours
+	•	Preprocessing for edge detection
+
+⸻
+
+Summary of Threshold Node
+
+Thing	Value
+Input	Color or grayscale image
+Output	Binary (black & white) image
+Key Parameter	thresh_value (e.g., 127)

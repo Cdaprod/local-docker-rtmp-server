@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+minio
+python-multipart
+ultralytics
+deep_sort_realtime
+easyocr
+opencv-python
+numpy

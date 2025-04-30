@@ -1,0 +1,189 @@
+---
+# camera_rig_network_setup.yml
+# Ansible playbook for setting up a camera rig network with RPi5 host and RPiZW2 peripheral
+
+- name: Setup RPi5 Host for Camera Rig Network
+  hosts: rpi5_hosts
+  become: yes
+  vars:
+    repo_url: "https://github.com/Cdaprod/local-docker-rtmp-server.git"
+    repo_dest: "/opt/camera-rig"
+    docker_network_name: "camera_network"
+    wifi_ap_ssid: "CameraRig"
+    wifi_ap_password: "SecurePassword123"
+    vpn_config_dir: "/etc/wireguard"
+    
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - git
+          - docker.io
+          - docker-compose
+          - hostapd
+          - dnsmasq
+          - wireguard
+          - iptables
+        state: present
+        update_cache: yes
+
+    - name: Clone the repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_dest }}"
+        version: main
+        update: yes
+
+    - name: Create Docker network
+      community.docker.docker_network:
+        name: "{{ docker_network_name }}"
+        driver: bridge
+        ipam_config:
+          - subnet: 172.20.0.0/16
+            gateway: 172.20.0.1
+
+    # Setup WiFi Access Point
+    - name: Configure hostapd
+      template:
+        src: templates/hostapd.conf.j2
+        dest: /etc/hostapd/hostapd.conf
+      notify: restart hostapd
+
+    - name: Configure dnsmasq for DHCP
+      template:
+        src: templates/dnsmasq.conf.j2
+        dest: /etc/dnsmasq.conf
+      notify: restart dnsmasq
+
+    - name: Enable IP forwarding
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+    # Setup WireGuard VPN
+    - name: Create WireGuard config directory
+      file:
+        path: "{{ vpn_config_dir }}"
+        state: directory
+        mode: '0700'
+
+    - name: Generate WireGuard keys
+      shell: |
+        wg genkey | tee {{ vpn_config_dir }}/privatekey | wg pubkey > {{ vpn_config_dir }}/publickey
+        chmod 600 {{ vpn_config_dir }}/privatekey
+      args:
+        creates: "{{ vpn_config_dir }}/privatekey"
+
+    - name: Configure WireGuard interface
+      template:
+        src: templates/wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: '0600'
+      notify: restart wireguard
+
+    # Configure docker-compose environment
+    - name: Create environment file
+      template:
+        src: templates/env.j2
+        dest: "{{ repo_dest }}/.env"
+
+    # Build and start services using the Makefile
+    - name: Build Docker services using Makefile
+      shell: |
+        cd {{ repo_dest }} && make build
+      args:
+        chdir: "{{ repo_dest }}"
+
+    - name: Start services using Makefile
+      shell: |
+        cd {{ repo_dest }} && make up
+      args:
+        chdir: "{{ repo_dest }}"
+
+  handlers:
+    - name: restart hostapd
+      service:
+        name: hostapd
+        state: restarted
+        enabled: yes
+
+    - name: restart dnsmasq
+      service:
+        name: dnsmasq
+        state: restarted
+        enabled: yes
+
+    - name: restart wireguard
+      service:
+        name: wg-quick@wg0
+        state: restarted
+        enabled: yes
+
+- name: Setup RPiZW2 Peripheral
+  hosts: rpizw2_peripherals
+  become: yes
+  vars:
+    host_vpn_public_key: "{{ hostvars[groups['rpi5_hosts'][0]]['vpn_public_key'] | default('') }}"
+    host_vpn_endpoint: "{{ hostvars[groups['rpi5_hosts'][0]]['vpn_endpoint'] | default('') }}"
+    vpn_config_dir: "/etc/wireguard"
+    
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - wireguard
+          - avahi-daemon
+        state: present
+        update_cache: yes
+
+    # Setup WireGuard VPN for peripheral
+    - name: Create WireGuard config directory
+      file:
+        path: "{{ vpn_config_dir }}"
+        state: directory
+        mode: '0700'
+
+    - name: Generate WireGuard keys
+      shell: |
+        wg genkey | tee {{ vpn_config_dir }}/privatekey | wg pubkey > {{ vpn_config_dir }}/publickey
+        chmod 600 {{ vpn_config_dir }}/privatekey
+      args:
+        creates: "{{ vpn_config_dir }}/privatekey"
+
+    - name: Configure WireGuard interface for peripheral
+      template:
+        src: templates/peripheral_wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: '0600'
+      notify: restart wireguard
+
+    # Set up service discovery
+    - name: Configure Avahi service
+      template:
+        src: templates/camera-rig.service.j2
+        dest: /etc/avahi/services/camera-rig.service
+      notify: restart avahi
+
+  handlers:
+    - name: restart wireguard
+      service:
+        name: wg-quick@wg0
+        state: restarted
+        enabled: yes
+
+    - name: restart avahi
+      service:
+        name: avahi-daemon
+        state: restarted
+        enabled: yes
+
+# Template files to be created in your Ansible project directory
+# templates/hostapd.conf.j2
+# templates/dnsmasq.conf.j2
+# templates/wg0.conf.j2
+# templates/peripheral_wg0.conf.j2
+# templates/env.j2
+# templates/camera-rig.service.j2

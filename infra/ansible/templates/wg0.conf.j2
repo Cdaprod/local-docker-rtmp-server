@@ -1,0 +1,22 @@
+# templates/wg0.conf.j2
+# WireGuard VPN configuration for RPi5 host
+
+[Interface]
+# The host will have the first IP in the VPN subnet
+Address = 10.200.200.1/24
+# Standard WireGuard port
+ListenPort = 51820
+# Use the private key generated during setup
+PrivateKey = $(cat {{ vpn_config_dir }}/privatekey)
+
+# Set up forwarding and NAT for connected clients
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+# Peer configuration for RPiZW2 peripheral
+# This can be dynamically populated from host variables
+[Peer]
+# RPiZW2 public key 
+PublicKey = {{ hostvars[item]['peripheral_pubkey'] | default('placeholder_key') }}
+# Only route traffic specifically for this peer
+AllowedIPs = 10.200.200.2/32

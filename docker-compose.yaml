@@ -1,5 +1,7 @@
 services:
  ################################################
+##        Core VPN & Reverse Proxy Services     ##
+##              --------------------            ##
 ##            Reverse Proxy (Optional)          ##
  ################################################
 
@@ -29,29 +31,15 @@ services:
   #     - /var/run/docker.sock:/var/run/docker.sock:ro
   #     - ./letsencrypt:/letsencrypt
   #   networks:
-  #     - tailscale
+  #     - tailscale # tbd
+  #     - capture_network
+  #     - storage_network
+  #     - event_network
   
  ################################################
-##                Video Pipeline                ##
- ################################################
-  
-  # video-pipeline:  # << This container runs hand detection, warping, and compositing
-  #   container_name: video-pipeline-pi
-  #   build: ./services/video-pipeline
-  #   devices:
-  #     - /dev/bus/usb   # For Edge TPU
-  #   volumes:
-  #     - frames:/frames  # Optional: persistent frame cache
-  #   networks:
-  #     - local-dev
-  #   ports:
-  #     - "8081:8081"
-  #   labels:
-  #     com.cdaprod.role: "Live HUD Overlay Inference"
-  #     com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
-  
- ################################################
-##                 OBS Server                   ##
+##          Core Capture & Relay Services       ##
+##             ---------------------            ##
+##                  OBS Server                  ##
  ################################################
 
   obs-pi:
@@ -70,9 +58,12 @@ services:
       - "15900:5900"  # native VNC
       - "14455:4455"  # OBS WebSocket
       - "16080:6080"
-    devices:
+    #devices:
       #- /dev/video0 # Replaced symlinked video0 with direct dev/
-      - /dev/nikon-capture:/dev/video0
+      #- /dev/nikon-capture:/dev/video0
+      #- /dev/video11:/dev/video11  # CSI Cam via v4l2loopback
+      #- /dev/dri
+      #- /dev/snd
     volumes:
       - ./pi-obs-container/config:/root/.config/obs-studio
       - ./pi-obs-container/assets:/root/assets
@@ -81,7 +72,8 @@ services:
       - /mnt/b:/mnt/b:rw
       #- frames:/frames
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - capture_network
     command: >
       bash -c "
         echo '[INIT] Ensuring v4l2loopback is loaded...' &&
@@ -94,6 +86,74 @@ services:
     #   - "traefik.tcp.routers.obsws.entrypoints=obsws"
     #   - "traefik.tcp.routers.obsws.service=obsws"
     #   - "traefik.tcp.services.obsws.loadbalancer.server.port=4455"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "4455"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+ 
+ ################################################
+##                 WebRTC Server                ##
+ ################################################
+ 
+  webrtc-pi:
+    build:
+      context: ./webrtc-server
+      dockerfile: Dockerfile
+    image: cdaprod/webrtc-pi:latest
+    container_name: webrtc-pi
+    restart: unless-stopped
+    ports:
+      - "8088:8080"  # WebRTC signaling server
+      - "3478:3478"  # STUN
+      - "3478:3478/udp" # STUN/TURN UDP
+      - "49152-65535:49152-65535/udp" # TURN relay media ports
+    environment:
+      - NODE_ENV=production
+      - TURN_USERNAME=webrtc
+      - TURN_PASSWORD=webrtc123
+    volumes:
+      - ./webrtc-server/app:/app
+      - ./webrtc-server/config/turnserver.conf:/etc/coturn/turnserver.conf
+    networks:
+      - capture_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+ ################################################
+##                  RTSP Server                 ##
+ ################################################
+
+  rtsp-pi:
+    # 1. Build from the ./rtsp-server folder (uses Dockerfile there by default)
+    build: ./rtsp-server
+
+    # 2. Tag the resulting image as cdaprod/rtsp-server:custom
+    image: cdaprod/rtsp-pi:latest
+
+    container_name: rtsp-server
+    restart: unless-stopped
+    ports:
+      - "8554:8554"
+      - "8000:8000"
+    networks:
+      #- rtmp_network
+      - capture_network
+    labels:
+      com.cdaprod.stack: "CDA Cinematic Relay"
+      com.cdaprod.role: "Relay Server"
+      com.cdaprod.module: "RTSP Transport"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8554"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
  ################################################
 ##                  RTMP Server                 ##
@@ -156,7 +216,9 @@ services:
           cpus: "2.0"
           memory: "4g"
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - capture_network
+      - event_network
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.rtmp.rule=Host(`rtmp.cdaprod.dev`)"
@@ -174,6 +236,29 @@ services:
     #   com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
 
  ################################################
+##                Video Pipeline                ##
+ ################################################
+  
+  # video-pipeline:  # << This container runs hand detection, warping, and compositing
+  #   container_name: video-pipeline-pi
+  #   build: ./services/video-pipeline
+  #   devices:
+  #     - /dev/bus/usb   # For Edge TPU
+  #   volumes:
+  #     - frames:/frames  # Optional: persistent frame cache
+  #   networks:
+  #     #- local-dev
+  #     - capture_network
+  #   ports:
+  #     - "8081:8081"
+  #   labels:
+  #     com.cdaprod.role: "Live HUD Overlay Inference"
+  #     com.cdaprod.module: "EdgeTPU-based hand tracking and matrix warper"
+  
+
+ ################################################
+##            Core S3 & Storage Services        ##
+##              --------------------            ##
 ##             MinIO S3 Storage Server          ##
  ################################################
   minio:
@@ -190,7 +275,8 @@ services:
       - /mnt/b/rpi_sync/minio/data:/data
       - /mnt/nas/
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - storage_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -209,9 +295,37 @@ services:
         mc mb -p localminio/assets
       "
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - storage_network
+    depends_on:
+      minio:
+        condition: service_healthy
+ ################################################
+##              (To be determined...)           ##
+ ################################################
+
+  # rtmp-processor:
+  #   build:
+  #     context: ./rtmp-processor
+  #     dockerfile: Dockerfile
+  #   container_name: rtmp-processor
+  #   restart: unless-stopped
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - rtmp_network
+  #     - capture_network
+  #     - event_network
+  #     - storage_network
 
  ################################################
+##          Core Event & Metadata Services       ##
+##              --------------------            ##
 ##              Event Broker Service            ##
  ################################################
 
@@ -235,7 +349,9 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - event_network
+      
 
  ################################################
 ##                Python Event API              ##
@@ -259,37 +375,24 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - METADATA_QUEUE=metadata_queue  # The queue to listen to
     networks:
-      - rtmp_network
+      #- rtmp_network
+      - event_network
+      - storage_network
     depends_on:
       rabbitmq:
         condition: service_healthy
-        
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     # labels:
     #   - "traefik.enable=true"
     #   - "traefik.http.routers.metadata.rule=Host(`meta.cdaprod.dev`)"
     #   - "traefik.http.routers.metadata.entrypoints=websecure"
     #   - "traefik.http.routers.metadata.tls.certresolver=tsresolver"
     #   - "traefik.http.services.metadata.loadbalancer.server.port=5000"
-
- ################################################
-##              (To be determined...)           ##
- ################################################
-
-  # rtmp-processor:
-  #   build:
-  #     context: ./rtmp-processor
-  #     dockerfile: Dockerfile
-  #   container_name: rtmp-processor
-  #   restart: unless-stopped
-  #   environment:
-  #     - RABBITMQ_HOST=rabbitmq
-  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   networks:
-  #     - rtmp_network
 
  ################################################
 ##                Docker Volumes                ##
@@ -303,15 +406,57 @@ volumes:
 ##                Docker Networks               ##
  ################################################
 
-networks:
+#networks:
   # tailscale:
   #   external: true
   #   name: tailscale 
-  rtmp_network:
-    external: true
-    name: rtmp_network
+  
+  # Old network
+  # rtmp_network:
+  #   external: true
+  #   name: rtmp_network
+  #   driver: bridge
+
+#################################################
+##                Docker Networks              ##
+#################################################
+networks:
+  capture_network:
+
     driver: bridge
-  #app_network: # <— This is just extra in case we need network abstraction or seperation later
-    #external: ?
-    #name: ?
-    #driver: ?
+    name: capture_network
+  # 
+  # external: true # (for peripheral access)
+  #
+  # for `external: true` create network with the following:
+  #  docker network create \
+  #      --driver=bridge \
+  #      --subnet=172.30.0.0/16 \
+  #      --gateway=172.30.0.1 \
+  #      capture_network
+  ########################
+  
+  event_network:
+    driver: bridge
+    name: event_network
+
+  storage_network:
+    driver: bridge
+    name: storage_network
+  
+  ########################
+  # macvlan network setup
+  # sudo ip link add capture0 link eth0 type macvlan mode bridge
+  # sudo ip addr add 192.168.1.2/24 dev capture0
+  # sudo ip link set capture0 up
+  #
+  #
+  # local_lan:
+  #   driver: macvlan
+  #   driver_opts:
+  #     parent: eth0  # adjust if your physical interface has a different name
+  #   ipam:
+  #     config:
+  #       - subnet: 192.168.1.0/24
+  #         gateway: 192.168.1.1
+  #         ip_range: 192.168.1.128/25

@@ -1,9 +1,22 @@
 # 🚀 Software-defined Multi-Cam Video Studio Pipeline 
+
 ## Local Docker RTMP Server with Nginx and FFmpeg
 
 [![CI-Build](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build.yml)
 
+[![CI-Build-and-Publish](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build-and-publish.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build-and-publish.yml)
+
+---
+
 [![Generate NodeProp Configuration](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml)
+
+---
+
+[![Generate Docker Compose Diagram](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-repository-diagram.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-repository-diagram.yml)
+
+## Structure of Root Composition
+
+![Root Compose](public/serve/repository-docker-structure.svg)
 
 ---
 
@@ -156,6 +169,15 @@ Here’s a cinematic + DevOps-style analogy to explain what I’ve built:
 - **Stream Keys**: Make them unique and secure (e.g., `iphone-live`, `nikon-pro`).
 
 - **Placeholder**: Your custom "We’ll Be Right Back" image streams when idle. 🎨
+
+## RTMP Integration Webhooks
+
+The following endpoints are triggered by the RTMP server (`nginx.conf.template`):
+- `/on_publish?app=...&name=...&addr=...&clientid=...`
+- `/on_publish_done?app=...&name=...&addr=...&clientid=...`
+
+Both events are enriched and forwarded to RabbitMQ (`stream_events` queue).
+
 
 ---
 

@@ -1,0 +1,86 @@
+13:34:53.983: Command Line Arguments: --minimize-to-tray --startstreaming --profile CdaprodOBS --collection Laptop OBS Scenes
+13:34:53.983: Physical Cores: 4, Logical Cores: 4
+13:34:53.983: Physical Memory: 7937MB Total, 1492MB Free
+13:34:53.983: Kernel Version: Linux 6.8.0-1020-raspi
+13:34:53.984: Distribution: "Debian GNU/Linux" "11"
+13:34:53.986: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.20.11
+13:34:53.989: Portable mode: false
+13:34:56.620: OBS 26.1.2+dfsg1-2 (linux)
+13:34:56.620: ---------------------------------
+13:34:56.621: ---------------------------------
+13:34:56.621: audio settings reset:
+13:34:56.621: 	samples per sec: 48000
+13:34:56.621: 	speakers:        2
+13:34:56.632: ---------------------------------
+13:34:56.632: Initializing OpenGL...
+13:34:56.823: Loading up OpenGL on adapter Mesa/X.org llvmpipe (LLVM 11.0.1, 128 bits)
+13:34:56.823: OpenGL loaded successfully, version 4.5 (Core Profile) Mesa 20.3.5, shading language 4.50
+13:34:56.902: ---------------------------------
+13:34:56.903: video settings reset:
+13:34:56.903: 	base resolution:   1919x1079
+13:34:56.903: 	output resolution: 1276x718
+13:34:56.903: 	downscale filter:  Bicubic
+13:34:56.903: 	fps:               30/1
+13:34:56.903: 	format:            NV12
+13:34:56.903: 	YUV mode:          709/Partial
+13:34:56.903: NV12 texture support not available
+13:34:56.921: Audio monitoring device:
+13:34:56.921: 	name: Default
+13:34:56.921: 	id: default
+13:34:56.921: ---------------------------------
+13:34:56.927: Failed to load 'en-US' text for module: 'decklink-captions.so'
+13:34:56.930: Failed to load 'en-US' text for module: 'decklink-ouput-ui.so'
+13:34:56.997: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+13:34:56.997: No blackmagic support
+13:34:57.004: v4l2loopback not installed, virtual camera disabled
+13:34:57.069: FFMPEG VAAPI supported
+13:34:57.095: VLC found, VLC video source enabled
+13:34:57.095: ---------------------------------
+13:34:57.095:   Loaded Modules:
+13:34:57.095:     vlc-video.so
+13:34:57.095:     text-freetype2.so
+13:34:57.095:     rtmp-services.so
+13:34:57.095:     obs-x264.so
+13:34:57.095:     obs-transitions.so
+13:34:57.095:     obs-outputs.so
+13:34:57.095:     obs-filters.so
+13:34:57.095:     obs-ffmpeg.so
+13:34:57.095:     linux-v4l2.so
+13:34:57.095:     linux-pulseaudio.so
+13:34:57.095:     linux-jack.so
+13:34:57.095:     linux-decklink.so
+13:34:57.095:     linux-capture.so
+13:34:57.095:     linux-alsa.so
+13:34:57.095:     image-source.so
+13:34:57.095:     frontend-tools.so
+13:34:57.095:     decklink-ouput-ui.so
+13:34:57.095:     decklink-captions.so
+13:34:57.095: ---------------------------------
+13:34:57.095: ==== Startup complete ===============================================
+13:34:57.100: All scene data cleared
+13:34:57.101: ------------------------------------------------
+13:34:57.112: Switched to scene 'Scene'
+13:34:57.112: Starting stream due to command line parameter
+13:34:57.112: ------------------------------------------------
+13:34:57.112: Loaded scenes:
+13:34:57.112: - scene 'Scene':
+13:34:57.112: ------------------------------------------------
+13:34:57.229: ---------------------------------
+13:34:57.229: [x264 encoder: 'simple_h264_stream'] preset: veryfast
+13:34:57.229: [x264 encoder: 'simple_h264_stream'] settings:
+13:34:57.229: 	rate_control: CBR
+13:34:57.229: 	bitrate:      2500
+13:34:57.229: 	buffer size:  2500
+13:34:57.229: 	crf:          0
+13:34:57.229: 	fps_num:      30
+13:34:57.229: 	fps_den:      1
+13:34:57.229: 	width:        1276
+13:34:57.229: 	height:       718
+13:34:57.229: 	keyint:       250
+13:34:57.229: 
+13:34:57.235: ---------------------------------
+13:34:57.236: [FFmpeg aac encoder: 'simple_aac'] bitrate: 160, channels: 2, channel_layout: 3
+13:34:57.236: 
+13:34:57.237: [rtmp stream: 'simple_stream'] URL is empty
+13:34:57.237: [rtmp stream: 'simple_stream'] Connection to (null) failed: -1
+13:34:57.288: ==== Streaming Stop ================================================

@@ -1,0 +1,998 @@
+14:16:11.725: Command Line Arguments: --minimize-to-tray --startstreaming --profile CdaprodOBS --collection Laptop OBS Scenes
+14:16:11.725: Physical Cores: 4, Logical Cores: 4
+14:16:11.725: Physical Memory: 7937MB Total, 5640MB Free
+14:16:11.725: Kernel Version: Linux 6.8.0-1020-raspi
+14:16:11.725: Distribution: "Debian GNU/Linux" "11"
+14:16:11.726: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.20.11
+14:16:11.727: Portable mode: false
+14:16:11.798: OBS 26.1.2+dfsg1-2 (linux)
+14:16:11.798: ---------------------------------
+14:16:11.992: ---------------------------------
+14:16:11.993: audio settings reset:
+14:16:11.993: 	samples per sec: 48000
+14:16:11.993: 	speakers:        2
+14:16:12.009: ---------------------------------
+14:16:12.009: Initializing OpenGL...
+14:16:12.080: Loading up OpenGL on adapter Mesa/X.org llvmpipe (LLVM 11.0.1, 128 bits)
+14:16:12.080: OpenGL loaded successfully, version 4.5 (Core Profile) Mesa 20.3.5, shading language 4.50
+14:16:12.108: ---------------------------------
+14:16:12.108: video settings reset:
+14:16:12.108: 	base resolution:   1920x1080
+14:16:12.108: 	output resolution: 1920x1080
+14:16:12.108: 	downscale filter:  Bilinear
+14:16:12.108: 	fps:               60/1
+14:16:12.108: 	format:            NV12
+14:16:12.108: 	YUV mode:          709/Partial
+14:16:12.109: NV12 texture support not available
+14:16:12.139: Audio monitoring device:
+14:16:12.139: 	name: Default
+14:16:12.139: 	id: default
+14:16:12.139: ---------------------------------
+14:16:12.144: Failed to load 'en-US' text for module: 'decklink-captions.so'
+14:16:12.146: Failed to load 'en-US' text for module: 'decklink-ouput-ui.so'
+14:16:12.203: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+14:16:12.203: No blackmagic support
+14:16:12.213: v4l2loopback not installed, virtual camera disabled
+14:16:12.275: FFMPEG VAAPI supported
+14:16:12.296: VLC found, VLC video source enabled
+14:16:12.296: ---------------------------------
+14:16:12.296:   Loaded Modules:
+14:16:12.296:     vlc-video.so
+14:16:12.296:     text-freetype2.so
+14:16:12.296:     rtmp-services.so
+14:16:12.296:     obs-x264.so
+14:16:12.296:     obs-transitions.so
+14:16:12.296:     obs-outputs.so
+14:16:12.296:     obs-filters.so
+14:16:12.296:     obs-ffmpeg.so
+14:16:12.296:     linux-v4l2.so
+14:16:12.296:     linux-pulseaudio.so
+14:16:12.296:     linux-jack.so
+14:16:12.296:     linux-decklink.so
+14:16:12.296:     linux-capture.so
+14:16:12.296:     linux-alsa.so
+14:16:12.296:     image-source.so
+14:16:12.296:     frontend-tools.so
+14:16:12.296:     decklink-ouput-ui.so
+14:16:12.296:     decklink-captions.so
+14:16:12.296: ---------------------------------
+14:16:12.296: ==== Startup complete ===============================================
+14:16:12.312: Switched to Preview/Program mode
+14:16:12.312: ------------------------------------------------
+14:16:12.319: All scene data cleared
+14:16:12.319: ------------------------------------------------
+14:16:12.336: Source ID 'wasapi_output_capture' not found
+14:16:12.336: Failed to create source 'Desktop Audio'!
+14:16:12.336: [Loaded global audio device]: 'Desktop Audio'
+14:16:12.336: Source ID 'wasapi_output_capture' not found
+14:16:12.336: Failed to create source 'Desktop Audio 2'!
+14:16:12.336: [Loaded global audio device]: 'Desktop Audio 2'
+14:16:12.336: Source ID 'wasapi_input_capture' not found
+14:16:12.336: Failed to create source 'Mic/Aux'!
+14:16:12.336: [Loaded global audio device]: 'Mic/Aux'
+14:16:12.337: [Media Source 'Media Source']: settings:
+14:16:12.337: 	input:                   http://192.168.0.21:8080/stream.m3u8
+14:16:12.337: 	input_format:            HLS
+14:16:12.337: 	speed:                   100
+14:16:12.337: 	is_looping:              no
+14:16:12.337: 	is_hw_decoding:          no
+14:16:12.337: 	is_clear_on_media_end:   yes
+14:16:12.337: 	restart_on_activate:     yes
+14:16:12.337: 	close_when_inactive:     no
+14:16:12.341: Source ID 'monitor_capture' not found
+14:16:12.341: Failed to create source 'Display Capture'!
+14:16:12.345: Source ID 'color_filter_v2' not found
+14:16:12.345: Failed to create source 'Color Correction'!
+14:16:12.345: Source ID 'browser_source' not found
+14:16:12.346: Failed to create source 'Browser'!
+14:16:12.347: Source ID 'color_filter_v2' not found
+14:16:12.347: Failed to create source 'Color Correction'!
+14:16:12.347: Source ID 'hdr_tonemap_filter' not found
+14:16:12.347: Failed to create source 'HDR Tone Mapping (Override)'!
+14:16:12.347: Source ID 'color_filter_v2' not found
+14:16:12.347: Failed to create source 'Color Correction'!
+14:16:12.347: Source ID 'dshow_input' not found
+14:16:12.348: Failed to create source 'OBSBot Tiny 2 Lite'!
+14:16:12.348: Source ID 'color_filter_v2' not found
+14:16:12.348: Failed to create source 'Color Correction'!
+14:16:12.348: Source ID 'hdr_tonemap_filter' not found
+14:16:12.348: Failed to create source 'HDR Tone Mapping (Override)'!
+14:16:12.348: [Media Source 'ios (sourcing rtmp)']: settings:
+14:16:12.348: 	input:                   rtmp://192.168.0.10:
+14:16:12.348: 	input_format:            rtmp
+14:16:12.348: 	speed:                   100
+14:16:12.348: 	is_looping:              no
+14:16:12.348: 	is_hw_decoding:          no
+14:16:12.348: 	is_clear_on_media_end:   yes
+14:16:12.348: 	restart_on_activate:     yes
+14:16:12.348: 	close_when_inactive:     no
+14:16:12.348: Source ID 'dshow_input' not found
+14:16:12.348: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+14:16:12.349: Failed to create source 'cda_ios PRISM Lens 3'!
+14:16:12.349: Source ID 'hdr_tonemap_filter' not found
+14:16:12.349: Failed to create source 'HDR Tone Mapping (Override)'!
+14:16:12.349: MP: Failed to open media: 'rtmp://192.168.0.10:'
+14:16:12.349: Source ID 'dshow_input' not found
+14:16:12.349: Failed to create source 'Capture Card 3.0'!
+14:16:12.349: Source ID 'hdr_tonemap_filter' not found
+14:16:12.349: Failed to create source 'HDR Tone Mapping (Override)'!
+14:16:12.349: Source ID 'monitor_capture' not found
+14:16:12.349: Failed to create source 'Laptop Screen'!
+14:16:12.349: v4l2-input: Start capture from 
+14:16:12.349: v4l2-input: Unable to open device
+14:16:12.349: v4l2-input: Initialization failed
+14:16:12.354: Switched to scene '3-Nikon'
+14:16:12.354: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:16:12.356: [Media Source 'Stinger (Stinger)']: settings:
+14:16:12.356: 	input:                   
+14:16:12.356: 	input_format:            (null)
+14:16:12.356: 	speed:                   100
+14:16:12.356: 	is_looping:              no
+14:16:12.356: 	is_hw_decoding:          yes
+14:16:12.356: 	is_clear_on_media_end:   yes
+14:16:12.356: 	restart_on_activate:     yes
+14:16:12.356: 	close_when_inactive:     no
+14:16:12.362: Starting stream due to command line parameter
+14:16:12.362: ------------------------------------------------
+14:16:12.362: Loaded scenes:
+14:16:12.362: - scene '0-Browser':
+14:16:12.362:     - source: 'Display Capture' (monitor_capture)
+14:16:12.362: - scene '1-iPhone':
+14:16:12.362:     - source: 'cda_ios PRISM Lens 3' (dshow_input)
+14:16:12.362: - scene '2-MacBook':
+14:16:12.362: - scene '3-Nikon':
+14:16:12.362:     - source: 'Capture Card 3.0' (dshow_input)
+14:16:12.362:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:16:12.362:     - source: 'Video Capture Device (V4L2)' (v4l2_input)
+14:16:12.362: - scene '7-Standby':
+14:16:12.362:     - source: 'Standby Image' (image_source)
+14:16:12.362:         - filter: 'Render Delay' (gpu_delay)
+14:16:12.362: - scene '4-OBSBot':
+14:16:12.362:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+14:16:12.362:         - filter: 'Color Correction' (color_filter_v2)
+14:16:12.362:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:16:12.362: - scene 'RPI5-1':
+14:16:12.362:     - source: 'Media Source' (ffmpeg_source)
+14:16:12.362: - scene '6-All Cameras':
+14:16:12.363:     - source: 'Capture Card 3.0' (dshow_input)
+14:16:12.363:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:16:12.363:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+14:16:12.363:         - filter: 'Color Correction' (color_filter_v2)
+14:16:12.363:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:16:12.363: - scene '5-All Scenes+Browser WIndow':
+14:16:12.363:     - source: 'Laptop Screen' (monitor_capture)
+14:16:12.363:     - source: 'cda_ios PRISM Lens 3' (dshow_input)
+14:16:12.363:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+14:16:12.363:     - source: 'Capture Card 3.0' (dshow_input)
+14:16:12.363:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:16:12.363:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+14:16:12.363:         - filter: 'Color Correction' (color_filter_v2)
+14:16:12.363:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+14:16:12.363:     - source: 'Browser' (browser_source)
+14:16:12.363:         - monitoring: monitor and output
+14:16:12.363:         - filter: 'Color Correction' (color_filter_v2)
+14:16:12.363:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+14:16:12.363: - scene '8-BLANK':
+14:16:12.363: - scene '9-IOS_MOBILE':
+14:16:12.363:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+14:16:12.363: ------------------------------------------------
+14:16:12.457: rtmp-common.c: [initialize_output] Could not find service 'YouTube - RTMPS'
+14:16:12.486: ---------------------------------
+14:16:12.486: [x264 encoder: 'simple_h264_stream'] preset: veryfast
+14:16:12.486: [x264 encoder: 'simple_h264_stream'] settings:
+14:16:12.486: 	rate_control: CBR
+14:16:12.486: 	bitrate:      6000
+14:16:12.486: 	buffer size:  6000
+14:16:12.486: 	crf:          0
+14:16:12.486: 	fps_num:      60
+14:16:12.486: 	fps_den:      1
+14:16:12.486: 	width:        1920
+14:16:12.486: 	height:       1080
+14:16:12.486: 	keyint:       250
+14:16:12.486: 
+14:16:12.496: ---------------------------------
+14:16:12.497: [FFmpeg aac encoder: 'simple_aac'] bitrate: 160, channels: 2, channel_layout: 3
+14:16:12.497: 
+14:16:12.499: Output 'simple_stream': 20 second delay active, preserve on disconnect is on
+14:16:14.217: v4l2-input: /dev/video37 seems to not support video capture
+14:16:14.222: v4l2-input: Found device 'pispbe' at /dev/video27
+14:16:14.225: v4l2-input: Found device 'pispbe' at /dev/video35
+14:16:14.227: v4l2-input: Found device 'pispbe' at /dev/video25
+14:16:14.230: v4l2-input: Found device 'pispbe' at /dev/video33
+14:16:14.231: v4l2-input: /dev/video23 seems to not support video capture
+14:16:14.231: v4l2-input: /dev/video31 seems to not support video capture
+14:16:14.235: v4l2-input: /dev/video21 seems to not support video capture
+14:16:14.236: v4l2-input: Unable to open /dev/video1
+14:16:14.238: v4l2-input: /dev/video28 seems to not support video capture
+14:16:14.254: v4l2-input: Found device 'pispbe' at /dev/video36
+14:16:14.258: v4l2-input: Found device 'pispbe' at /dev/video26
+14:16:14.267: v4l2-input: Found device 'pispbe' at /dev/video34
+14:16:14.271: v4l2-input: Found device 'pispbe' at /dev/video24
+14:16:14.279: v4l2-input: /dev/video32 seems to not support video capture
+14:16:14.281: v4l2-input: /dev/video22 seems to not support video capture
+14:16:14.289: v4l2-input: /dev/video30 seems to not support video capture
+14:16:14.294: v4l2-input: /dev/video20 seems to not support video capture
+14:16:14.298: v4l2-input: Unable to open /dev/video0
+14:16:14.299: v4l2-input: /dev/video29 seems to not support video capture
+14:16:14.304: v4l2-input: /dev/video19 seems to not support video capture
+14:16:14.316: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.316: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.316: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.316: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.316: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.316: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.316: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.316: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.316: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.316: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.317: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.339: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.339: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.339: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.340: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.340: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.340: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.340: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.340: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.340: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.340: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.363: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:14.366: v4l2-input: Start capture from /dev/video27
+14:16:14.368: v4l2-input: Unable to set input -1
+14:16:14.368: v4l2-input: Initialization failed
+14:16:14.522: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.522: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.522: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.522: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.522: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.522: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.522: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.522: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.523: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.523: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.523: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.539: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:14.610: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.610: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.610: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.610: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.610: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.610: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.610: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.610: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.610: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.610: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.626: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:14.697: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.697: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.697: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.697: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.697: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.697: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.697: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.697: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.697: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.697: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.718: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:14.864: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.864: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.864: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.864: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.864: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.864: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.864: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.864: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.864: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.864: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.877: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:14.935: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:14.935: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:14.935: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:14.935: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:14.935: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:14.935: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:14.935: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:14.935: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:14.935: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:14.935: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:14.949: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.034: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.034: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.034: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.034: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.034: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.034: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.034: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.034: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.034: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.034: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.035: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.052: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.120: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.120: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.120: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.120: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.120: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.120: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.120: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.120: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.120: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.120: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.121: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.121: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.121: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.121: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.132: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.200: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.200: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.200: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.200: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.200: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.200: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.200: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.200: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.200: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.200: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.210: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.272: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.272: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.272: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.272: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.272: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.272: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.272: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.272: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.272: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.272: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.290: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.400: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.400: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.400: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.400: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.400: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.400: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.400: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.400: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.400: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.400: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.435: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.523: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.523: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.523: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.523: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.523: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.523: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.523: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.523: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.523: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.523: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.524: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.524: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.541: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.619: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.619: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.619: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.620: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.620: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.620: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.620: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.620: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.620: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.620: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:15.635: v4l2-input: Stepwise and Continuous framerates are currently hardcoded
+14:16:15.710: v4l2-input: Pixelformat: Planar YUV 4:2:0 (available)
+14:16:15.710: v4l2-input: Pixelformat: Planar YVU 4:2:0 (available)
+14:16:15.710: v4l2-input: Pixelformat: Y/UV 4:2:0 (available)
+14:16:15.710: v4l2-input: Pixelformat: Y/VU 4:2:0 (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: YUYV 4:2:2 (available)
+14:16:15.710: v4l2-input: Pixelformat: UYVY 4:2:2 (available)
+14:16:15.710: v4l2-input: Pixelformat: YVYU 4:2:2 (available)
+14:16:15.710: v4l2-input: Pixelformat: VYUY 4:2:2 (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Planar YUV 4:2:0 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Y/UV 4:2:0 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Y/VU 4:2:0 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Planar YVU 4:2:0 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Planar YUV 4:2:2 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Planar YVU 4:2:2 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Planar YUV 4:4:4 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: Planar YVU 4:4:4 (N-C) (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 24-bit RGB 8-8-8 (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 24-bit BGR 8-8-8 (available)
+14:16:15.710: v4l2-input: Pixelformat: 32-bit BGRX 8-8-8-8 (available)
+14:16:15.710: v4l2-input: Pixelformat: 32-bit RGBX 8-8-8-8 (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 48-bit RGB 16-16-16 (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 48-bit BGR 16-16-16 (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 8-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 8-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 8-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 8-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 16-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 16-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 16-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 16-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 10-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 10-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 10-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 10-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 12-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 12-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 12-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 12-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 14-bit Bayer RGRG/GBGB (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 14-bit Bayer BGBG/GRGR (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 14-bit Bayer GRGR/BGBG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 14-bit Bayer GBGB/RGRG (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 8-bit Greyscale (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: 16-bit Greyscale (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: PiSP Bayer Compressed Format (unavailable)
+14:16:15.710: v4l2-input: Pixelformat: PiSP Opaque Format (unavailable)
+14:16:24.988: v4l2-input: Start capture from /dev/video24
+14:16:24.990: v4l2-input: Unable to open device
+14:16:24.990: v4l2-input: Initialization failed
+14:16:26.992: v4l2-input: Start capture from /dev/video27
+14:16:26.994: v4l2-input: Unable to open device
+14:16:26.994: v4l2-input: Initialization failed
+14:16:32.492: [rtmp stream: 'simple_stream'] Connecting to RTMP URL rtmps://a.rtmps.youtube.com:443/live2...
+14:16:32.566: Could not resolve server 'a.rtmps.youtube.com': no valid address found
+14:16:32.566: Output 'simple_stream': stopping
+14:16:32.574: Output 'simple_stream': Total frames output: 0
+14:16:32.574: Output 'simple_stream': Total drawn frames: 1 (5 attempted)
+14:16:32.574: Output 'simple_stream': Number of lagged frames due to rendering lag/stalls: 4 (80.0%)
+14:16:32.574: [rtmp stream: 'simple_stream'] Connection to rtmps://a.rtmps.youtube.com:443/live2 failed: -2
+14:16:32.579: ==== Streaming Stop ================================================
+14:16:32.588: Video stopped, number of skipped frames due to encoding lag: 645/1005 (64.2%)

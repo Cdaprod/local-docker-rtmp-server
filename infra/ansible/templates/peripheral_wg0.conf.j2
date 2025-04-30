@@ -1,0 +1,18 @@
+# templates/peripheral_wg0.conf.j2
+# WireGuard VPN configuration for RPiZW2 peripheral
+
+[Interface]
+# The peripheral will have the second IP in the VPN subnet
+Address = 10.200.200.2/24
+# Use the private key generated during setup
+PrivateKey = $(cat {{ vpn_config_dir }}/privatekey)
+
+[Peer]
+# Host public key from inventory
+PublicKey = {{ host_vpn_public_key }}
+# Host endpoint (public IP or domain name)
+Endpoint = {{ host_vpn_endpoint }}:51820
+# Route all camera network traffic through VPN
+AllowedIPs = 10.200.200.0/24, 172.20.0.0/16
+# Keep connection alive behind NAT
+PersistentKeepalive = 25
