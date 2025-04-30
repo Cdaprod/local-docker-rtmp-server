@@ -48,8 +48,10 @@ jobs:
 
           dot = ['digraph docker_compose {',
                  '  rankdir=LR;',
-                 '  size="20,10";',                      # Optional: canvas size
-                 '  viewport="800,600,0.5";',            # Optional: scaling/zoom
+                 '  size="20,10!";',                                    # Optional: canvas size
+                 '  dpi=150;',                                          # Improve output quality
+                 '  concentrate=true;',                                 # Reduce visual clutter
+                 '  viewport="800,600,0.5";',                           # Optional: scaling/zoom
                  '  node [shape=box, style=filled, color=lightblue];']
 
           for name, svc in services.items():
