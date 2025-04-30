@@ -6,9 +6,13 @@
 
 [![CI-Build-and-Publish](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build-and-publish.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/ci-build-and-publish.yml)
 
+---
+
 [![Generate NodeProp Configuration](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-nodeprop-configuration.yaml)
 
 ---
+
+[![Generate Docker Compose Diagram](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-repository-diagram.yml/badge.svg)](https://github.com/Cdaprod/local-docker-rtmp-server/actions/workflows/generate-repository-diagram.yml)
 
 ## Structure of Root Composition
 
