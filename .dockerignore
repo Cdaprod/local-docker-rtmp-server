@@ -6,4 +6,6 @@
 !/.example.env
 .env
 credentials.json
-/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak
+/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bakpi-obs-container/config/basic/profiles/CdaprodOBS/streamEncoder.json.bak \
+pi-obs-container/config/basic/scenes/Laptop_OBS_Scenes.json.bak \
+pi-obs-container/config/logs/
