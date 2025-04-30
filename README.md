@@ -10,6 +10,12 @@
 
 ---
 
+## Structure of Root Composition
+
+![Root Compose](public/serve/repository-docker-structure.svg)
+
+---
+
 #### My Personal TODO List for this Repo@Branch
 
 - merge to main after checks and passing / build
