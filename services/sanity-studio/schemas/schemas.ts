@@ -1,8 +1,9 @@
-// /services/sanity-studio/schemas/schema.ts
-
 import { type SchemaTypeDefinition } from 'sanity'
-import { videoRenderJob } from './videoRenderJob'
+
+import { video } from './video'
+import { clip } from './clip'
+import { blackBoxMetadata } from './blackBoxMetadata'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [videoRenderJob],
+  types: [video, clip, blackBoxMetadata],
 }

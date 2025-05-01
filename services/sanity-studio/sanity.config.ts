@@ -1,8 +1,11 @@
+// /services/sanity-studio/sanity.config.ts
+
 import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { schema } from './schemas/schema'
 // @ts-ignore
 import S3AssetSource from 'sanity-plugin-asset-source-s3'
+import { StructureBuilder } from 'sanity/structure'
 
 const withS3 = process.env.MINIO_ENDPOINT !== undefined
 
@@ -14,7 +17,7 @@ export default defineConfig({
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
 
   plugins: [
-    deskTool(),
+    deskTool({ structure: deskStructure }),
     ...(withS3
       ? [S3AssetSource({
           clientConfig: {
@@ -31,5 +34,5 @@ export default defineConfig({
       : []),
   ],
 
-  schema: schema,
+  schema,
 })
