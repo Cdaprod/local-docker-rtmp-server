@@ -12,3 +12,5 @@ credentials.json
 letsencrypt/
 
 /pi-obs-container/config/basic/profiles/CdaprodOBS/service.json.fb-bak
+
+/src/sdks

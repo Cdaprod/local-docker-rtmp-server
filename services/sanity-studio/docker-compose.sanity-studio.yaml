@@ -1,13 +1,19 @@
 # services/sanity-studio/docker-compose.yaml
-
-version: '3.8'
-
 services:
   sanity-studio:
-    build: .
+    build:
+      context: ./services/sanity-studio
+    image: cdaprod/sanity-studio:latest
+    container_name: sanity-studio
+    env_file:
+      - services/sanity-studio/.env
+    volumes:
+      - ./services/sanity-studio:/app
     ports:
       - "3333:3333"
-    env_file:
-      - .env
-    volumes:
-      - .:/app
+    depends_on:
+      - minio
+      - metadata-service
+    networks:
+      - storage_network
+      - event_network

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NAS Video Clipper - Preview</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; max-width: 800px; margin: auto; }
+    #controls { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    #clips { margin-top: 2rem; }
+    button, input { padding: 0.5rem; font-size: 1rem; }
+    input[type="number"] { width: 5rem; }
+    #video-container { text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>NAS Video Clipper - Preview</h1>
+  <div id="video-container">
+    <video id="video" width="640" height="360" controls>
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <div id="controls">
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
+
+    <label>Start:
+      <input type="number" id="startTime" step="0.1" min="0" value="0">
+    </label>
+    <button id="markStart">Mark Start</button>
+
+    <label>End:
+      <input type="number" id="endTime" step="0.1" min="0" value="0">
+    </label>
+    <button id="markEnd">Mark End</button>
+
+    <button id="addClip">Add Clip</button>
+  </div>
+
+  <div id="clips">
+    <h2>Clips List</h2>
+    <ul id="clipList"></ul>
+  </div>
+
+  <script>
+    // TODO: replace with CSV load or API fetch
+    const videoUrls = [
+      "http://nas.local/video1.mp4",
+      "http://nas.local/video2.mp4",
+      "http://nas.local/video3.mp4"
+    ];
+    let currentIndex = 0;
+    const videoElem = document.getElementById("video");
+    const startInput = document.getElementById("startTime");
+    const endInput = document.getElementById("endTime");
+    const clipList = document.getElementById("clipList");
+
+    function loadVideo(index) {
+      videoElem.src = videoUrls[index];
+      videoElem.load();
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (currentIndex > 0) loadVideo(--currentIndex);
+    });
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (currentIndex < videoUrls.length - 1) loadVideo(++currentIndex);
+    });
+    document.getElementById("markStart").addEventListener("click", () => {
+      startInput.value = videoElem.currentTime.toFixed(1);
+    });
+    document.getElementById("markEnd").addEventListener("click", () => {
+      endInput.value = videoElem.currentTime.toFixed(1);
+    });
+    document.getElementById("addClip").addEventListener("click", () => {
+      const start = parseFloat(startInput.value);
+      const end = parseFloat(endInput.value);
+      if (end > start) {
+        const li = document.createElement("li");
+        li.textContent = \`Video \${currentIndex + 1} | Start: \${start}s | End: \${end}s\`;
+        clipList.appendChild(li);
+      } else {
+        alert("End time must be greater than start time.");
+      }
+    });
+
+    // Load initial video
+    loadVideo(currentIndex);
+  </script>
+</body>
+</html>
