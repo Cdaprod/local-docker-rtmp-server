@@ -1,23 +1,12 @@
-# services/sanity-studio/Dockerfile
-
-FROM node:20
+FROM node:20-bullseye
 
 WORKDIR /app
 
-# Enable Corepack if staying on Yarn 4
-# RUN corepack enable && corepack prepare yarn@4.9.1 --activate
-
-# Optional: Downgrade if using Yarn 1
-RUN corepack disable
-
-# Install CLI for Sanity without 'global'
-RUN yarn dlx sanity@latest init --project
+# Use yarn v1 (works cleanly on ARM)
+RUN npm install -g yarn@1.22.22
 
 # Install esbuild manually for ARM64
 RUN yarn add --dev esbuild --platform=linuxarm64
-
-# Set yarn configs (only valid with node_modules linker)
-RUN yarn config set nodeLinker node-modules
 
 COPY package.json yarn.lock ./
 RUN yarn install
