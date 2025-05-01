@@ -9,7 +9,7 @@ WORKDIR /app
 RUN yarn global add sanity
 
 # Copy package.json and install dependencies
-COPY package.json yarn.lock ./
+COPY package.json ./
 RUN yarn install
 
 # Copy all project files
