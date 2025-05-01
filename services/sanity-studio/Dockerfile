@@ -1,6 +1,6 @@
 # services/sanity-studio/Dockerfile
 
-FROM node:20
+FROM --platform=linux/arm64 node:20
 
 # Set working directory
 WORKDIR /app
