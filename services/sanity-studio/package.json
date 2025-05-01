@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "sanity dev",
     "build": "sanity build",
-    "start": "sanity start"
+    "start": "sanity start",
+    "install:deps": "./scripts/install_packages.sh"
   },
   "dependencies": {
     "sanity": "^3.22.0"

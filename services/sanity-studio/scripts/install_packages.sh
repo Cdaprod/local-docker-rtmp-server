@@ -1,8 +1,23 @@
-npm install --save sanity-plugin-media-library
+#!/bin/bash
+set -e
 
-npm install --save yargs
-npm install --save-dev ts-node typescript @types/node @types/yargs
+echo "Installing runtime dependencies..."
+npm install --save \
+  yargs \
+  openai \
+  fluent-ffmpeg \
+  aws-sdk \
+  axios \
+  @sanity/client \
+  sanity-plugin-media-library
 
-npm install yargs openai fluent-ffmpeg aws-sdk axios @sanity/client
-npm install -D ts-node typescript @types/node @types/yargs @types/aws-sdk @types/axios
+echo "Installing development dependencies..."
+npm install --save-dev \
+  ts-node \
+  typescript \
+  @types/node \
+  @types/yargs \
+  @types/aws-sdk \
+  @types/axios
 
+echo "Dependency installation complete."
