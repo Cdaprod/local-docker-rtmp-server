@@ -8,8 +8,11 @@ WORKDIR /app
 # Install global Sanity CLI
 RUN yarn global add sanity
 
+# Install esbuild manually for ARM64 (fixes the install.js issue)
+RUN yarn add esbuild --dev --platform=linuxarm64
+
 # Copy package.json and install dependencies
-COPY package.json ./
+COPY package.json yarn.lock ./
 RUN yarn install
 
 # Copy all project files
