@@ -1,28 +1,29 @@
 # services/sanity-studio/Dockerfile
 
-FROM --platform=linux/arm64 node:20
+FROM node:20
 
-# Set working directory
 WORKDIR /app
 
-# Install global Sanity CLI
-RUN yarn global add sanity
+# Enable Corepack if staying on Yarn 4
+RUN corepack enable && corepack prepare yarn@4.9.1 --activate
 
-# Install esbuild manually for ARM64 (fixes the install.js issue)
-RUN yarn add esbuild --dev --platform=linuxarm64
+# Optional: Downgrade if using Yarn 1
+# RUN corepack disable
 
-# Set yarn configs
+# Install CLI for Sanity without 'global'
+RUN yarn dlx sanity@latest init --project
+
+# Install esbuild manually for ARM64
+RUN yarn add --dev esbuild --platform=linuxarm64
+
+# Set yarn configs (only valid with node_modules linker)
 RUN yarn config set nodeLinker node-modules
 
-# Copy package.json and install dependencies
 COPY package.json yarn.lock ./
 RUN yarn install
 
-# Copy all project files
 COPY . .
 
-# Expose Sanity dev server port
 EXPOSE 3333
 
-# Default command
 CMD ["yarn", "dev"]
