@@ -9,5 +9,6 @@
   },
   "dependencies": {
     "sanity": "^3.22.0"
-  }
+  },
+  "packageManager": "yarn@4.9.1"
 }

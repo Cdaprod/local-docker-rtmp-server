@@ -1,6 +1,5 @@
 // /schemas/video.ts
 import { defineType, defineField } from 'sanity'
-import { blackBoxMetadataFields } from './blackBoxMetadata'
 
 export const video = defineType({
   name: 'video',
@@ -31,7 +30,7 @@ export const video = defineType({
       name: 'externalUrl',
       title: 'External URL',
       type: 'url',
-      description: 'If video is streamed or hosted elsewhere',
+      description: 'Stream or NAS URL if not uploaded.',
     }),
 
     // --- Organization ---
@@ -57,24 +56,21 @@ export const video = defineType({
       title: 'Associated Clips',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'clip' }] }],
+      description: 'Clips generated from this video.',
     }),
-
-    // --- BlackBox Metadata (modular) ---
-    ...blackBoxMetadataFields,
 
     // --- System Fields ---
     defineField({
       name: 'createdAt',
       title: 'Created At',
       type: 'datetime',
-      initialValue: () => new Date().toISOString(),
       readOnly: true,
+      initialValue: () => new Date().toISOString(),
     }),
     defineField({
       name: 'updatedAt',
       title: 'Updated At',
       type: 'datetime',
-      initialValue: () => new Date().toISOString(),
       readOnly: true,
       hidden: true,
     }),

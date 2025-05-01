@@ -1,11 +1,9 @@
-// /services/sanity-studio/sanity.config.ts
-
 import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
+import deskStructure from './deskStructure'
 import { schema } from './schemas/schema'
 // @ts-ignore
 import S3AssetSource from 'sanity-plugin-asset-source-s3'
-import { StructureBuilder } from 'sanity/structure'
 
 const withS3 = process.env.MINIO_ENDPOINT !== undefined
 
