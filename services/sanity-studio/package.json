@@ -1,5 +1,5 @@
 {
-  "name": "sanity-studio",
+  "name": "local-sanity-video-studio",
   "private": true,
   "version": "1.0.0",
   "scripts": {
@@ -9,7 +9,7 @@
     "install:deps": "./scripts/install_packages.sh"
   },
   "dependencies": {
-    "sanity": "^3.22.0",
+    "sanity": "^3.87.1",
     "esbuild": "^0.19.0"
   }
 }
