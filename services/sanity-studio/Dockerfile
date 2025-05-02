@@ -1,18 +1,19 @@
-FROM node:20-bullseye
+# services/sanity-studio/Dockerfile
 
+FROM --platform=linux/arm64 node:20
+
+# Set working directory
 WORKDIR /app
 
-# Use yarn v1 (works cleanly on ARM)
-RUN npm install -g yarn@1.22.22
+# Install dependencies cleanly
+COPY package.json package-lock.json ./
+RUN npm install
 
-# Install esbuild manually for ARM64
-RUN yarn add --dev esbuild --platform=linuxarm64
-
-COPY package.json yarn.lock ./
-RUN yarn install
-
+# Copy everything else
 COPY . .
 
+# Expose port for Sanity Studio
 EXPOSE 3333
 
-CMD ["yarn", "dev"]
+# Run Sanity dev server
+CMD ["npx", "sanity", "dev"]
