@@ -6,7 +6,7 @@ FROM --platform=linux/arm64 node:20
 WORKDIR /app
 
 # Install dependencies cleanly
-COPY package.json package-lock.json ./
+COPY package.json ./
 RUN npm install
 
 # Copy everything else
