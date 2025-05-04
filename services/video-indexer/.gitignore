@@ -1,0 +1,9 @@
+# Ignore video indexer outputs
+data/index/index.json
+data/index/processed.log
+data/thumbnails/*.jpg
+data/thumbnails/*.png
+
+# But retain folder structure via .gitkeep
+!data/index/.gitkeep
+!data/thumbnails/.gitkeep

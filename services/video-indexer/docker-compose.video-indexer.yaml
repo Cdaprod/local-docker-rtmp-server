@@ -1,10 +1,20 @@
-version: "3.8"
 services:
   video-indexer:
-    image: cdaprod/video-indexer:dev
+    build: .
     container_name: video-indexer
-    privileged: true
     restart: unless-stopped
     volumes:
-      - /mnt/b/videos:/mnt/videos:ro
-      - /mnt/b/video-index:/mnt/index
+      - /mnt/b:/mnt/videos:ro
+      - ./data:/data
+      - ./repo-data:/repo-data   # <-- your git-ed metadata folder
+    environment:
+      - REPO_DIR=/repo-data
+      - WATCH_DIR=/mnt/videos
+      - INDEX_DIR=/data/index
+      - THUMBNAIL_ENABLED=true
+      - THUMBNAIL_DIR=/data/thumbnails
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/data/index/index.json') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

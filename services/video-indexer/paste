@@ -1,0 +1,133 @@
+# Containerized Video Indexer Application
+
+This is a more robust, containerized video indexer application that replaces the shell script with a proper Python application.
+
+## Directory Structure
+
+```
+video-indexer/
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── src/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── indexer.py
+│   ├── watcher.py
+│   ├── models.py
+│   └── config.py
+└── tests/
+    └── test_indexer.py
+```
+
+## Files
+
+### Dockerfile
+```dockerfile
+
+```
+
+### docker-compose.yml
+```yaml
+
+```
+
+### requirements.txt
+```
+
+```
+
+### src/config.py
+```python
+
+```
+
+### src/models.py
+```python
+
+```
+
+### src/indexer.py
+```python
+
+```
+
+### src/watcher.py
+```python
+
+```
+
+### src/main.py
+```python
+
+```
+
+### src/__init__.py
+```python
+# Empty file to make the directory a Python package
+```
+
+## Features
+
+1. **Robust File Watching**: Uses `watchdog` library for reliable file system monitoring
+2. **Duplicate Detection**: Checks both file path and size/mtime to prevent duplicates
+3. **Video Metadata Extraction**: Extracts duration, resolution, and codec information
+4. **Thumbnail Generation**: Optional thumbnail generation for videos
+5. **JSON Logging**: Structured logging for better monitoring
+6. **Error Handling**: Comprehensive error handling and recovery
+7. **Configuration**: Environment variable based configuration
+8. **Health Checks**: Docker health check to ensure service is running properly
+
+## Usage
+
+1. Build the container:
+```bash
+docker-compose build
+```
+
+2. Run the service:
+```bash
+docker-compose up -d
+```
+
+3. View logs:
+```bash
+docker-compose logs -f video-indexer
+```
+
+## Configuration
+
+Environment variables:
+- `WATCH_DIR`: Directory to watch for videos (default: `/mnt/videos`)
+- `INDEX_DIR`: Directory to store index files (default: `/data/index`)
+- `LOG_LEVEL`: Logging level (default: `INFO`)
+- `THUMBNAIL_ENABLED`: Enable thumbnail generation (default: `false`)
+- `THUMBNAIL_DIR`: Directory to store thumbnails (default: `/data/thumbnails`)
+
+## Output Format
+
+The index.json file contains entries like:
+```json
+[
+  {
+    "name": "video.mp4",
+    "path": "/mnt/videos/video.mp4",
+    "size": 123456789,
+    "mtime": 1635724800,
+    "duration": 120.5,
+    "resolution": "1920x1080",
+    "codec": "h264",
+    "thumbnail_path": "/data/thumbnails/abc123.jpg",
+    "indexed_at": "2023-11-01T12:00:00"
+  }
+]
+```
+
+## Next Steps
+
+This application can be extended with:
+1. **Sanity CMS Integration**: Automatically publish indexed videos to Sanity
+2. **Video Preview Generation**: Create short preview clips
+3. **REST API**: Add an API for querying the index
+4. **Web UI**: Create a simple web interface for browsing indexed videos
+5. **Cloud Storage Support**: Add support for S3, GCS, etc.
