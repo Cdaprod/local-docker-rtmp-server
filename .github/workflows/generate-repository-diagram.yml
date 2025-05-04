@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - "docker-compose.yaml"
-      - ".github/workflows/generate-docker-diagram.yaml"
+      - ".github/workflows/generate-docker-diagram.yml"
 
 jobs:
   generate-diagram:
@@ -48,6 +48,10 @@ jobs:
 
           dot = ['digraph docker_compose {',
                  '  rankdir=LR;',
+                 '  size="20,10!";',                                    # Optional: canvas size
+                 '  dpi=150;',                                          # Improve output quality
+                 '  concentrate=true;',                                 # Reduce visual clutter
+                 '  viewport="800,600,0.5";',                           # Optional: scaling/zoom
                  '  node [shape=box, style=filled, color=lightblue];']
 
           for name, svc in services.items():
@@ -82,3 +86,4 @@ jobs:
         with:
           commit_message: "chore(diagram): update repository-docker-structure.svg"
           file_pattern: public/serve/repository-docker-structure.*
+          push_options: --force

@@ -1,0 +1,173 @@
+name: CI-Build-and-Publish
+
+on:
+  push:
+    branches: [ "**" ]
+    tags: [ "**" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    env:
+      DOCKERHUB_USERNAME: cdaprod
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      DRY_RUN: true  # Set to 'false' to enable pushing, tagging, and uploading to dockerhub and ghcr.io registries
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v0.10.2
+        with:
+          versionSpec: '5.x'
+
+      - name: Run GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.10.2
+        with:
+          useConfigFile: true
+          configFilePath: './.github/GitVersion.yml'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to DockerHub
+        if: env.DOCKERHUB_TOKEN != ''
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        if: env.GHCR_TOKEN != ''
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.GHCR_TOKEN }}
+
+      - name: Discover and build services
+        run: |
+          set +e
+
+          VERSION=${{ steps.gitversion.outputs.SemVer }}
+          SHORT_SHA=${GITHUB_SHA:0:7}
+          
+          DRY_RUN=${DRY_RUN:-false}
+          if [[ -z "$DOCKERHUB_TOKEN" || "$DRY_RUN" == "true" ]]; then
+            DRY_RUN=true
+            echo "⚠️  Dry-run mode enabled (no push/tag/release)"
+          else
+            DRY_RUN=false
+          fi
+          
+          echo "" > build_report.txt
+          echo "========= BUILD REPORT =========" >> build_report.txt
+
+          declare -A BUILD_STATUS
+
+          for dir in services/*; do
+            # 1. Skip disabled dirs
+            [[ "$dir" == *".disabled"* ]] && {
+              echo "⚠️  Skipping disabled directory: $dir"
+              continue
+            }
+          
+            [ ! -d "$dir" ] && {
+              echo "⚠️  Skipping non-directory: $dir"
+              continue
+            }
+          
+            # 2. Normalize base name
+            NAME=$(basename "$dir")
+            NAME=${NAME,,}
+          
+            # 3. Handle all Dockerfiles: Dockerfile, Dockerfile.sender, etc.
+            for dockerfile in "$dir"/Dockerfile*; do
+              [ ! -f "$dockerfile" ] && continue
+          
+              # Extract suffix, or empty string
+              suffix=$(basename "$dockerfile" | cut -d. -f2)
+              IMAGE_NAME="$NAME"
+              [ -n "$suffix" ] && IMAGE_NAME="${NAME}-${suffix//./-}"
+          
+              echo "::group::Building image '$IMAGE_NAME' from $(basename "$dockerfile")"
+          
+              # 4. Check tag collision
+              TAG="$VERSION"
+              if ! $DRY_RUN; then
+                for REG in "docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME" "ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME"; do
+                  if docker manifest inspect ${REG}:$TAG >/dev/null 2>&1; then
+                    FALLBACK="${VERSION}-${SHORT_SHA}"
+                    echo "⚠️  Tag $TAG exists in $REG for $IMAGE_NAME, fallback to $FALLBACK"
+                    TAG="$FALLBACK"
+                    break
+                  fi
+                done
+              fi
+              
+              echo "⏳ Would build image: $IMAGE_NAME"
+              echo "    - docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG"
+              echo "    - docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest"
+              echo "    - ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG"
+              echo "    - ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest"
+          
+              # 5. Construct build command
+              BUILD_CMD="docker buildx build $dir \
+                --file $dockerfile \
+                --platform linux/amd64,linux/arm64 \
+                --tag docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG \
+                --tag docker.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest \
+                --tag ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:$TAG \
+                --tag ghcr.io/${DOCKERHUB_USERNAME}/$IMAGE_NAME:latest"
+          
+              $DRY_RUN || BUILD_CMD="$BUILD_CMD --push"
+          
+              # 6. Execute
+              if $DRY_RUN; then
+                echo "✅ [DRY-RUN] Skipped build for $IMAGE_NAME"
+                BUILD_STATUS[$IMAGE_NAME]="⏸️ Dry-run"
+              else
+                eval "$BUILD_CMD"
+                if [ $? -eq 0 ]; then
+                  BUILD_STATUS[$IMAGE_NAME]="✅ Success"
+                else
+                  echo "❌ Build failed for $IMAGE_NAME"
+                  BUILD_STATUS[$IMAGE_NAME]="❌ Failed"
+                fi
+              fi
+          
+              echo "::endgroup::"
+            done
+          done
+
+          echo "" >> build_report.txt
+          for service in "${!BUILD_STATUS[@]}"; do
+            echo "${service}: ${BUILD_STATUS[$service]}" | tee -a build_report.txt
+          done
+          echo "================================" >> build_report.txt
+          cat build_report.txt
+
+          # Summary only--do NOT exit with error
+          echo "⚠️  Build step complete. Check individual statuses above and in build_report.txt."
+
+      - name: Upload Build Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: build_report.txt
+
+      - name: Create Git Tag and Release
+        if: github.ref_type != 'tag'
+        run: |
+          TAG=${{ steps.gitversion.outputs.SemVer }}
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
