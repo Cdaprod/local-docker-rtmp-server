@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  video-indexer:
+    image: cdaprod/video-indexer:dev
+    container_name: video-indexer
+    privileged: true
+    restart: unless-stopped
+    volumes:
+      - /mnt/b/videos:/mnt/videos:ro
+      - /mnt/b/video-index:/mnt/index
