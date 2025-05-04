@@ -12,6 +12,6 @@ credentials.json
 letsencrypt/
 
 !/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json
-/pi-obs-container/config/basic/profiles/CdaprodOBS/*.bak
+/pi-obs-container/config/basic/profiles/CdaprodOBS/*bak
 /pi-obs-container/config/logs/*.txt
 /src/sdks
