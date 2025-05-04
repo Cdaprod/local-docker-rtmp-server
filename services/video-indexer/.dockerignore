@@ -1,0 +1,13 @@
+# Avoid copying local outputs and cache to the container build context
+data/index/*
+data/thumbnails/*
+repo-data/*
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor configs
+.vscode/
+.idea/
