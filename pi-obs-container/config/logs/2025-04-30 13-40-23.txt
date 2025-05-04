@@ -1,0 +1,564 @@
+13:40:23.341: Command Line Arguments: --minimize-to-tray --startstreaming --profile CdaprodOBS --collection Laptop OBS Scenes
+13:40:23.342: Using EGL/X11
+13:40:23.342: Physical Cores: 4, Logical Cores: 4
+13:40:23.342: Physical Memory: 7937MB Total, 6459MB Free
+13:40:23.342: Kernel Version: Linux 6.8.0-1020-raspi
+13:40:23.344: Distribution: "Ubuntu" "24.04"
+13:40:23.344: Window System: X11.0, Vendor: The X.Org Foundation, Version: 1.21.1
+13:40:23.350: Qt Version: 6.4.2 (runtime), 6.4.2 (compiled)
+13:40:23.350: Portable mode: false
+13:40:23.658: OBS 30.0.2.1-3build1 (linux)
+13:40:23.658: ---------------------------------
+13:40:23.695: ---------------------------------
+13:40:23.695: audio settings reset:
+13:40:23.695: 	samples per sec: 48000
+13:40:23.695: 	speakers:        2
+13:40:23.695: 	max buffering:   960 milliseconds
+13:40:23.695: 	buffering type:  dynamically increasing
+13:40:23.701: ---------------------------------
+13:40:23.701: Initializing OpenGL...
+13:40:23.960: Loading up OpenGL on adapter Mesa llvmpipe (LLVM 19.1.1, 128 bits)
+13:40:23.961: OpenGL loaded successfully, version 4.5 (Core Profile) Mesa 24.2.8-1ubuntu1~24.04.1, shading language 4.50
+13:40:24.039: ---------------------------------
+13:40:24.039: video settings reset:
+13:40:24.039: 	base resolution:   1920x1080
+13:40:24.039: 	output resolution: 1920x1080
+13:40:24.039: 	downscale filter:  Bilinear
+13:40:24.039: 	fps:               60/1
+13:40:24.039: 	format:            NV12
+13:40:24.039: 	YUV mode:          Rec. 709/Partial
+13:40:24.039: NV12 texture support not available
+13:40:24.039: P010 texture support not available
+13:40:24.069: Audio monitoring device:
+13:40:24.069: 	name: Default
+13:40:24.069: 	id: default
+13:40:24.071: ---------------------------------
+13:40:24.110: Failed to load 'en-US' text for module: 'decklink-captions.so'
+13:40:24.141: Failed to load 'en-US' text for module: 'decklink-output-ui.so'
+13:40:24.176: A DeckLink iterator could not be created.  The DeckLink drivers may not be installed
+13:40:24.176: Failed to initialize module 'decklink.so'
+13:40:24.221: [distroav] obs_module_load: you can haz DistroAV (Version 6.0.0)
+13:40:24.226: [distroav] ERR-404 - NDI library not found, DistroAV cannot continue. Read the wiki and install the NDI Libraries.
+13:40:24.226: [distroav] ERR-401 - NDI library failed to load with message: 'NDI® Runtime not found.<br><br>Download the installer here:<br><a href="https://distroav.org/ndi/redist-linux">https://distroav.org/ndi/redist-linux</a>'
+13:40:24.226: Failed to initialize module 'distroav.so'
+13:40:24.508: window manager does not support Extended Window Manager Hints (EWMH).
+13:40:24.508: XComposite capture disabled.
+13:40:24.640: [portals] Error retrieving D-Bus connection: Cannot spawn a message bus without a machine-id: Unable to load /var/lib/dbus/machine-id or /etc/machine-id: Failed to open file “/var/lib/dbus/machine-id”: No such file or directory
+13:40:24.640: [pipewire] No captures available
+13:40:24.731: v4l2loopback not installed, virtual camera disabled
+13:40:25.057: FFmpeg VAAPI H264 encoding not supported
+13:40:25.057: FFmpeg VAAPI HEVC encoding not supported
+13:40:25.247: [obs-websocket] [obs_module_load] you can haz websockets (Version: 5.3.4 | RPC Version: 1)
+13:40:25.247: [obs-websocket] [obs_module_load] Qt version (compile-time): 6.4.2 | Qt version (run-time): 6.4.2
+13:40:25.247: [obs-websocket] [obs_module_load] Linked ASIO Version: 102801
+13:40:25.268: [obs-websocket] [obs_module_load] Module loaded.
+13:40:25.499: [vlc-video]: VLC 3.0.20 Vetinari found, VLC video source enabled
+13:40:25.499: ---------------------------------
+13:40:25.499:   Loaded Modules:
+13:40:25.499:     vlc-video.so
+13:40:25.499:     text-freetype2.so
+13:40:25.499:     rtmp-services.so
+13:40:25.499:     obs-x264.so
+13:40:25.499:     obs-websocket.so
+13:40:25.499:     obs-transitions.so
+13:40:25.499:     obs-outputs.so
+13:40:25.499:     obs-filters.so
+13:40:25.499:     obs-ffmpeg.so
+13:40:25.499:     linux-v4l2.so
+13:40:25.499:     linux-pulseaudio.so
+13:40:25.499:     linux-pipewire.so
+13:40:25.499:     linux-jack.so
+13:40:25.499:     linux-capture.so
+13:40:25.499:     linux-alsa.so
+13:40:25.499:     image-source.so
+13:40:25.499:     frontend-tools.so
+13:40:25.499:     decklink-output-ui.so
+13:40:25.499:     decklink-captions.so
+13:40:25.499: ---------------------------------
+13:40:25.501: ==== Startup complete ===============================================
+13:40:25.521: Switched to Preview/Program mode
+13:40:25.521: ------------------------------------------------
+13:40:25.639: All scene data cleared
+13:40:25.641: ------------------------------------------------
+13:40:25.646: Source ID 'wasapi_output_capture' not found
+13:40:25.646: Failed to create source 'Desktop Audio'!
+13:40:25.647: [Loaded global audio device]: 'Desktop Audio'
+13:40:25.647: Source ID 'wasapi_output_capture' not found
+13:40:25.647: Failed to create source 'Desktop Audio 2'!
+13:40:25.647: [Loaded global audio device]: 'Desktop Audio 2'
+13:40:25.647: Source ID 'wasapi_input_capture' not found
+13:40:25.648: Failed to create source 'Mic/Aux'!
+13:40:25.648: [Loaded global audio device]: 'Mic/Aux'
+13:40:25.648: Source ID 'monitor_capture' not found
+13:40:25.648: Failed to create source 'Laptop Screen'!
+13:40:25.648: Source ID 'dshow_input' not found
+13:40:25.648: Failed to create source 'Capture Card 3.0'!
+13:40:25.651: Source ID 'dshow_input' not found
+13:40:25.651: Failed to create source 'cda_ios PRISM Lens 3'!
+13:40:25.654: [Media Source 'ios (sourcing rtmp)']: settings:
+13:40:25.654: 	input:                   rtmp://192.168.0.10:
+13:40:25.654: 	input_format:            rtmp
+13:40:25.654: 	speed:                   100
+13:40:25.654: 	is_looping:              no
+13:40:25.654: 	is_linear_alpha:         no
+13:40:25.654: 	is_hw_decoding:          no
+13:40:25.654: 	is_clear_on_media_end:   yes
+13:40:25.654: 	restart_on_activate:     yes
+13:40:25.654: 	close_when_inactive:     no
+13:40:25.654: 	full_decode:             no
+13:40:25.654: 	ffmpeg_options:          
+13:40:25.654: Source ID 'dshow_input' not found
+13:40:25.654: Failed to create source 'OBSBot Tiny 2 Lite'!
+13:40:25.655: Source ID 'browser_source' not found
+13:40:25.655: Failed to create source 'Browser'!
+13:40:25.659: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:40:25.660: pulse-am: Unable to get server info !
+13:40:25.666: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:40:25.668: Source ID 'monitor_capture' not found
+13:40:25.668: Failed to create source 'Display Capture'!
+13:40:25.674: [Media Source 'Media Source']: settings:
+13:40:25.674: 	input:                   http://192.168.0.21:8080/stream.m3u8
+13:40:25.674: 	input_format:            HLS
+13:40:25.674: 	speed:                   100
+13:40:25.674: 	is_looping:              no
+13:40:25.674: 	is_linear_alpha:         no
+13:40:25.674: 	is_hw_decoding:          no
+13:40:25.674: 	is_clear_on_media_end:   yes
+13:40:25.674: 	restart_on_activate:     yes
+13:40:25.674: 	close_when_inactive:     no
+13:40:25.674: 	full_decode:             no
+13:40:25.674: 	ffmpeg_options:          
+13:40:25.677: [Media Source 'ios (sourcing rtmp)']: Disconnected. Reconnecting...
+13:40:25.682: [Media Source 'Stinger (Stinger)']: settings:
+13:40:25.682: 	input:                   
+13:40:25.682: 	input_format:            (null)
+13:40:25.682: 	speed:                   100
+13:40:25.682: 	is_looping:              no
+13:40:25.682: 	is_linear_alpha:         no
+13:40:25.682: 	is_hw_decoding:          yes
+13:40:25.682: 	is_clear_on_media_end:   yes
+13:40:25.682: 	restart_on_activate:     yes
+13:40:25.682: 	close_when_inactive:     no
+13:40:25.682: 	full_decode:             no
+13:40:25.682: 	ffmpeg_options:          
+13:40:25.695: Switched to scene '4-OBSBot'
+13:40:25.696: User switched Program to scene '4-OBSBot'
+13:40:25.712: Starting stream due to command line parameter
+13:40:25.712: ------------------------------------------------
+13:40:25.713: Loaded scenes:
+13:40:25.713: - scene '0-Browser':
+13:40:25.713:     - source: 'Display Capture' (monitor_capture)
+13:40:25.713: - scene '1-iPhone':
+13:40:25.713:     - source: 'cda_ios PRISM Lens 3' (dshow_input)
+13:40:25.713: - scene '2-MacBook':
+13:40:25.713: - scene '3-Nikon':
+13:40:25.714:     - source: 'Capture Card 3.0' (dshow_input)
+13:40:25.714:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+13:40:25.714: - scene '7-Standby':
+13:40:25.714:     - source: 'Standby Image' (image_source)
+13:40:25.714:         - filter: 'Render Delay' (gpu_delay)
+13:40:25.714: - scene '4-OBSBot':
+13:40:25.714:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+13:40:25.714:         - filter: 'Color Correction' (color_filter_v2)
+13:40:25.714:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+13:40:25.714: - scene 'RPI5-1':
+13:40:25.714:     - source: 'Media Source' (ffmpeg_source)
+13:40:25.714: - scene '6-All Cameras':
+13:40:25.714:     - source: 'Capture Card 3.0' (dshow_input)
+13:40:25.714:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+13:40:25.714:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+13:40:25.714:         - filter: 'Color Correction' (color_filter_v2)
+13:40:25.714:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+13:40:25.714: - scene '5-All Scenes+Browser WIndow':
+13:40:25.714:     - source: 'Laptop Screen' (monitor_capture)
+13:40:25.714:     - source: 'cda_ios PRISM Lens 3' (dshow_input)
+13:40:25.714:         - show: 'cda_ios PRISM Lens 3 Show Transition' (fade_transition)
+13:40:25.714:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+13:40:25.714:     - source: 'Capture Card 3.0' (dshow_input)
+13:40:25.714:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+13:40:25.714:     - source: 'OBSBot Tiny 2 Lite' (dshow_input)
+13:40:25.714:         - filter: 'Color Correction' (color_filter_v2)
+13:40:25.714:         - filter: 'HDR Tone Mapping (Override)' (hdr_tonemap_filter)
+13:40:25.714:     - source: 'Browser' (browser_source)
+13:40:25.714:         - monitoring: monitor and output
+13:40:25.714:         - filter: 'Color Correction' (color_filter_v2)
+13:40:25.714:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+13:40:25.714: - scene '8-BLANK':
+13:40:25.714: - scene '9-IOS_MOBILE':
+13:40:25.715:     - source: 'ios (sourcing rtmp)' (ffmpeg_source)
+13:40:25.715: ------------------------------------------------
+13:40:25.791: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:40:25.801: [Media Source 'Media Source']: Disconnected. Reconnecting...
+13:40:25.876: Stream output type 'rtmp_output' failed to start!
+13:40:35.680: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:40:35.681: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:40:35.830: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:40:45.690: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:40:45.691: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:40:45.866: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:40:55.702: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:40:55.703: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:40:55.891: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:41:05.719: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:41:05.720: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:41:05.921: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:41:15.735: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:41:15.735: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:41:15.967: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:41:25.755: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:41:25.755: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:41:25.993: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:41:35.769: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:41:35.770: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:41:36.027: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:41:45.785: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:41:45.786: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:41:46.065: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:41:55.803: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:41:55.804: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:41:57.109: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:42:05.821: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:42:05.822: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:42:07.150: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:42:15.836: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:42:15.837: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:42:17.181: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:42:25.852: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:42:25.853: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:42:27.208: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:42:35.870: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:42:35.871: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:42:37.292: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:42:45.885: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:42:45.889: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:42:47.327: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:42:55.906: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:42:55.911: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:42:57.364: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:43:05.924: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:43:05.924: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:43:07.412: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:43:15.938: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:43:15.938: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:43:17.444: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:43:25.955: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:43:25.955: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:43:27.493: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:43:35.971: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:43:35.971: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:43:37.528: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:43:45.987: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:43:45.988: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:43:47.560: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:43:56.003: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:43:56.004: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:43:57.597: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:44:06.019: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:44:06.020: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:44:07.624: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:44:16.038: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:44:16.038: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:44:17.662: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:44:26.052: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:44:26.052: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:44:27.724: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:44:36.069: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:44:36.070: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:44:37.770: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:44:46.086: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:44:46.087: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:44:47.805: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:44:56.103: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:44:56.104: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:44:57.855: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:45:06.121: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:45:06.122: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:45:07.890: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:45:16.136: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:45:16.137: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:45:17.924: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:45:26.152: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:45:26.153: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:45:28.050: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:45:36.169: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:45:36.170: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:45:38.071: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:45:46.185: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:45:46.186: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:45:48.110: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:45:56.203: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:45:56.204: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:45:58.176: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:46:06.220: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:46:06.221: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:46:08.249: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:46:16.235: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:46:16.236: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:46:18.284: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:46:26.253: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:46:26.254: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:46:28.356: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:46:36.271: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:46:36.272: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:46:38.391: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:46:46.287: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:46:46.288: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:46:48.430: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:46:56.302: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:46:56.303: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:46:58.560: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:47:06.322: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:47:06.323: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:47:08.597: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:47:16.334: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:47:16.334: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:47:18.626: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:47:26.338: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:47:26.339: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:47:28.663: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:47:36.351: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:47:36.352: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:47:38.804: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:47:46.369: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:47:46.370: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:47:48.845: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:47:56.386: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:47:56.386: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:47:58.972: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:48:06.402: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:48:06.403: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:48:09.011: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:48:16.419: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:48:16.420: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:48:19.038: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:48:26.435: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:48:26.436: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:48:29.079: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:48:36.452: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:48:36.453: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:48:39.200: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:48:46.469: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:48:46.470: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:48:49.241: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:48:56.485: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:48:56.486: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:48:59.274: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:49:06.506: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:49:06.509: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:49:09.315: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:49:16.521: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:49:16.522: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:49:19.340: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:49:26.535: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:49:26.536: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:49:29.375: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:49:36.552: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:49:36.553: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:49:39.439: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:49:46.568: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:49:46.569: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:49:49.478: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:49:56.586: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:49:56.587: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:49:59.514: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:50:06.602: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:50:06.603: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:50:09.540: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:50:16.619: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:50:16.620: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:50:19.577: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:50:26.636: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:50:26.637: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:50:29.621: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:50:36.652: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:50:36.652: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:50:39.755: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:50:46.670: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:50:46.671: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:50:49.791: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:50:56.688: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:50:56.688: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:50:59.924: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:51:06.702: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:51:06.703: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:51:09.959: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:51:16.718: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:51:16.721: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:51:20.005: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:51:26.738: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:51:26.738: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:51:30.140: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:51:36.754: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:51:36.755: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:51:40.179: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:51:46.771: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:51:46.772: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:51:50.210: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:51:56.786: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:51:56.786: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:52:00.349: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:52:06.802: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:52:06.803: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:52:10.376: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:52:16.821: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:52:16.822: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:52:20.412: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:52:26.824: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:52:26.824: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:52:30.441: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:52:36.836: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:52:36.837: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:52:40.483: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:52:46.852: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:52:46.853: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:52:50.513: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:52:56.869: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:52:56.870: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:53:00.548: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:53:06.887: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:53:06.887: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:53:10.593: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:53:16.908: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:53:16.908: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:53:20.625: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:53:26.919: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:53:26.919: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:53:30.659: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:53:36.936: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:53:36.937: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:53:40.796: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:53:46.955: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:53:46.955: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:53:50.829: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:53:56.968: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:53:56.968: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:54:00.858: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:54:06.983: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:54:06.984: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:54:10.892: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:54:16.985: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:54:16.986: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:54:20.931: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:54:27.004: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:54:27.005: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:54:30.958: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:54:37.019: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:54:37.019: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:54:41.101: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:54:47.024: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:54:47.024: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:54:51.143: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:54:57.035: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:54:57.037: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:55:01.179: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:55:07.052: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:55:07.053: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:55:11.305: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:55:17.071: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:55:17.072: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:55:21.343: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:55:27.085: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:55:27.085: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:55:31.378: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:55:37.099: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:55:37.099: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:55:41.407: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:55:47.104: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:55:47.105: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:55:51.441: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:55:57.121: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:55:57.122: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:56:01.476: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:56:07.136: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:56:07.137: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:56:11.525: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:56:17.152: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:56:17.153: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:56:21.558: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:56:27.169: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:56:27.170: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:56:31.590: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:56:37.185: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:56:37.186: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:56:41.629: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:56:47.202: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:56:47.203: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:56:51.663: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:56:57.220: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:56:57.221: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:57:01.691: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:57:07.236: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:57:07.237: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:57:11.741: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:57:17.252: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:57:17.253: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:57:21.767: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:57:27.270: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:57:27.271: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:57:31.793: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:57:37.288: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:57:37.288: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:57:41.848: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:57:47.303: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:57:47.304: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:57:51.872: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:57:57.322: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:57:57.322: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:58:01.925: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:58:07.332: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:58:07.332: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:58:12.060: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:58:17.335: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:58:17.336: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:58:22.094: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:58:27.357: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:58:27.357: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:58:32.131: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:58:37.372: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:58:37.373: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:58:42.277: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:58:47.385: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:58:47.387: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:58:52.308: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:58:57.402: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:58:57.409: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:59:02.342: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:59:07.423: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:59:07.424: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:59:12.375: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:59:17.441: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:59:17.441: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:59:22.408: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:59:27.452: MP: Unable to find input format for 'rtmp://192.168.0.10:'
+13:59:27.453: MP: Failed to open media: 'rtmp://192.168.0.10:'
+13:59:32.443: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:59:42.575: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+13:59:52.611: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:00:02.650: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:00:12.784: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:00:22.921: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:00:32.961: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:00:43.093: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:00:53.227: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:01:03.260: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:01:13.400: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:01:23.538: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:01:33.579: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:01:43.705: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:01:53.841: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:02:03.876: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:02:13.914: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:02:23.939: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:02:33.979: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:02:44.118: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:02:54.159: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:03:04.192: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:03:14.221: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:03:24.260: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:03:34.292: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:03:44.325: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:03:54.357: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:04:04.496: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:04:14.522: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:04:24.572: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
+14:04:34.607: MP: Failed to open media: 'http://192.168.0.21:8080/stream.m3u8'
