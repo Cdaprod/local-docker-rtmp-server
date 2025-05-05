@@ -1,21 +1,3 @@
-/show-face-camera.html
-
-/tmp/docker_test/videos/*
-!/tmp/docker_test/videos/.gitkeep
-
-!/.example.env
-.env
-credentials.json
-
-*/.disabled
-
-letsencrypt/
-
-!/pi-obs-container/config/basic/profiles/CdaprodOBS/service.json
-/pi-obs-container/config/basic/profiles/CdaprodOBS/*bak
-/pi-obs-container/config/logs/*.txt
-/src/sdks
-
 # Git
 .git
 .gitignore

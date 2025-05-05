@@ -1,0 +1,23 @@
+services:
+  media-metadata-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: media-metadata-manager:latest
+    container_name: media-metadata-manager
+    volumes:
+      # Mount media directories - adjust paths as needed
+      - ${MEDIA_PATH:-/path/to/your/media}:/media
+      # Mount configuration directory for persistence
+      - ${CONFIG_PATH:-./data}:/app/src/tools/config
+      # Mount models directory for persistence
+      - ${MODELS_PATH:-./models}:/app/src/tools/models
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    ports:
+      # If you decide to add a web interface in the future
+      - "${PORT:-3000}:3000"
+    restart: unless-stopped
+    command: ["interactive"]
