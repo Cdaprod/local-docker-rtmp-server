@@ -1,25 +1,27 @@
 mode: ContinuousDeployment
+continuous-delivery-fallback-tag: patch
 branches:
   main:
     regex: ^main$
     increment: Major
     tag: ''
+    source-branches: ['main']
     prevent-increment-of-merged-branch-version: false
-
-  feat:
-    regex: ^(feat|feature)[/-]
+  next:
+    regex: ^feat[/-]
     increment: Minor
-    tag: 'useBranchName'
+    tag: useBranchName
+    source-branches: ['main']
     prevent-increment-of-merged-branch-version: true
-
   dev:
     regex: ^dev[/-]
-    increment: Patch
-    tag: 'useBranchName'
+    increment: Minor
+    tag: useBranchName
+    source-branches: ['main']
     prevent-increment-of-merged-branch-version: true
-
   other:
     regex: .*
-    increment: Patch
-    tag: 'useBranchName'
+    increment: Minor
+    tag: useBranchName
+    source-branches: ['main']
     prevent-increment-of-merged-branch-version: true
