@@ -198,7 +198,7 @@ jobs:
           path: build_report.txt
 
       - name: Create Git Tag and Release
-        if: github.ref_type != 'tag'
+        if: github.ref_type != 'tag' && env.FINAL_TAG != ''
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
