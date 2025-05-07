@@ -37,8 +37,9 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.10.2
         with:
           useConfigFile: true
-          configFilePath: './.github/GitVersion.yml'
-
+          configFilePath: ./.github/GitVersion.yml
+          debug: true
+          
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 

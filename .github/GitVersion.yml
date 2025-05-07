@@ -5,19 +5,16 @@ branches:
     increment: Major
     tag: ''
     prevent-increment-of-merged-branch-version: false
-
   feat:
     regex: ^(feat|feature)[/-]
     increment: Minor
     tag: ''
     prevent-increment-of-merged-branch-version: true
-
   dev:
     regex: ^dev[/-]
     increment: Patch
     tag: ''
     prevent-increment-of-merged-branch-version: true
-
   other:
     regex: .*
     increment: Patch
