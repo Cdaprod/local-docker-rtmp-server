@@ -10,8 +10,37 @@ on:
       - ".github/GitVersion.yml"
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.set.outputs.changed }}
+      list: ${{ steps.set.outputs.changed_services }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed services
+        id: set
+        run: |
+          BASE_SHA=$(git merge-base origin/main HEAD)
+          MODIFIED=$(git diff --name-only $BASE_SHA HEAD -- 'services/*' | cut -d/ -f2 | sort -u)
+
+          if [ -z "$MODIFIED" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed_services=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          CHANGED_JSON=$(echo "$MODIFIED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "changed_services=$CHANGED_JSON" >> $GITHUB_OUTPUT
+          
   build-and-push:
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.changed == 'true'
     permissions:
       contents: write
       packages: write
@@ -79,7 +108,11 @@ jobs:
           declare -A BUILD_STATUS
           FINAL_TAG=""
 
-          for dir in services/*; do
+          #for dir in services/*; do
+          
+          CHANGED_SERVICES=${{ needs.detect-changes.outputs.list }}
+          for NAME in $(echo "$CHANGED_SERVICES" | jq -r '.[]'); do
+            dir="services/$NAME"
             # 1. Skip disabled dirs
             [[ "$dir" == *".disabled"* ]] && {
               echo "⚠️  Skipping disabled directory: $dir"
