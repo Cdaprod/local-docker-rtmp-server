@@ -8,7 +8,7 @@ on:
       - "services/*/**"
       - ".github/workflows/ci-build-and-publish.yml"
       - ".github/GitVersion.yml"
-
+      
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -18,14 +18,13 @@ jobs:
     env:
       DOCKERHUB_USERNAME: cdaprod
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      DRY_RUN: ${{ vars.DRY_RUN || 'false' }} # Set to 'true' to disable pushing, tagging, and uploading to dockerhub and ghcr.io registries
+      DRY_RUN: false  # Set to 'true' to disable pushing, tagging, and uploading to dockerhub and ghcr.io registries
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for GitVersion
-          fetch-tags: true
+          fetch-depth: 0
 
       - name: Setup GitVersion
         uses: gittools/actions/gitversion/setup@v0.10.2
@@ -37,9 +36,8 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0.10.2
         with:
           useConfigFile: true
-          configFilePath: ./.github/GitVersion.yml
-          additionalArguments: '/verbosity verbose'
-          
+          configFilePath: './.github/GitVersion.yml'
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -64,7 +62,7 @@ jobs:
 
           VERSION=${{ steps.gitversion.outputs.SemVer }}
           SHORT_SHA=${GITHUB_SHA:0:7}
-
+          
           DRY_RUN=${DRY_RUN:-false}
           if [[ -z "$DOCKERHUB_TOKEN" || "$DRY_RUN" == "true" ]]; then
             DRY_RUN=true
@@ -77,7 +75,6 @@ jobs:
           echo "========= BUILD REPORT =========" >> build_report.txt
 
           declare -A BUILD_STATUS
-          FINAL_TAG=""
 
           for dir in services/*; do
             # 1. Skip disabled dirs
@@ -85,13 +82,11 @@ jobs:
               echo "⚠️  Skipping disabled directory: $dir"
               continue
             }
-
             # 2. Must be a directory
             [ ! -d "$dir" ] && {
               echo "⚠️  Skipping non-directory: $dir"
               continue
             }
-
             # 3. Must have a Dockerfile
             DOCKERFILE="$dir/Dockerfile"
             [ ! -f "$DOCKERFILE" ] && {
@@ -118,12 +113,6 @@ jobs:
               done
             fi
 
-            # 5a. Capture the first TAG we settle on as FINAL_TAG for Git tagging
-            if [ -z "$FINAL_TAG" ]; then
-              FINAL_TAG="$TAG"
-              echo "FINAL_TAG=$FINAL_TAG" >> $GITHUB_ENV
-            fi
-
             # 6. Build (and push unless dry-run)
             BUILD_CMD="docker buildx build $dir \
               --platform linux/amd64,linux/arm64 \
@@ -134,6 +123,8 @@ jobs:
 
             if ! $DRY_RUN; then
               BUILD_CMD="$BUILD_CMD --push"
+            else
+              BUILD_CMD="$BUILD_CMD"
             fi
 
             # Execute build
@@ -167,7 +158,8 @@ jobs:
       - name: Create Git Tag and Release
         if: github.ref_type != 'tag'
         run: |
+          TAG=${{ steps.gitversion.outputs.SemVer }}
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git tag -a "$FINAL_TAG" -m "Release $FINAL_TAG"
-          git push origin "$FINAL_TAG"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
