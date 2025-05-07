@@ -17,12 +17,15 @@ jobs:
       DOCKERHUB_USERNAME: cdaprod
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       DRY_RUN: true  # Set to 'true' to disable pushing, tagging, and uploading to dockerhub and ghcr.io registries
-      # DRY_RUN: ${{ secrets.DRY_RUN || 'false' }} # Set without modifying workflow file
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Ensure ignore files in each service
         run: |
@@ -41,47 +44,14 @@ jobs:
           if [ "$MISSING" -eq 1 ]; then
             echo "::warning::Some services were missing ignore files; they’ve been auto-added--please commit them."
           fi
-          
-      - name: Ensure jq is installed
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-          
-      - name: Detect changed services
-        id: changes
-        run: |
-          echo "CHANGED_SERVICES=" >> $GITHUB_OUTPUT
-      
-          BASE_SHA=$(git merge-base origin/$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's@^origin/@@') HEAD)
-          MODIFIED=$(git diff --name-only $BASE_SHA HEAD -- 'services/*' | cut -d/ -f2 | sort -u)
-      
-          if [ -z "$MODIFIED" ]; then
-            echo "No services changed."
-            echo "changed_services=[]" >> $GITHUB_OUTPUT
-            echo "" > changed_services.txt
-            exit 0
-          fi
-      
-          CHANGED_JSON=$(echo "$MODIFIED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "Detected changes: $CHANGED_JSON"
-          echo "changed_services=$CHANGED_JSON" >> $GITHUB_OUTPUT
-          echo "$MODIFIED" > changed_services.txt
 
-      - name: Upload changed services
-        if: steps.changes.outputs.changed_services != '[]'
-        uses: actions/upload-artifact@v4
-        with:
-          name: changed-services
-          path: changed_services.txt
 
       - name: Setup GitVersion
-        if: steps.changes.outputs.changed_services != '[]'
         uses: gittools/actions/gitversion/setup@v0.10.2
         with:
           versionSpec: '5.x'
-      
+
       - name: Run GitVersion
-        if: steps.changes.outputs.changed_services != '[]'
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0.10.2
         with:
@@ -105,19 +75,11 @@ jobs:
           registry: ghcr.io
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.GHCR_TOKEN }}
-          
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
 
       - name: Discover and build services
         run: |
           set +e
-          
+
           VERSION=${{ steps.gitversion.outputs.SemVer }}
           SHORT_SHA=${GITHUB_SHA:0:7}
           
@@ -131,23 +93,10 @@ jobs:
           
           echo "" > build_report.txt
           echo "========= BUILD REPORT =========" >> build_report.txt
-          
-          # Load only changed services from the previous step
-          if [ -f changed_services.txt ]; then
-            mapfile -t CHANGED_ONLY < changed_services.txt
-          else
-            echo "No changed services file found; exiting."
-            exit 0
-          fi
-          
-          if [ ${#CHANGED_ONLY[@]} -eq 0 ]; then
-            echo "✅ No changed services to build. Skipping."
-            exit 0
-          fi
-          
+
           declare -A BUILD_STATUS
-          
-          for dir in "${CHANGED_ONLY[@]/#/services/}"; do
+
+          for dir in services/*; do
             # 1. Skip disabled dirs
             [[ "$dir" == *".disabled"* ]] && {
               echo "⚠️  Skipping disabled directory: $dir"
@@ -187,8 +136,6 @@ jobs:
             # 6. Build (and push unless dry-run)
             BUILD_CMD="docker buildx build $dir \
               --platform linux/amd64,linux/arm64 \
-              --cache-from=type=local,src=/tmp/.buildx-cache \
-              --cache-to=type=local,dest=/tmp/.buildx-cache \
               --tag docker.io/${DOCKERHUB_USERNAME}/$NAME:$TAG \
               --tag docker.io/${DOCKERHUB_USERNAME}/$NAME:latest \
               --tag ghcr.io/${DOCKERHUB_USERNAME}/$NAME:$TAG \
@@ -236,5 +183,3 @@ jobs:
           git config user.email github-actions@github.com
           git tag -a "$TAG" -m "Release $TAG"
           git push origin "$TAG"
-
-  

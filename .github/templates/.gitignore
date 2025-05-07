@@ -1,0 +1,21 @@
+# Global
+.DS_Store
+.env
+*.log
+*.pyc
+__pycache__/
+node_modules/
+dist/
+build/
+coverage/
+
+# Docker contexts
+services/*/node_modules/
+services/*/__pycache__/
+services/*/dist/
+
+# OS & IDE
+.idea/
+.vscode/
+*.bak
+*.swp

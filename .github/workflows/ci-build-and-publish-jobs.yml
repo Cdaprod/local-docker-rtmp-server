@@ -1,0 +1,158 @@
+name: CI-Build-and-Publish-Jobs
+
+on:
+  push:
+    branches: [ "**" ]
+    tags: [ "**" ]
+    paths:
+      - "services/*/**"
+
+jobs:
+
+  checkout:
+    runs-on: ubuntu-latest
+    outputs:
+      base_sha: ${{ steps.diff.outputs.base_sha }}
+      changed_services: ${{ steps.diff.outputs.changed_services }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Detect Changed Services
+        id: diff
+        run: |
+          BASE_SHA=$(git merge-base origin/$(git symbolic-ref --short refs/remotes/origin/HEAD | sed 's@^origin/@@') HEAD)
+          MODIFIED=$(git diff --name-only $BASE_SHA HEAD -- 'services/*' | cut -d/ -f2 | sort -u)
+
+          echo "base_sha=$BASE_SHA" >> $GITHUB_OUTPUT
+
+          if [ -z "$MODIFIED" ]; then
+            echo "changed_services=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          JSON=$(echo "$MODIFIED" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "changed_services=$JSON" >> $GITHUB_OUTPUT
+
+  prepare:
+    runs-on: ubuntu-latest
+    needs: checkout
+    if: needs.checkout.outputs.changed_services != '[]'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure ignore files
+        run: |
+          TPL_DIR=".github/templates"
+          for dir in services/*; do
+            [ ! -d "$dir" ] && continue
+            for f in .dockerignore .gitignore .gitattributes; do
+              if [ ! -f "$dir/$f" ]; then
+                echo "➕ Adding missing $f to $dir"
+                cp "$TPL_DIR/$f" "$dir/$f"
+              fi
+            done
+          done
+
+  gitversion:
+    runs-on: ubuntu-latest
+    needs: checkout
+    if: needs.checkout.outputs.changed_services != '[]'
+    outputs:
+      semver: ${{ steps.gv.outputs.SemVer }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup GitVersion
+        uses: gittools/actions/gitversion/setup@v0.10.2
+        with:
+          versionSpec: '5.x'
+
+      - name: Run GitVersion
+        id: gv
+        uses: gittools/actions/gitversion/execute@v0.10.2
+        with:
+          useConfigFile: true
+          configFilePath: './.github/GitVersion.yml'
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [checkout, gitversion, prepare]
+    if: needs.checkout.outputs.changed_services != '[]'
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.checkout.outputs.changed_services) }}
+      fail-fast: false
+    env:
+      DOCKERHUB_USERNAME: cdaprod
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+      DRY_RUN: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        if: env.DOCKERHUB_TOKEN != ''
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Login to GHCR
+        if: env.GHCR_TOKEN != ''
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.GHCR_TOKEN }}
+
+      - name: Cache Docker Layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Build and Push Service
+        run: |
+          SERVICE=${{ matrix.service }}
+          DIR="services/$SERVICE"
+          VERSION="${{ needs.gitversion.outputs.semver }}"
+          SHORT_SHA=${GITHUB_SHA:0:7}
+          TAG=$VERSION
+
+          for REG in "docker.io/${DOCKERHUB_USERNAME}/$SERVICE" "ghcr.io/${DOCKERHUB_USERNAME}/$SERVICE"; do
+            if docker manifest inspect ${REG}:$TAG >/dev/null 2>&1; then
+              TAG="${VERSION}-${SHORT_SHA}"
+              break
+            fi
+          done
+
+          CMD="docker buildx build $DIR \
+            --platform linux/amd64,linux/arm64 \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache \
+            --tag docker.io/${DOCKERHUB_USERNAME}/$SERVICE:$TAG \
+            --tag docker.io/${DOCKERHUB_USERNAME}/$SERVICE:latest \
+            --tag ghcr.io/${DOCKERHUB_USERNAME}/$SERVICE:$TAG \
+            --tag ghcr.io/${DOCKERHUB_USERNAME}/$SERVICE:latest"
+
+          if [[ -z "$DOCKERHUB_TOKEN" || "$DRY_RUN" == "true" ]]; then
+            echo "Dry run: build only"
+          else
+            CMD="$CMD --push"
+          fi
+
+          eval "$CMD"

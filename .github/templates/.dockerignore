@@ -1,0 +1,25 @@
+# Ignore git metadata
+.git
+.gitignore
+.gitattributes
+
+# Runtime clutter
+**/__pycache__/
+**/*.pyc
+*.log
+*.tmp
+*.swp
+.env
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+coverage/
+.env.local
+.env.*.local
+
+# Docker artifacts
+docker-compose.override.yaml
+*.tar
+*.img

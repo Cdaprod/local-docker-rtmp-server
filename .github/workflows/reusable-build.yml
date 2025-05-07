@@ -1,0 +1,87 @@
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      dry_run:
+        required: false
+        type: string
+    secrets:
+      DOCKERHUB_TOKEN:
+        required: false
+      GHCR_TOKEN:
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: cdaprod
+      SERVICE: ${{ inputs.service }}
+      DRY_RUN: ${{ inputs.dry_run || 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: DockerHub Login (if available)
+        if: ${{ secrets.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: GHCR Login (if available)
+        if: ${{ secrets.GHCR_TOKEN != '' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.10.2
+        with:
+          useConfigFile: true
+          configFilePath: .github/GitVersion.yml
+
+      - name: Build and optionally push ${{ env.SERVICE }}
+        run: |
+          set +e
+
+          DIR="services/$SERVICE"
+          VERSION="${{ steps.gitversion.outputs.SemVer }}"
+          SHORT_SHA=${GITHUB_SHA::7}
+          TAG=$VERSION
+
+          echo "Building $SERVICE"
+          echo "DRY_RUN: $DRY_RUN"
+
+          # Tag fallback logic
+          for REG in "docker.io/${DOCKERHUB_USERNAME}/$SERVICE" "ghcr.io/${DOCKERHUB_USERNAME}/$SERVICE"; do
+            if docker manifest inspect ${REG}:$TAG >/dev/null 2>&1; then
+              echo "⚠️  Tag $TAG already exists at $REG. Falling back..."
+              TAG="${VERSION}-${SHORT_SHA}"
+              break
+            fi
+          done
+
+          BUILD_CMD="docker buildx build $DIR \
+            --platform linux/amd64,linux/arm64 \
+            --tag docker.io/${DOCKERHUB_USERNAME}/$SERVICE:$TAG \
+            --tag docker.io/${DOCKERHUB_USERNAME}/$SERVICE:latest \
+            --tag ghcr.io/${DOCKERHUB_USERNAME}/$SERVICE:$TAG \
+            --tag ghcr.io/${DOCKERHUB_USERNAME}/$SERVICE:latest"
+
+          if [[ "$DRY_RUN" != "true" ]]; then
+            BUILD_CMD="$BUILD_CMD --push"
+          else
+            echo "⚠️  DRY_RUN=true: Skipping push"
+          fi
+
+          eval "$BUILD_CMD"
+          echo "✅ Done building $SERVICE"

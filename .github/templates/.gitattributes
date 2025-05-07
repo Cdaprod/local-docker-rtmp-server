@@ -1,0 +1,10 @@
+* text=auto
+
+# Force LF for scripts & source
+*.sh text eol=lf
+*.py text eol=lf
+*.go text eol=lf
+*.ts text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
