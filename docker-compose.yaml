@@ -1,5 +1,49 @@
 services:
  ################################################
+##                 Video Indexer                ##
+ ################################################
+  video-indexer:
+    image: cdaprod/video-indexer:latest
+    build: 
+      context: ./services/video-indexer
+      dockerfile: Dockerfile
+    container_name: video-indexer-app
+    restart: unless-stopped
+    environment:
+      - REPO_DIR=/repo-data
+      - WATCH_DIR=/mnt/videos
+      - INDEX_DIR=/data/index
+      - THUMBNAIL_ENABLED=true
+      - THUMBNAIL_DIR=/data/thumbnails
+      
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - /mnt/b:/mnt/videos:ro
+      - ./data:/data
+      - ./repo-data:/repo-data
+    networks:
+      - storage_network
+      - event_network
+      - capture_network  # optional
+    labels:
+      com.cdaprod.project: "Video Indexer Server"
+      com.cdaprod.version: "1.1.0"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
+      com.cdaprod.description: "Enhanced video metadata management with media detection AI"
+      com.cdaprod.maintainer: "Cdaprod <Cdaprod@Cdaprod.dev>"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/data/index/index.json') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+ ################################################
 ##        Core VPN & Reverse Proxy Services     ##
 ##              --------------------            ##
 ##            Reverse Proxy (Optional)          ##
@@ -132,10 +176,8 @@ services:
   rtsp-pi:
     # 1. Build from the ./rtsp-server folder (uses Dockerfile there by default)
     build: ./rtsp-server
-
     # 2. Tag the resulting image as cdaprod/rtsp-server:custom
     image: cdaprod/rtsp-pi:latest
-
     container_name: rtsp-server
     restart: unless-stopped
     ports:
