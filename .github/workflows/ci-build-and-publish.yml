@@ -6,6 +6,7 @@ on:
     tags: [ "**" ]
     paths: 
       - "services/*/**"
+      - ".github/workflows/ci-build-and-publish.yml"
 
 jobs:
   build-and-push:
