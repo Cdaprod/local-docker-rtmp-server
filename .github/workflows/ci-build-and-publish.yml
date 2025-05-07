@@ -7,7 +7,8 @@ on:
     paths: 
       - "services/*/**"
       - ".github/workflows/ci-build-and-publish.yml"
-
+      - ".github/GitVersion.yml"
+      
 jobs:
   build-and-push:
     runs-on: ubuntu-latest

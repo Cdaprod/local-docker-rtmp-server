@@ -9,17 +9,17 @@ branches:
   feat:
     regex: ^(feat|feature)[/-]
     increment: Minor
-    tag: ''
+    tag: 'useBranchName'
     prevent-increment-of-merged-branch-version: true
 
   dev:
     regex: ^dev[/-]
     increment: Patch
-    tag: ''
+    tag: 'useBranchName'
     prevent-increment-of-merged-branch-version: true
 
   other:
     regex: .*
     increment: Patch
-    tag: ''
+    tag: 'useBranchName'
     prevent-increment-of-merged-branch-version: true
