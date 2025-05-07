@@ -1,6 +1,19 @@
 digraph docker_compose {
   rankdir=LR;
   node [shape=box, style=filled, color=lightblue];
+  "video-indexer" [label="video-indexer"];
+  "video-indexer" -> "net::storage_network" [style=dotted, color=gray];
+  "net::storage_network" [label="storage_network" shape=ellipse color=lightgray];
+  "video-indexer" -> "net::event_network" [style=dotted, color=gray];
+  "net::event_network" [label="event_network" shape=ellipse color=lightgray];
+  "video-indexer" -> "net::capture_network" [style=dotted, color=gray];
+  "net::capture_network" [label="capture_network" shape=ellipse color=lightgray];
+  "video-indexer" -> "vol::/mnt/b:/mnt/videos:ro" [style=dashed, color=darkgreen];
+  "vol::/mnt/b:/mnt/videos:ro" [label="/mnt/b:/mnt/videos:ro" shape=cylinder color=lightgreen];
+  "video-indexer" -> "vol::./data:/data" [style=dashed, color=darkgreen];
+  "vol::./data:/data" [label="./data:/data" shape=cylinder color=lightgreen];
+  "video-indexer" -> "vol::./repo-data:/repo-data" [style=dashed, color=darkgreen];
+  "vol::./repo-data:/repo-data" [label="./repo-data:/repo-data" shape=cylinder color=lightgreen];
   "obs-pi" [label="obs-pi"];
   "obs-pi" -> "net::capture_network" [style=dotted, color=gray];
   "net::capture_network" [label="capture_network" shape=ellipse color=lightgray];
