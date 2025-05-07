@@ -7,6 +7,7 @@ on:
     paths: 
       - "services/*/**"
       - ".github/workflows/ci-build-and-publish.yml"
+      - ".github/GitVersion.yml"
 
 jobs:
   build-and-push:
@@ -23,7 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Required for GitVersion
+          fetch-tags: true
 
       - name: Setup GitVersion
         uses: gittools/actions/gitversion/setup@v0.10.2
