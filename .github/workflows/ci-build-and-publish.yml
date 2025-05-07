@@ -38,6 +38,7 @@ jobs:
         with:
           useConfigFile: true
           configFilePath: ./.github/GitVersion.yml
+          additionalArguments: '/verbosity verbose'
           
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
