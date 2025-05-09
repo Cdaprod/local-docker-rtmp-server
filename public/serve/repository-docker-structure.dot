@@ -1,6 +1,15 @@
 digraph docker_compose {
   rankdir=LR;
   node [shape=box, style=filled, color=lightblue];
+  "filebrowser" [label="filebrowser"];
+  "filebrowser" -> "net::storage_network" [style=dotted, color=gray];
+  "net::storage_network" [label="storage_network" shape=ellipse color=lightgray];
+  "filebrowser" -> "net::capture_network" [style=dotted, color=gray];
+  "net::capture_network" [label="capture_network" shape=ellipse color=lightgray];
+  "filebrowser" -> "vol::./media:/srv/videos" [style=dashed, color=darkgreen];
+  "vol::./media:/srv/videos" [label="./media:/srv/videos" shape=cylinder color=lightgreen];
+  "filebrowser" -> "vol::./filebrowser/config:/config" [style=dashed, color=darkgreen];
+  "vol::./filebrowser/config:/config" [label="./filebrowser/config:/config" shape=cylinder color=lightgreen];
   "video-indexer" [label="video-indexer"];
   "video-indexer" -> "net::storage_network" [style=dotted, color=gray];
   "net::storage_network" [label="storage_network" shape=ellipse color=lightgray];
@@ -14,6 +23,8 @@ digraph docker_compose {
   "vol::./data:/data" [label="./data:/data" shape=cylinder color=lightgreen];
   "video-indexer" -> "vol::./repo-data:/repo-data" [style=dashed, color=darkgreen];
   "vol::./repo-data:/repo-data" [label="./repo-data:/repo-data" shape=cylinder color=lightgreen];
+  "video-indexer" -> "vol::./media:/app/media" [style=dashed, color=darkgreen];
+  "vol::./media:/app/media" [label="./media:/app/media" shape=cylinder color=lightgreen];
   "obs-pi" [label="obs-pi"];
   "obs-pi" -> "net::capture_network" [style=dotted, color=gray];
   "net::capture_network" [label="capture_network" shape=ellipse color=lightgray];
