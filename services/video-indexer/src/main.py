@@ -28,6 +28,7 @@ def main():
         "watch_dir": str(settings.watch_dir),
         "index_dir": str(settings.index_dir),
         "thumbnail_enabled": settings.thumbnail_enabled
+        "openai_enabled": settings.openai_enabled
     })
     
     watcher = VideoWatcher()

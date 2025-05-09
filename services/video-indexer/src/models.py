@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict
 
 
 class VideoMetadata(BaseModel):
@@ -14,6 +14,14 @@ class VideoMetadata(BaseModel):
     codec: Optional[str] = None
     thumbnail_path: Optional[str] = None
     indexed_at: datetime = datetime.now()
+    
+    # openai_helpers
+    gpt_frames: Optional[List[Dict[str, str]]] = None
+    audio_summary: Optional[str] = None
+    dalle_thumbnail: Optional[str] = None
+    frame_descriptions: Optional[List[str]] = None
+    audio_summary: Optional[str] = None
+    ai_thumbnail: Optional[str] = None
     
     @classmethod
     def from_file(cls, file_path: Path) -> "VideoMetadata":

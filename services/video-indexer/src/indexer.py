@@ -8,6 +8,7 @@ from datetime import datetime
 
 from .models import VideoMetadata
 from .config import settings
+from .openai_helpers import extract_media, describe_frame, summarize_audio, generate_thumbnail_from_description
 
 
 logger = logging.getLogger(__name__)
@@ -128,6 +129,41 @@ class VideoIndexer:
                 f.write(f"{datetime.now().isoformat()},{file_path}\n")
 
             logger.info(f"Indexed: {file_path}")
+
+            # Optional: GPT-4o & DALL·E enhancements
+            if settings.openai_enabled:
+                try:
+                    logger.info(f"Running GPT-4o analysis for: {file_path}")
+                    frames_dir, audio_file = extract_media(file_path, frame_rate=settings.openai_frame_rate)
+
+                    # Describe the first few frames
+                    frame_descriptions = []
+                    for i, frame in enumerate(sorted(frames_dir.glob("*.jpg"))):
+                        if i >= 3:
+                            break
+                        desc = describe_frame(frame)
+                        frame_descriptions.append(desc)
+
+                    # Summarize audio
+                    audio_summary = summarize_audio(audio_file)
+
+                    # Generate cinematic thumbnail
+                    prompt = f"Cinematic thumbnail of: {frame_descriptions[0]}"
+                    ai_thumb_path = settings.thumbnail_dir / f"ai_{file_path.stem}.jpg"
+                    generate_thumbnail_from_description(prompt, ai_thumb_path)
+
+                    # Extend metadata object (if VideoMetadata model is extended)
+                    metadata.frame_descriptions = frame_descriptions
+                    metadata.audio_summary = audio_summary
+                    metadata.ai_thumbnail = str(ai_thumb_path)
+
+                    # Re-save index with enriched metadata
+                    index[-1] = metadata
+                    self._save_index(index)
+
+                    logger.info(f"GPT-4o metadata saved for: {file_path}")
+                except Exception as e:
+                    logger.error(f"OpenAI analysis failed: {e}")
 
             # Symlink to media/ directory for frontend access
             try:
