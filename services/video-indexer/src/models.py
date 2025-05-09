@@ -16,9 +16,6 @@ class VideoMetadata(BaseModel):
     indexed_at: datetime = datetime.now()
     
     # openai_helpers
-    gpt_frames: Optional[List[Dict[str, str]]] = None
-    audio_summary: Optional[str] = None
-    dalle_thumbnail: Optional[str] = None
     frame_descriptions: Optional[List[str]] = None
     audio_summary: Optional[str] = None
     ai_thumbnail: Optional[str] = None

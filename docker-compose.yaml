@@ -1,4 +1,33 @@
 services:
+  ################################################
+  ##         FileBrowser Preview Service        ##
+  ################################################
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "8081:80"  # Accessible at http://localhost:8081
+    environment:
+      - PUID=1000  # Match host user if needed
+      - PGID=1000
+      - UMASK_SET=022
+    volumes:
+      - ./media:/srv/videos  # Same dir video-indexer symlinks to
+      - ./filebrowser/config:/config
+    networks:
+      - storage_network
+      - capture_network
+    labels:
+      com.cdaprod.project: "FileBrowser"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
+      com.cdaprod.description: "Web-based file preview UI for curated video content"
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.filebrowser.rule=Host(`files.cdaprod.dev`)"
+    #   - "traefik.http.routers.filebrowser.entrypoints=websecure"
+    #   - "traefik.http.routers.filebrowser.tls.certresolver=tsresolver"
+    #   - "traefik.http.services.filebrowser.loadbalancer.server.port=80"
  ################################################
 ##                 Video Indexer                ##
  ################################################
@@ -24,9 +53,10 @@ services:
       - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
     volumes:
-      - /mnt/b:/mnt/videos:ro
+      - /mnt/b:/mnt/videos:ro 
       - ./data:/data
       - ./repo-data:/repo-data
+      - ./media:/app/media
     networks:
       - storage_network
       - event_network

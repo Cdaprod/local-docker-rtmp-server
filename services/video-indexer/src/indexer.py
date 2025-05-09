@@ -150,8 +150,8 @@ class VideoIndexer:
                     # Generate cinematic thumbnail
                     prompt = f"Cinematic thumbnail of: {frame_descriptions[0]}"
                     ai_thumb_path = settings.thumbnail_dir / f"ai_{file_path.stem}.jpg"
-                    generate_thumbnail_from_description(prompt, ai_thumb_path)
-
+                    generate_thumbnail_from_description(frame_descriptions[0], frames_dir.glob("*.jpg")[0], ai_thumb_path)
+                    
                     # Extend metadata object (if VideoMetadata model is extended)
                     metadata.frame_descriptions = frame_descriptions
                     metadata.audio_summary = audio_summary

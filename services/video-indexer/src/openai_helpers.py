@@ -6,6 +6,7 @@ import subprocess
 import openai
 from pathlib import Path
 from typing import List, Dict
+from PIL import Image, ImageDraw, ImageFont
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -42,36 +43,61 @@ def describe_frame(frame_path: Path) -> str:
     )
     return response.choices[0].message.content.strip()
 
-def summarize_audio(audio_path: Path) -> str:
-    # Placeholder: assume audio upload API coming to GPT-4o
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You summarize audio files."},
-            {"role": "user", "content": f"Summarize this audio file: {audio_path.name}"}
-        ],
-        functions=[{
-            "name": "upload_audio",
-            "description": "Audio upload",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "audio": {"type": "string", "format": "binary"}
-                },
-                "required": ["audio"]
-            }
-        }],
-        function_call={"name": "upload_audio", "arguments": str(audio_path)}
-    )
-    return response.choices[0].message.content.strip()
+    def summarize_audio(audio_path: Path) -> str:
+        # Placeholder: assume audio upload API coming to GPT-4o
+        response = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You summarize audio files."},
+                {"role": "user", "content": f"Summarize this audio file: {audio_path.name}"}
+            ],
+            functions=[{
+                "name": "upload_audio",
+                "description": "Audio upload",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "audio": {"type": "string", "format": "binary"}
+                    },
+                    "required": ["audio"]
+                }
+            }],
+            function_call={"name": "upload_audio", "arguments": str(audio_path)}
+        )
+        return response.choices[0].message.content.strip()
 
-def generate_thumbnail_from_description(prompt: str, out_path: Path) -> Path:
-    response = openai.Image.create(
-        model="dall-e-3",
-        prompt=prompt,
-        size="512x512",
-        n=1
-    )
-    image_data = base64.b64decode(response.data[0].b64_json)
-    out_path.write_bytes(image_data)
-    return out_path
+    def generate_thumbnail_from_description(prompt: str, frame_path: Path, out_path: Path) -> Path:
+        """Overlay description as title onto the video frame to create a thumbnail"""
+        # Open frame
+        image = Image.open(frame_path).convert("RGB")
+        draw = ImageDraw.Draw(image)
+
+        # Load font
+        try:
+            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 24)
+        except:
+            font = ImageFont.load_default()
+
+        # Condense title to ~10 words for overlay
+        words = prompt.split()
+        condensed = ' '.join(words[:10]) + ('...' if len(words) > 10 else '')
+
+        # Determine text size and position
+        margin = 10
+        text_width, text_height = draw.textsize(condensed, font=font)
+        image_width, image_height = image.size
+        position = (margin, image_height - text_height - margin)
+
+        # Background box behind text
+        box_position = [position[0] - margin,
+                        position[1] - margin,
+                        position[0] + text_width + margin,
+                        position[1] + text_height + margin]
+        draw.rectangle(box_position, fill="black")
+
+        # Draw text
+        draw.text(position, condensed, font=font, fill="white")
+
+        # Save thumbnail
+        image.save(out_path, "JPEG")
+        return out_path

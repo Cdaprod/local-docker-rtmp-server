@@ -1,20 +1,53 @@
+version: "3.8"
+
 services:
+  ################################################
+  ##           Video Indexer Service            ##
+  ################################################
   video-indexer:
     build: .
     container_name: video-indexer
     restart: unless-stopped
     volumes:
-      - /mnt/b:/mnt/videos:ro
-      - ./data:/data
-      - ./repo-data:/repo-data   # <-- your git-ed metadata folder
+      - /mnt/b:/mnt/videos:ro            # your raw video source
+      - ./data:/data                     # index & thumbnails
+      - ./repo-data:/repo-data           # git‐backed metadata
+      - ./media:/app/media               # symlinked videos for frontends
     environment:
       - REPO_DIR=/repo-data
       - WATCH_DIR=/mnt/videos
       - INDEX_DIR=/data/index
       - THUMBNAIL_ENABLED=true
       - THUMBNAIL_DIR=/data/thumbnails
+      - OPENAI_ENABLED=${OPENAI_ENABLED:-false}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_FRAME_RATE=${OPENAI_FRAME_RATE:-1}
     healthcheck:
       test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/data/index/index.json') else 1)"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+  ################################################
+  ##         FileBrowser Preview Service        ##
+  ################################################
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "8081:80"                # browse at http://<host>:8081
+    environment:
+      - PUID=1000                # match your host user uid
+      - PGID=1000                # match your host group gid
+      - UMASK_SET=022            # sensible default permissions
+    volumes:
+      - ./media:/srv/videos      # mount the indexed media
+      - ./filebrowser/config:/config  # persistent FB config & database
+    depends_on:
+      - video-indexer
+
+# optional: declare networks if you need isolation
+# networks:
+#   media_net:
+#     driver: bridge

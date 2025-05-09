@@ -5,6 +5,11 @@ from pythonjsonlogger import jsonlogger
 from .config import settings
 from .watcher import VideoWatcher
 
+if settings.blackbox_enabled:
+    from .blackbox_metadata import BlackBoxMetadataGenerator
+    bb = BlackBoxMetadataGenerator()
+    bb.scan_and_process(settings.watch_dir)
+
 
 def setup_logging():
     """Configure logging with JSON formatter"""
@@ -27,7 +32,7 @@ def main():
     logger.info("Starting Video Indexer", extra={
         "watch_dir": str(settings.watch_dir),
         "index_dir": str(settings.index_dir),
-        "thumbnail_enabled": settings.thumbnail_enabled
+        "thumbnail_enabled": settings.thumbnail_enabled,
         "openai_enabled": settings.openai_enabled
     })
     
