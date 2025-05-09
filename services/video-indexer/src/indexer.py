@@ -109,27 +109,42 @@ class VideoIndexer:
         return False
     
     def index_video(self, file_path: Path) -> bool:
-        """Index a new video file"""
+        """Index a new video file and symlink it for frontend access"""
         try:
             if self.is_duplicate(file_path):
                 logger.info(f"Skipping duplicate: {file_path}")
                 return False
-            
+
             metadata = self._get_video_metadata(file_path)
             if not metadata:
                 return False
-            
+
             index = self._load_index()
             index.append(metadata)
             self._save_index(index)
-            
+
             # Log processed file
             with open(self.processed_log_path, 'a') as f:
                 f.write(f"{datetime.now().isoformat()},{file_path}\n")
-            
+
             logger.info(f"Indexed: {file_path}")
+
+            # Symlink to media/ directory for frontend access
+            try:
+                media_dir = Path("/app/media")
+                media_dir.mkdir(parents=True, exist_ok=True)
+
+                symlink_path = media_dir / file_path.name
+                if not symlink_path.exists():
+                    symlink_path.symlink_to(file_path)
+                    logger.info(f"Created symlink: {symlink_path} → {file_path}")
+                else:
+                    logger.debug(f"Symlink already exists: {symlink_path}")
+            except Exception as e:
+                logger.warning(f"Could not create symlink for {file_path}: {e}")
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error indexing {file_path}: {e}")
             return False

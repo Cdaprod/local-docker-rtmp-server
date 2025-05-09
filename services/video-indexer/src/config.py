@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     watch_dir: Path = Path(os.getenv("WATCH_DIR", "/mnt/videos"))
     index_dir: Path = Path(os.getenv("INDEX_DIR", "/data/index"))
     log_level: str = os.getenv("LOG_LEVEL", "INFO")
+    recursive_watch: bool = True
     
     # Video file extensions to monitor
     video_extensions: set = {".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v"}
