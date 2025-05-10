@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
 
+# MODE can be "watcher" (default) or "api"
+MODE="${MODE:-watcher}"
+
+if [ "$MODE" = "api" ]; then
+  echo -e "${GREEN}Launching FastAPI server...${NC}"
+  exec uvicorn src.main:app --host 0.0.0.0 --port 5000 --reload
+else
+  echo -e "${GREEN}Launching Video Watcher service...${NC}"
+  exec python -m src.main
+fi
+
 # Colors
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 

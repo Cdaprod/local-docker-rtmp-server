@@ -1,19 +1,17 @@
-version: "3.8"
-
 services:
   ################################################
   ##           Video Indexer Service            ##
   ################################################
   video-indexer:
-    build: .
+    build:
+      context: .
+    image: cdaprod/video-indexer:latest
     container_name: video-indexer
     restart: unless-stopped
-    volumes:
-      - /mnt/b:/mnt/videos:ro            # your raw video source
-      - ./data:/data                     # index & thumbnails
-      - ./repo-data:/repo-data           # git‐backed metadata
-      - ./media:/app/media               # symlinked videos for frontends
+    ports:
+      - "5000:5000"               # FastAPI (only active in MODE=api)
     environment:
+      - MODE=api                 # Modes: [api, watcher]
       - REPO_DIR=/repo-data
       - WATCH_DIR=/mnt/videos
       - INDEX_DIR=/data/index
@@ -22,6 +20,14 @@ services:
       - OPENAI_ENABLED=${OPENAI_ENABLED:-false}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENAI_FRAME_RATE=${OPENAI_FRAME_RATE:-1}
+    volumes:
+      - /mnt/b:/mnt/videos:ro            # raw video source (readonly)
+      - ./data:/data                     # index + thumbnails
+      - ./repo-data:/repo-data           # git-tracked metadata
+      - ./media:/app/media               # symlinked files for frontend
+    labels:
+      com.cdaprod.service: "Video Indexer"
+      com.cdaprod.env: "${ENVIRONMENT:-production}"
     healthcheck:
       test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/data/index/index.json') else 1)"]
       interval: 30s
@@ -36,18 +42,21 @@ services:
     container_name: filebrowser
     restart: unless-stopped
     ports:
-      - "8081:80"                # browse at http://<host>:8081
+      - "8081:80"                         # http://localhost:8081
     environment:
-      - PUID=1000                # match your host user uid
-      - PGID=1000                # match your host group gid
-      - UMASK_SET=022            # sensible default permissions
+      - PUID=1000                         # match host user UID
+      - PGID=1000                         # match host group GID
+      - UMASK_SET=022                     # permissions
     volumes:
-      - ./media:/srv/videos      # mount the indexed media
-      - ./filebrowser/config:/config  # persistent FB config & database
+      - ./media:/srv/videos              # mount indexed symlinks
+      - filebrowser_config:/config       # persistent UI settings
     depends_on:
       - video-indexer
+    labels:
+      com.cdaprod.service: "FileBrowser Preview"
 
-# optional: declare networks if you need isolation
-# networks:
-#   media_net:
-#     driver: bridge
+#################################################
+##                Docker Volumes               ##
+#################################################
+volumes:
+  filebrowser_config:
