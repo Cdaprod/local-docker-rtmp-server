@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  media-bridge-agent:
+    build: .
+    image: cdaprod/media-bridge-agent
+    container_name: media-bridge-agent
+    restart: unless-stopped
+    volumes:
+      - /mnt/b/MediaBridge:/mnt/b/MediaBridge
+      - ../config:/config
+    networks:
+      - capture_network
+      - storage_network
+
+networks:
+  capture_network:
+    external: true
+  storage_network:
+    external: true

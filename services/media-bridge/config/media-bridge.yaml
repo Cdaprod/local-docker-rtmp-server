@@ -1,0 +1,19 @@
+mount_points:
+  ingest:
+    - /mnt/b/MediaBridge/ingest
+    - /mnt/nas/MediaBridge/ingest
+
+rules:
+  ingest_to_edit:
+    enabled: true
+    match:
+      extensions: [".mp4", ".insv", ".mov"]
+      delay_seconds: 10  # Allow file writes to complete
+    actions:
+      - move: "../edit/{project_name}/footage/"
+
+notifications:
+  http:
+    endpoints:
+      - name: video-indexer
+        url: "http://video-indexer:5000/api/index"
