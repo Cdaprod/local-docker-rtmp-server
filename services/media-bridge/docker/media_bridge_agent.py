@@ -1,85 +1,117 @@
-import yaml
-import requests
+# File: services/media-bridge/docker/media_bridge_agent.py
+
+#!/usr/bin/env python3
+
+import sys
 import os
-import shutil
 import time
+import yaml
+import logging
+import threading
+import requests
+import shutil
+from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from handlers.ndi_handler import NDIHandler
+
 from handlers.video_handler import VideoHandler
+from handlers.ndi_handler import NDIHandler
 
+# ─── Logging Setup ──────────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    stream=sys.stdout,
+)
+logger = logging.getLogger("media-bridge-agent")
 
+# ─── Load Configuration ─────────────────────────────────────────────────────────
+CONFIG_PATH = '/config/media-bridge.yaml'
+try:
+    with open(CONFIG_PATH, 'r') as f:
+        config = yaml.safe_load(f)
+    logger.info(f"Loaded config from {CONFIG_PATH}")
+except Exception as e:
+    logger.error(f"Failed to load config: {e}")
+    sys.exit(1)
+
+# ─── Initialize Handler Plugins ────────────────────────────────────────────────
 handler_plugins = [
-    NDIHandler(config),
     VideoHandler(config),
-    # ...other handlers
+    NDIHandler(config),
 ]
 
-# Example: Periodically check for NDI streams
-def run_ndi_capture_periodically():
-    while True:
-        for plugin in handler_plugins:
-            if hasattr(plugin, 'handle') and plugin.should_handle():
-                plugin.handle()
-        time.sleep(60)  # check every 60 seconds
-
-CONFIG_PATH = '/config/media-bridge.yaml'
-
-with open(CONFIG_PATH, 'r') as f:
-    config = yaml.safe_load(f)
-
+# ─── File-Based Event Handler ─────────────────────────────────────────────────
 class MediaBridgeHandler(FileSystemEventHandler):
-    def process_file(self, src_path):
-        ext = os.path.splitext(src_path)[1].lower()
-        rules = config['rules']
-        
-        for rule in rules.values():
-            if rule['enabled'] and ext in rule['match']['extensions']:
-                dest_template = rule['actions'][0]['move']
-                project_name = self.extract_project(src_path)
-                dest = dest_template.format(project_name=project_name)
-                os.makedirs(dest, exist_ok=True)
-                shutil.move(src_path, dest)
-                
-                # Trigger indexing API
-                endpoints = config['notifications']['http']['endpoints']
-                for endpoint in endpoints:
-                    try:
-                        requests.post(endpoint['url'], json={"path": dest})
-                        print(f"Triggered indexing for: {dest}")
-                    except Exception as e:
-                        print(f"Failed to trigger API: {e}")
-
-    def extract_project(self, path):
-        # Placeholder: logic to derive project name from path/filename
-        return 'General'
-
     def on_created(self, event):
         if not event.is_directory:
-            time.sleep(config['rules']['ingest_to_edit']['match']['delay_seconds'])
-            self.process_file(event.src_path)
+            self._handle_event(Path(event.src_path))
 
-observer = Observer()
-watch_paths = config['mount_points']['ingest']
+    def on_moved(self, event):
+        if not event.is_directory:
+            self._handle_event(Path(event.dest_path))
 
-for path in watch_paths:
-    observer.schedule(MediaBridgeHandler(), path=path, recursive=True)
+    def _handle_event(self, path: Path):
+        for plugin in handler_plugins:
+            try:
+                # Only file-based handlers should react to a path
+                if plugin.should_handle(path):
+                    plugin.handle(path)
+                    break
+            except Exception as e:
+                logger.error(f"[{plugin.__class__.__name__}] error handling {path}: {e}")
 
-print(f"Watching: {watch_paths}")
+def start_file_watcher(paths, recursive=True):
+    observer = Observer()
+    handler = MediaBridgeHandler()
+    for p in paths:
+        observer.schedule(handler, p, recursive=recursive)
+        logger.info(f"Watching path: {p} (recursive={recursive})")
+    observer.start()
+    return observer
 
-observer.start()
-try:
+# ─── NDI Polling Loop ──────────────────────────────────────────────────────────
+def ndi_polling_loop(interval_sec):
+    logger.info(f"Starting NDI polling thread (interval={interval_sec}s)")
     while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    observer.stop()
-observer.join()
+        for plugin in handler_plugins:
+            # Only the NDIHandler should run here
+            if isinstance(plugin, NDIHandler) and plugin.should_handle():
+                try:
+                    plugin.handle()
+                except Exception as e:
+                    logger.error(f"[NDIHandler] error: {e}")
+        time.sleep(interval_sec)
 
+# ─── Main Entrypoint ───────────────────────────────────────────────────────────
+def main():
+    # Start NDI polling if enabled
+    ndi_cfg = config.get('ndi', {})
+    if ndi_cfg.get('enabled', False):
+        interval = ndi_cfg.get('poll_interval', 60)
+        t = threading.Thread(target=ndi_polling_loop, args=(interval,), daemon=True)
+        t.start()
+
+    # Start file watcher
+    mount_points = config.get('mount_points', {}).get('ingest', [])
+    if not mount_points:
+        logger.error("No ingest mount_points defined in config.")
+        sys.exit(1)
+    observer = start_file_watcher(
+        mount_points,
+        recursive=config.get('rules', {}).get('ingest_to_edit', {}).get('recursive', True)
+    )
+
+    # Keep alive until interrupted
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Shutdown requested. Stopping services...")
+    finally:
+        observer.stop()
+        observer.join()
+        logger.info("File watcher stopped. Exiting.")
 
 if __name__ == "__main__":
-    # ... your file watch setup
-    # Start the NDI polling thread
-    import threading
-    t = threading.Thread(target=run_ndi_capture_periodically, daemon=True)
-    t.start()
-    # ... file watcher as normal
+    main()
