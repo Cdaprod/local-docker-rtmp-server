@@ -5,6 +5,23 @@ import shutil
 import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from handlers.ndi_handler import NDIHandler
+from handlers.video_handler import VideoHandler
+
+
+handler_plugins = [
+    NDIHandler(config),
+    VideoHandler(config),
+    # ...other handlers
+]
+
+# Example: Periodically check for NDI streams
+def run_ndi_capture_periodically():
+    while True:
+        for plugin in handler_plugins:
+            if hasattr(plugin, 'handle') and plugin.should_handle():
+                plugin.handle()
+        time.sleep(60)  # check every 60 seconds
 
 CONFIG_PATH = '/config/media-bridge.yaml'
 
@@ -57,3 +74,12 @@ try:
 except KeyboardInterrupt:
     observer.stop()
 observer.join()
+
+
+if __name__ == "__main__":
+    # ... your file watch setup
+    # Start the NDI polling thread
+    import threading
+    t = threading.Thread(target=run_ndi_capture_periodically, daemon=True)
+    t.start()
+    # ... file watcher as normal
