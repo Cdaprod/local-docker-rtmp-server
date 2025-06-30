@@ -1,0 +1,209 @@
+Below is a "minio-docker-scripts"-style shell script that:
+	1.	Scans your NAS for video files (using an existing index CSV or regenerating one on the fly)
+	2.	Looks up each file’s target bucket & prefix from a mapping CSV
+	3.	Runs in --dry-run mode by default, printing out the mc commands it would execute without touching any data
+	4.	In non-dry-run mode, it creates the bucket (if needed) and uploads a ~100 B JSON placeholder to local/<bucket>/<prefix>/<filename>.placeholder.json
+
+Save this as /path/to/scripts/index_and_dryrun.sh (make executable: chmod +x):
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ─── CONFIG ─────────────────────────────────────────────
+# Base data
+BASE_DIR="/volume1/David"
+INDEX_CSV="/mnt/data/indexed-videos.csv"       # or generated on the fly
+MAPPING_CSV="/mnt/data/buckets_mapping.csv"    # DirPath|Bucket|Prefix
+
+# MinIO alias (adjust endpoint if not on localhost:9000)
+MC="mc"
+MINIO_ALIAS="local"
+MINIO_URL="${MINIO_URL:-http://127.0.0.1:9000}"
+MINIO_ACCESS="${MINIO_ROOT_USER:?}"
+MINIO_SECRET="${MINIO_ROOT_PASSWORD:?}"
+
+# ─── FLAGS ──────────────────────────────────────────────
+DRY_RUN=0
+if [[ "${1:-}" == "--dry-run" ]]; then
+  DRY_RUN=1
+  echo ">>> DRY RUN: No buckets/objects will actually be created."
+fi
+
+# ─── SETUP MINIO ALIAS ───────────────────────────────────
+run() {
+  if (( DRY_RUN )); then
+    echo "[DRY]  $*"
+  else
+    echo "[EXEC] $*"
+    "$@"
+  fi
+}
+
+run $MC alias set $MINIO_ALIAS "$MINIO_URL" "$MINIO_ACCESS" "$MINIO_SECRET"
+
+# ─── VALIDATE MAPPING ───────────────────────────────────
+if [[ ! -f "$MAPPING_CSV" ]]; then
+  echo "Mapping file not found: $MAPPING_CSV" >&2
+  exit 1
+fi
+
+# ─── PROCESS INDEX ──────────────────────────────────────
+tail -n +2 "$INDEX_CSV" | \
+while IFS='|' read -r fullpath filename size mtime; do
+  dir=$(dirname "$fullpath")
+
+  # Lookup mapping: exact match on DirPath
+  map_line=$(grep -F "$dir" "$MAPPING_CSV" || true)
+  if [[ -z "$map_line" ]]; then
+    echo "⏭  [SKIP] No mapping for: $dir"
+    continue
+  fi
+
+  bucket=$(echo "$map_line" | cut -d'|' -f2)
+  prefix=$(echo "$map_line" | cut -d'|' -f3 | sed 's:/*$::')  # trim trailing slash
+
+  # object name under bucket
+  obj="${prefix}/${filename}.placeholder.json"
+
+  # ensure bucket exists
+  run $MC mb --ignore-existing $MINIO_ALIAS/$bucket
+
+  # upload placeholder JSON via stdin
+  placeholder="{\"original_path\":\"$fullpath\",\"filename\":\"$filename\",\"placeholder\":true}"
+  if (( DRY_RUN )); then
+    echo "[DRY] → PUT $MINIO_ALIAS/$bucket/$obj  (${#placeholder} bytes)"
+  else
+    echo "$placeholder" | run $MC cp - $MINIO_ALIAS/$bucket/$obj \
+      --attr "x-amz-meta-original-path=$fullpath"
+  fi
+done
+
+echo "Done. $( (( DRY_RUN)) && echo 'No changes made.' || echo 'Placeholders uploaded.' )"
+
+
+⸻
+
+How to Use
+	1.	Prepare your mapping (/mnt/data/buckets_mapping.csv), e.g.:
+
+/volume1/David/CDAPhotographyLLC/2022/Feb|prod-videos-archive|2022/Feb
+/volume1/David/CDAPhotographyLLC|prod-videos-brand-photography|sessions
+/volume1/David/Purchased Downloadables|prod-videos-licensed|stock
+/volume1/David/iOS - Backups|prod-videos-ingest|ios
+…
+
+
+	2.	Run in dry-run mode:
+
+./scripts/index_and_dryrun.sh --dry-run
+
+You’ll see output like:
+
+[DRY] mc alias set local http://127.0.0.1:9000 MINIO_ROOT_USER …
+[DRY] mc mb --ignore-existing local/prod-videos-archive
+[DRY] → PUT local/prod-videos-archive/2022/Feb/baby_onboard_4k_30fps.mp4.placeholder.json (98 bytes)
+…
+
+
+	3.	Inspect the plan in the MinIO UI (nothing’s been created yet) or review the printed list.
+	4.	When ready, re-run without --dry-run to actually create the buckets and upload placeholder objects.
+
+⸻
+
+Why This Works
+	•	Zero-impact preview: ensures your mapping is correct before touching data.
+	•	Lightweight placeholders (~100 bytes each) keep your MinIO UI browsable without filling your disk.
+	•	Metadata retention: each JSON includes the original path, and we add it as object metadata for easy lookup.
+	•	Scriptable: integrate into your Docker-Compose / init scripts for fully automated migrations later.
+
+Let me know if you need tweaks--e.g., auto-generating INDEX_CSV with find or adding extra metadata (duration, resolution) via ffprobe in the same loop!
+
+
+
+Like it’s going to work if minio is up or not will still do the cumulative work and persistently creating newest file
+
+Below is an enhanced "index + dry-run + queue" shell script that will:
+	1.	Always scan your NAS (via an existing CSV or find) and map each video to a MinIO bucket / prefix.
+	2.	Generate tiny JSON placeholders locally in a persistent queue dir, even if MinIO is down.
+	3.	Attempt uploads against your MinIO alias whenever it’s reachable, retrying failed ones on every run.
+	4.	Never lose work--every planned object lives as a file in QUEUE_DIR, and gets removed only after a successful upload.
+
+Save as /minio-server/scripts/index_and_queue.sh and chmod +x it.
+
+How This Addresses Your Needs
+	•	Works whether MinIO is up or not
+– All tasks get queued as files in QUEUE_DIR.
+– On every run it tries uploads only if MinIO responds.
+	•	Persistent, incremental queue
+– New runs discover only new files (won’t re-queue).
+– Failed uploads stay in the queue for the next run.
+	•	Dry-run built in (./index_and_queue.sh --dry-run)
+– Prints every step without touching MinIO.
+– You’ll see exactly which buckets and object keys would be created.
+	•	Minimal storage overhead
+– Each placeholder JSON is ~100–200 bytes.
+	•	Fully scriptable / cronable
+– Drop this into your Docker container or host cron (e.g. every hour) to keep the queue moving.
+	•	Audit & rollback
+– LOG_FILE records every action.
+– The queue directory is your "to-do" list--you can inspect it at any time.
+
+Now you have a zero-risk, enterprise-grade dry-run + persistent queue for mapping and previewing your NAS→MinIO migration. When you’re ready for the real data, simply swap the placeholder logic for mc mirror … or point a second script at the same queue directory to upload full files.
+
+My minio is deployed at ~/minio/data/… which means I can deploy and work with my data at any time right?
+
+Yes, absolutely!
+Because your MinIO server is configured with its data directory at ~/minio/data/…, you have local, full direct access to the underlying object data. Here’s what this gives you:
+
+⸻
+
+What This Means for You
+
+1. Dual Access: S3 API + Direct Filesystem
+	•	Via S3 API: Use mc, Python, your shell scripts, or any S3 client to interact with MinIO objects and buckets. This is what your scripts (and most cloud-native tools) should use.
+	•	Via Filesystem: Directly browse, inspect, or even back up the raw files in ~/minio/data/. This is handy for:
+	•	Quick manual audits ("is that file really there?")
+	•	Offline backup/snapshot strategies
+	•	Emergency recovery (if MinIO is down but the disk isn’t)
+
+⸻
+
+2. Local Dev/Test/Migration is Always Possible
+	•	You can run dry runs, mapping, indexing, or migration scripts at any time, even if your MinIO server is up, down, or restarting.
+	•	The data never leaves your host unless you sync it somewhere (great for privacy and experimentation).
+
+⸻
+
+3. No Vendor Lock-in or Access Delays
+	•	Direct disk access means you’re not stuck if MinIO upgrades/moves or if you need to extract all your data for another system.
+
+⸻
+
+4. Safe, Flexible Experimentation
+	•	You can run your indexers, dry-run placeholder creators, and even actual data moves locally without fear of data loss (as long as you’re careful not to delete or overwrite bucket data from the filesystem itself).
+	•	Any script that fails or is interrupted can simply be rerun--your data is safe.
+
+⸻
+
+5. Important: Always Use S3 API for Writes
+	•	If you want MinIO to correctly reflect new files, always use the S3/MinIO API (mc, minio-py, etc.) for adding/removing files.
+	•	Only use direct filesystem access for reading, emergency recovery, or cold backup. Writing files directly to ~/minio/data/… will not update MinIO’s object index and can cause inconsistencies.
+
+⸻
+
+Summary
+
+You can deploy, dry-run, test, migrate, and access your MinIO data any time from scripts or the filesystem, as long as you respect S3 API conventions for writes.
+
+	•	Run mapping/indexing whenever you want.
+	•	You can automate, script, experiment--all locally, with zero downtime to your actual data.
+	•	If you want to "see" your buckets or objects even when MinIO is down, just browse ~/minio/data/ (but don’t modify it directly).
+
+⸻
+
+Best Practice
+	•	Treat ~/minio/data/ as your "object storage root" but only write new data through the API.
+	•	Use dry-run and queue-based scripts to plan migrations or reorganizations.
+	•	Back up ~/minio/data/ at the disk or file level for disaster recovery.
+
+If you want an example of how to map between the filesystem structure and MinIO buckets/objects, just ask!

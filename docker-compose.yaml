@@ -1,3 +1,5 @@
+name: local-docker-rtmp-server
+
 services:
   ################################################
   ##         FileBrowser Preview Service        ##

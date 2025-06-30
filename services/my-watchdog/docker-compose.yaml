@@ -1,0 +1,15 @@
+name: my-watchdog-server
+
+services:
+  watchdog:
+    build: .
+    volumes:
+      - ./app/config.yaml:/app/config.yaml
+      - ./Camera01:/watched/Camera01
+      - ./Photos:/watched/Photos
+      - ./outputs:/outputs
+    environment:
+      - CONFIG_PATH=/app/config.yaml
+    depends_on: []
+    restart: unless-stopped
+    # Add more as needed (e.g. link to enrich-api)

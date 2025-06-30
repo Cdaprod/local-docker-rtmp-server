@@ -1,0 +1,15 @@
+watch_paths:
+  - path: /watched/Camera01
+    actions:
+      - ffmpeg_transcode
+      - enrich_api
+  - path: /watched/Photos
+    actions:
+      - image_metadata
+actions:
+  ffmpeg_transcode:
+    output_dir: /outputs/mp4
+  enrich_api:
+    api_url: http://enrich-api:8000/enrich/
+  image_metadata:
+    output_dir: /outputs/meta

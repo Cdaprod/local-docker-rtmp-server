@@ -3,8 +3,6 @@
 /tmp/docker_test/videos/*
 !/tmp/docker_test/videos/.gitkeep
 
-!/.example.env
-**/*.env
 **/credentials.json
 
 **/*.disabled
@@ -34,6 +32,7 @@ npm-debug.log*
 .env.development
 .env.test
 .env.production
+!/.example.env
 
 # Generated data
 src/tools/config/*
