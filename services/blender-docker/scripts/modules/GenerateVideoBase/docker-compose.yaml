@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  blender:
+    image: linuxserver/blender:4.4.3
+    volumes:
+      - ./assets:/work
+      - ./output:/render
+    command: /work/render.sh /work/scene.blend 1 250
+  watcher:
+    image: devodev/inotify
+    depends_on: [blender]
+    volumes:
+      - ./output:/render
+    entrypoint: |
+      sh -c "inotifywait -m -e CLOSE_WRITE /render |
+             while read d e f; do echo RENDERED:$f; done"
