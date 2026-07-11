@@ -1,4 +1,4 @@
-id: b3071d43a8cab28865c5a909cc79b66ec37fbd91df6a3cb28e3b4247c0bd19f8
+id: b84c64a4b034df95f53323b95d468c48a3a6cb9d957f4ffc3d7b3436506a20fc
 name: Cdaprod/local-docker-rtmp-server
 address: https://github.com/Cdaprod/local-docker-rtmp-server
 capabilities:
@@ -9,12 +9,12 @@ metadata:
   description: Auto-generated configuration for 'Cdaprod/local-docker-rtmp-server'
     in Cdaprod domain.
   owner: Cdaprod
-  last_updated: '2026-07-10T09:16:44Z'
+  last_updated: '2026-07-11T07:38:55Z'
   github:
     stars: 0
     forks: 0
     issues: 0
-    latest_commit: '2026-07-10T09:16:43Z'
+    latest_commit: '2026-07-11T07:38:55Z'
     license: No License
   custom_properties:
     deploy_environment: null
@@ -22,7 +22,7 @@ metadata:
     auto_scale: null
     service: null
     app: local-docker-rtmp-server
-    image: Cdaprod/local-docker-rtmp-server:1756fed
+    image: Cdaprod/local-docker-rtmp-server:d5871e8
     domain: local-docker-rtmp-server.cdaprod.dev
     network: Cdaprod-network
     networking:
